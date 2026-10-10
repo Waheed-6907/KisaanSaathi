@@ -6,6 +6,14 @@
     {
       "source": "/api/(.*)",
       "destination": "/api/$1"
+    },
+    {
+      "source": "/app.js",
+      "destination": "/assets/js/app.js"
+    },
+    {
+      "source": "/data.js",
+      "destination": "/assets/js/data.js"
     }
   ],
   "headers": [

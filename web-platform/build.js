@@ -10,9 +10,9 @@ console.log('==================================================');
 const requiredFiles = [
   'index.html',
   'styles.css',
-  'data.js',
-  'app.js',
-  'server.js',
+  'assets/js/data.js',
+  'assets/js/app.js',
+  'dev-server.js',
   'vercel.json',
   'assets/data/labs.json'
 ];
@@ -43,7 +43,7 @@ for (const file of requiredFiles) {
 
 // 3. Validate JavaScript syntax
 console.log('\n[3/4] Validating JavaScript syntax...');
-const jsFiles = ['app.js', 'data.js', 'server.js', 'api/health.js', 'api/labs.js'];
+const jsFiles = ['assets/js/app.js', 'assets/js/data.js', 'dev-server.js', 'api/health.js', 'api/labs.js'];
 for (const jsFile of jsFiles) {
   const fullPath = path.join(__dirname, jsFile);
   if (fs.existsSync(fullPath)) {

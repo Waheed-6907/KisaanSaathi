@@ -57,6 +57,8 @@ function resolveFilePath(relPath) {
 function handleRequest(req, res) {
   let reqPath = decodeURI((req.url || '/').split('?')[0]);
   if (reqPath === '/' || reqPath === '') reqPath = '/index.html';
+  if (reqPath === '/app.js') reqPath = '/assets/js/app.js';
+  if (reqPath === '/data.js') reqPath = '/assets/js/data.js';
 
   // API Route: /api/health
   if (reqPath === '/api/health') {
