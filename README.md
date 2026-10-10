@@ -83,19 +83,18 @@ This repository is organized to deploy directly to **Vercel** with zero configur
 KisaanSaathi/
 ├── .gitignore                   # Comprehensive Git ignore rules
 ├── vercel.json                  # Production Vercel deployment configuration
-├── package.json                 # Project manifest with build and start scripts
-├── server.js                    # Zero-dependency Node.js HTTP static server
-├── index.html                   # Core web entrypoint (auto-detected by Vercel)
+├── package.json                 # Project manifest with build and dev scripts
+├── dev-server.js                # Zero-dependency local Node.js server (http://localhost:3000)
+├── build.js                     # Production build validation script
+├── index.html                   # Core web entrypoint (served directly by Vercel CDN)
 ├── styles.css                   # Responsive mobile-frame & portal styling
-├── app.js                       # Controller: bilingual AI chat, OTP auth, Leaflet GIS
-├── data.js                      # Data store: Telangana mandis, crops, Team ForeverKnights
+├── api/                         # Vercel Serverless Functions (/api/health, /api/labs)
 ├── assets/                      # Production static assets
-│   ├── data/
-│   │   └── labs.json            # Real Telangana Government Soil Testing Labs
+│   ├── js/                      # Client-side controllers (app.js, data.js)
+│   ├── data/                    # Real Telangana Government Soil Testing Labs
 │   ├── images/                  # Platform SVG icons & showcase screenshots
 │   ├── raw/                     # Crop photos & advisory illustrations
 │   └── team/                    # Team contributor avatars
-├── web-platform/                # Standalone copy of the web portal
 ├── mobile-source/               # Android Native Application
 │   ├── KisanSeva2-master/       # Android Studio project source (Java/Kotlin)
 │   ├── KisanSeva2-master.zip    # Compressed Android source archive
