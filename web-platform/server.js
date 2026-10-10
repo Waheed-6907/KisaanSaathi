@@ -6,6 +6,22 @@ const path = require('path');
 const PORT = process.env.PORT || 3000;
 const ROOT = __dirname;
 
+// Pre-load and cache index.html so it is bundled by @vercel/nft and instantly available in memory
+let cachedIndexHtml = '';
+try {
+  const candidateIndexPaths = [
+    path.join(__dirname, 'index.html'),
+    path.join(process.cwd(), 'index.html'),
+    path.join(__dirname, '..', 'index.html')
+  ];
+  for (const p of candidateIndexPaths) {
+    if (fs.existsSync(p)) {
+      cachedIndexHtml = fs.readFileSync(p, 'utf8');
+      break;
+    }
+  }
+} catch (_e) {}
+
 const MIME_TYPES = {
   '.html': 'text/html; charset=UTF-8',
   '.css': 'text/css; charset=UTF-8',
@@ -19,6 +35,24 @@ const MIME_TYPES = {
   '.sqlite': 'application/octet-stream',
   '.zip': 'application/zip'
 };
+
+// Locate a file across possible Vercel serverless execution roots
+function resolveFilePath(relPath) {
+  const candidates = [
+    path.join(ROOT, relPath),
+    path.join(process.cwd(), relPath),
+    path.join(__dirname, relPath),
+    path.join(__dirname, '..', relPath)
+  ];
+  for (const cand of candidates) {
+    try {
+      if (fs.existsSync(cand) && fs.statSync(cand).isFile()) {
+        return cand;
+      }
+    } catch (_e) {}
+  }
+  return null;
+}
 
 function handleRequest(req, res) {
   let reqPath = decodeURI((req.url || '/').split('?')[0]);
@@ -41,8 +75,8 @@ function handleRequest(req, res) {
       const labsHandler = require('./api/labs.js');
       return labsHandler(req, res);
     } catch (_e) {
-      const labsPath = path.join(ROOT, 'assets/data/labs.json');
-      if (fs.existsSync(labsPath)) {
+      const labsPath = resolveFilePath('assets/data/labs.json');
+      if (labsPath) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         return fs.createReadStream(labsPath).pipe(res);
       }
@@ -81,44 +115,40 @@ function handleRequest(req, res) {
     }
   }
 
-  const safePath = path.normalize(reqPath).replace(/^(\.\.[\/\\])+/, '');
-  const filePath = path.join(ROOT, safePath);
+  const safePath = path.normalize(reqPath).replace(/^(\.\.[\/\\])+/, '').replace(/^[\/\\]+/, '');
+  const foundFile = resolveFilePath(safePath);
 
-  fs.stat(filePath, (err, stats) => {
-    if (err || !stats.isFile()) {
-      // SPA Fallback: If requested route is not an asset, fallback to index.html
-      const isAsset = /\.(html|css|js|json|png|jpg|jpeg|svg|ico|sqlite|zip)$/i.test(safePath);
-      if (!isAsset) {
-        const indexPath = path.join(ROOT, 'index.html');
-        return fs.readFile(indexPath, (readErr, content) => {
-          if (!readErr) {
-            res.writeHead(200, { 'Content-Type': 'text/html; charset=UTF-8' });
-            res.end(content);
-          } else {
-            res.writeHead(404, { 'Content-Type': 'text/plain' });
-            res.end('404 Not Found: ' + reqPath);
-          }
-        });
-      }
-
-      res.writeHead(404, { 'Content-Type': 'text/plain' });
-      res.end('404 Not Found: ' + reqPath);
-      return;
-    }
-
-    const ext = path.extname(filePath).toLowerCase();
+  if (foundFile) {
+    const ext = path.extname(foundFile).toLowerCase();
     const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+    const stat = fs.statSync(foundFile);
 
     res.writeHead(200, {
       'Content-Type': contentType,
-      'Content-Length': stats.size,
+      'Content-Length': stat.size,
       'Cache-Control': ext === '.html' ? 'no-cache' : 'public, max-age=86400',
       'Access-Control-Allow-Origin': '*'
     });
 
-    const stream = fs.createReadStream(filePath);
-    stream.pipe(res);
-  });
+    return fs.createReadStream(foundFile).pipe(res);
+  }
+
+  // Fallback: If index.html is requested or for any SPA route, serve cachedIndexHtml
+  const isSpecificAsset = /\.(css|js|json|png|jpg|jpeg|svg|ico|sqlite|zip)$/i.test(safePath);
+  if (!isSpecificAsset && cachedIndexHtml) {
+    const buffer = Buffer.from(cachedIndexHtml, 'utf8');
+    res.writeHead(200, {
+      'Content-Type': 'text/html; charset=UTF-8',
+      'Content-Length': buffer.length,
+      'Cache-Control': 'no-cache',
+      'Access-Control-Allow-Origin': '*'
+    });
+    return res.end(buffer);
+  }
+
+  // Fallback for missing static assets
+  res.writeHead(404, { 'Content-Type': 'text/plain' });
+  res.end('404 Not Found: ' + reqPath);
 }
 
 const server = http.createServer(handleRequest);

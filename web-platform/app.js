@@ -1902,15 +1902,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
   }
 }
 
-// Node.js serverless compatibility export:
-// If Vercel invokes app.js as a Serverless Function, delegate to server.js rather than failing
+// Node.js environment export (safely handles any server-side evaluation/bundling)
 if (typeof module !== 'undefined' && module.exports) {
-  try {
-    module.exports = require('./server.js');
-  } catch (_err) {
-    module.exports = (req, res) => {
-      res.writeHead(200, { 'Content-Type': 'text/html; charset=UTF-8' });
-      res.end('KisanSaathi Web Portal');
-    };
-  }
+  module.exports = { name: 'KisanSaathi', client: true };
 }
