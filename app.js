@@ -1,7 +1,7 @@
-// KisanSeva2 Web Portal & Mobile Application Controller
-// Fully replicates all screens, business logic, workflows and ML simulations from KisanSeva2
+// KisanSaathi Web Portal & Mobile Application Controller
+// Safe for client browser execution and Node.js evaluation
 
-document.addEventListener('DOMContentLoaded', () => {
+function initKisanSaathi() {
   // Initialize State
   let currentLanguage = localStorage.getItem('kisan_lang') || 'en'; // 'en' or 'hi'
   let currentViewMode = localStorage.getItem('kisan_view_mode') || 'mobile'; // 'mobile' or 'desktop'
@@ -1891,4 +1891,26 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   loadSoilLabsData();
   navigateTo('inventory');
-});
+}
+
+// Client-side initialization: Execute only when running in a browser environment with DOM
+if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initKisanSaathi);
+  } else {
+    initKisanSaathi();
+  }
+}
+
+// Node.js serverless compatibility export:
+// If Vercel invokes app.js as a Serverless Function, delegate to server.js rather than failing
+if (typeof module !== 'undefined' && module.exports) {
+  try {
+    module.exports = require('./server.js');
+  } catch (_err) {
+    module.exports = (req, res) => {
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=UTF-8' });
+      res.end('KisanSaathi Web Portal');
+    };
+  }
+}

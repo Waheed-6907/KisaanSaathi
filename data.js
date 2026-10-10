@@ -610,3 +610,7 @@ const KISAN_DATA = {
 if (typeof window !== 'undefined') {
   window.KISAN_DATA = KISAN_DATA;
 }
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = KISAN_DATA;
+}
