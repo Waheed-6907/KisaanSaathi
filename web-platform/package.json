@@ -1,0 +1,24 @@
+{
+  "name": "kisanseva2-web",
+  "version": "2.4.0",
+  "description": "Smart India Hackathon 2020 - KisanSeva2 Agricultural Platform & Value Addition Web Portal",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "serve": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "kisanseva",
+    "agriculture",
+    "sih2020",
+    "smart-india-hackathon",
+    "uttarakhand",
+    "farmers"
+  ],
+  "author": "CodeLine MK100 / Antigravity",
+  "license": "MIT",
+  "dependencies": {
+    "pptxgenjs": "^4.0.1"
+  }
+}
