@@ -20,7 +20,7 @@ const requiredFiles = [
 let hasErrors = false;
 
 // 1. Check Node.js runtime version
-console.log('\n[1/4] Checking Node.js runtime compatibility...');
+console.log('\n[1/5] Checking Node.js runtime compatibility...');
 const nodeVersion = process.versions.node;
 const majorVersion = parseInt(nodeVersion.split('.')[0], 10);
 if (majorVersion >= 16) {
@@ -30,7 +30,7 @@ if (majorVersion >= 16) {
 }
 
 // 2. Verify existence of required files
-console.log('\n[2/4] Verifying required files and static assets...');
+console.log('\n[2/5] Verifying required files and static assets...');
 for (const file of requiredFiles) {
   const fullPath = path.join(__dirname, file);
   if (fs.existsSync(fullPath)) {
@@ -42,7 +42,7 @@ for (const file of requiredFiles) {
 }
 
 // 3. Validate JavaScript syntax
-console.log('\n[3/4] Validating JavaScript syntax...');
+console.log('\n[3/5] Validating JavaScript syntax...');
 const jsFiles = ['assets/js/app.js', 'assets/js/data.js', 'dev-server.js', 'api/health.js', 'api/labs.js'];
 for (const jsFile of jsFiles) {
   const fullPath = path.join(__dirname, jsFile);
@@ -58,7 +58,7 @@ for (const jsFile of jsFiles) {
 }
 
 // 4. Validate JSON configurations
-console.log('\n[4/4] Validating JSON files...');
+console.log('\n[4/5] Validating JSON files...');
 const jsonFiles = ['package.json', 'vercel.json', 'assets/data/labs.json'];
 for (const jsonFile of jsonFiles) {
   const fullPath = path.join(__dirname, jsonFile);
@@ -78,6 +78,33 @@ if (hasErrors) {
   console.error('\n✖ Build validation failed with errors.');
   process.exit(1);
 }
+
+// 5. Generate public/ distribution directory for Vercel
+console.log('\n[5/5] Generating public/ output directory for Vercel CDN...');
+const publicDir = path.join(__dirname, 'public');
+if (!fs.existsSync(publicDir)) {
+  fs.mkdirSync(publicDir, { recursive: true });
+}
+
+fs.copyFileSync(path.join(__dirname, 'index.html'), path.join(publicDir, 'index.html'));
+fs.copyFileSync(path.join(__dirname, 'styles.css'), path.join(publicDir, 'styles.css'));
+
+function copyDirRecursive(src, dest) {
+  if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
+  const entries = fs.readdirSync(src, { withFileTypes: true });
+  for (const entry of entries) {
+    const srcPath = path.join(src, entry.name);
+    const destPath = path.join(dest, entry.name);
+    if (entry.isDirectory()) {
+      copyDirRecursive(srcPath, destPath);
+    } else {
+      fs.copyFileSync(srcPath, destPath);
+    }
+  }
+}
+
+copyDirRecursive(path.join(__dirname, 'assets'), path.join(publicDir, 'assets'));
+console.log('  ✔ Created public/ directory containing index.html, styles.css, and assets/');
 
 console.log('\n==================================================');
 console.log('✔ Build validation succeeded! Ready for Vercel deployment.');
