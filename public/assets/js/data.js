@@ -571,18 +571,15 @@ const KISAN_DATA = {
     team: [
       {
         name: "Gulam Waheed Mujtaba",
-        role: "Lead Architect & Full Stack Lead",
-        image: "assets/team/shivam.jpeg"
+        role: "Lead Architect & Full Stack Lead"
       },
       {
         name: "Shaik Mohammed Ateeq",
-        role: "Cloud Infrastructure & AI Systems Engineer",
-        image: "assets/team/pranav.jpeg"
+        role: "Cloud Infrastructure & AI Systems Engineer"
       },
       {
         name: "Malik Samiullah Khan",
-        role: "UI/UX & Agricultural Tech Specialist",
-        image: "assets/team/kshitij.jpeg"
+        role: "UI/UX & Agricultural Tech Specialist"
       }
     ]
   },

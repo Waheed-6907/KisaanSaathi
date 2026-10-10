@@ -1783,14 +1783,9 @@ function initKisanSaathi() {
   function renderAboutTeam() {
     const container = document.getElementById('teamGrid');
     container.innerHTML = KISAN_DATA.about.team.map(member => `
-      <div class="kisan-card p-3 text-center space-y-2">
-        <div class="w-16 h-16 rounded-2xl mx-auto overflow-hidden bg-gray-100 border-2 border-purple-200 shadow-sm">
-          <img src="${member.image}" alt="${member.name}" class="w-full h-full object-cover" onerror="this.src='assets/team/shivam.jpeg'" />
-        </div>
-        <div>
-          <h4 class="font-bold text-xs text-gray-900">${member.name}</h4>
-          <p class="text-[10px] text-purple-700 leading-tight mt-0.5">${member.role}</p>
-        </div>
+      <div class="kisan-card p-4 text-center rounded-2xl bg-white border border-purple-100 shadow-sm hover:border-purple-300 transition-all flex flex-col justify-center min-h-[90px]">
+        <h4 class="font-bold text-sm text-gray-900">${member.name}</h4>
+        <p class="text-xs text-purple-700 font-medium mt-1">${member.role}</p>
       </div>
     `).join('');
 
