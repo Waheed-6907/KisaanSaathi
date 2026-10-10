@@ -1,4 +1,4 @@
-// Lightweight zero-dependency HTTP static server for KisanSeva2 web platform
+// Lightweight zero-dependency HTTP static server for KisanSaathi web platform
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -53,7 +53,7 @@ const server = http.createServer((req, res) => {
 server.listen(PORT, () => {
   const url = `http://localhost:${PORT}`;
   console.log(`=======================================================`);
-  console.log(`🌾 KisanSeva2 Web Platform is LIVE!`);
+  console.log(`🌾 KisanSaathi Web Platform is LIVE!`);
   console.log(`🌐 Server running at: ${url}`);
   console.log(`📁 Serving from: ${ROOT}`);
   console.log(`Press Ctrl+C to stop.`);
