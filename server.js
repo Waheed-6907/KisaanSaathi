@@ -25,6 +25,38 @@ const server = http.createServer((req, res) => {
   let reqPath = decodeURI(req.url.split('?')[0]);
   if (reqPath === '/') reqPath = '/index.html';
 
+  // Support communication with bound internal service 'web-platform' via WEB_PLATFORM_URL
+  if (process.env.WEB_PLATFORM_URL && (reqPath.startsWith('/platform') || reqPath.startsWith('/api/platform'))) {
+    try {
+      const subPath = reqPath.replace(/^\/(?:api\/)?platform/, '') || '/';
+      const search = req.url.includes('?') ? '?' + req.url.split('?')[1] : '';
+      const targetUrl = new URL(subPath.replace(/^\//, '') + search, process.env.WEB_PLATFORM_URL);
+
+      const proxyReq = http.request(targetUrl, {
+        method: req.method,
+        headers: {
+          ...req.headers,
+          host: targetUrl.host
+        }
+      }, (proxyRes) => {
+        res.writeHead(proxyRes.statusCode, proxyRes.headers);
+        proxyRes.pipe(res);
+      });
+
+      proxyReq.on('error', (err) => {
+        res.writeHead(502, { 'Content-Type': 'text/plain' });
+        res.end(`502 Bad Gateway: Unable to reach internal web-platform service (${err.message})`);
+      });
+
+      req.pipe(proxyReq);
+      return;
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'text/plain' });
+      res.end('500 Internal Server Error: ' + err.message);
+      return;
+    }
+  }
+
   const safePath = path.normalize(reqPath).replace(/^(\.\.[\/\\])+/, '');
   const filePath = path.join(ROOT, safePath);
 

@@ -1,42 +1,29 @@
 {
-  "version": 2,
-  "cleanUrls": true,
-  "trailingSlash": false,
-  "headers": [
-    {
-      "source": "/assets/(.*)",
-      "headers": [
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "app": {
+      "root": ".",
+      "runtime": "node",
+      "bindings": [
         {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
+          "type": "service",
+          "service": "web-platform",
+          "format": "url",
+          "env": "WEB_PLATFORM_URL"
         }
       ]
     },
-    {
-      "source": "/(.*).(js|css)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=86400, stale-while-revalidate=604800"
-        }
-      ]
-    },
+    "web-platform": {
+      "root": "web-platform",
+      "runtime": "node"
+    }
+  },
+  "rewrites": [
     {
       "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "SAMEORIGIN"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        }
-      ]
+      "destination": {
+        "service": "app"
+      }
     }
   ]
 }
