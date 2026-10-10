@@ -1,24 +1,32 @@
 {
-  "name": "kisanseva2-web",
+  "name": "kisaansaathi",
   "version": "2.4.0",
-  "description": "Smart India Hackathon 2020 - KisanSeva2 Agricultural Platform & Value Addition Web Portal",
+  "description": "KisanSaathi - Technology-Driven Direct Farm-to-Buyer Marketplace with AI Crop Quality Grading & Value Addition for Farmers (Telangana)",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "serve": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "build": "echo 'Build complete'"
   },
   "keywords": [
-    "kisanseva",
     "agriculture",
-    "sih2020",
-    "smart-india-hackathon",
-    "uttarakhand",
-    "farmers"
+    "farmers",
+    "telangana",
+    "agritech",
+    "computer-vision",
+    "ai-grading",
+    "mandi",
+    "escrow",
+    "hack-x",
+    "foreverknights"
   ],
-  "author": "CodeLine MK100 / Antigravity",
+  "author": "Team ForeverKnights (Gulam Waheed Mujtaba, Shaik Mohammed Ateeq, Malik Samiullah Khan)",
   "license": "MIT",
-  "dependencies": {
-    "pptxgenjs": "^4.0.1"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ForeverKnights/KisaanSaathi.git"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   }
 }
