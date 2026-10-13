@@ -3898,185 +3898,363 @@ function initKisanSaathi() {
     showToast('Application draft saved successfully! You can resume anytime.');
   };
 
+  // 5.5 Client-side Inclusive Farmer Credit Assessment Engine
+  function evaluateClientAssessment(data) {
+    const pathway = data.pathway || 'no_credit_history';
+    const tenancy_type = data.tenancy_type || 'owner_cultivator';
+    const land_size_acres = Number(data.land_size_acres) || 3.0;
+    const primary_crops = Array.isArray(data.primary_crops) && data.primary_crops.length > 0 
+      ? data.primary_crops 
+      : ['Telangana Sona Paddy'];
+    const cropping_season = data.cropping_season || 'kharif';
+    const loan_purpose = data.loan_purpose || 'crop_production_seeds_fertilizers';
+    const reqAmt = Number(data.requested_amount) || 100000;
+    const preferred_tenure_months = Number(data.preferred_tenure_months) || 12;
+    const grossIncome = Number(data.estimated_seasonal_income || data.estimated_harvest_value) || 195000;
+    const expenses = Number(data.estimated_farming_expenses) || 68000;
+    const debts = Number(data.existing_debt_obligations) || 0;
+    const credit_score_declared = data.credit_score_declared || (pathway === 'credit_history' ? 785 : null);
+
+    // 1. Seasonal Operating Cash Flow
+    const netSeasonalCashFlow = Math.max(0, grossIncome - expenses);
+
+    // 2. Annualized Debt Servicing
+    const annualTenureYears = Math.max(0.5, preferred_tenure_months / 12);
+    const annualRequestedDebtService = reqAmt / annualTenureYears;
+    const totalAnnualDebtLoad = debts + annualRequestedDebtService;
+
+    // 3. Available Annual Cash
+    const seasonsPerYear = cropping_season === 'multi_season' ? 2.0 : 1.5;
+    const availableAnnualCash = netSeasonalCashFlow * seasonsPerYear;
+
+    // 4. Debt Service Coverage Ratio (DSCR)
+    const dscr = totalAnnualDebtLoad > 0 
+      ? Number((availableAnnualCash / totalAnnualDebtLoad).toFixed(2))
+      : 3.5;
+
+    // 5. Match Eligible Schemes
+    const schemesSource = (typeof agriculturalCreditSchemes !== 'undefined' && agriculturalCreditSchemes && agriculturalCreditSchemes.length > 0)
+      ? agriculturalCreditSchemes
+      : ((typeof window !== 'undefined' && window.KISAN_DATA?.agriculturalCreditSchemes) || []);
+
+    const matchedSchemes = [];
+    schemesSource.forEach(scheme => {
+      const tenancyMatch = !scheme.eligible_tenancy_types || scheme.eligible_tenancy_types.includes(tenancy_type);
+      const purposeMatch = !scheme.eligible_purposes || scheme.eligible_purposes.some(p => loan_purpose.includes(p) || p.includes(loan_purpose));
+      const amountMatch = reqAmt <= (scheme.max_limit_amount || 300000) * 1.25;
+
+      if (tenancyMatch && (purposeMatch || amountMatch)) {
+        matchedSchemes.push({
+          scheme_code: scheme.scheme_code,
+          scheme_name: scheme.scheme_name,
+          scheme_name_te: scheme.scheme_name_te || '',
+          max_limit_amount: scheme.max_limit_amount,
+          effective_interest_rate: scheme.effective_interest_rate_pct || 4.0,
+          permits_tenant_farmers: scheme.permits_tenant_farmers,
+          criteria_summary: scheme.criteria_summary,
+          fit_reason: tenancy_type === 'tenant_farmer' || tenancy_type === 'oral_lessee'
+            ? 'Eligible under tenant farmer inclusion guidelines (Peer/VRO backing accepted)'
+            : 'Fully aligned with land cultivation scale and seasonal crop inputs'
+        });
+      }
+    });
+
+    if (matchedSchemes.length === 0) {
+      matchedSchemes.push({
+        scheme_code: 'KCC_REVISED_2026',
+        scheme_name: 'Kisan Credit Card (KCC) - Scale of Finance Scheme',
+        scheme_name_te: 'కిసాన్ క్రెడిట్ కార్డ్ (KCC) పంట రుణం',
+        max_limit_amount: 300000,
+        effective_interest_rate: 4.0,
+        permits_tenant_farmers: true,
+        criteria_summary: 'Collateral-free crop loan up to Rs. 1,60,000 under RBI guidelines. 3% prompt repayment incentive brings effective interest to 4%.',
+        fit_reason: 'Standard agricultural scale of finance credit line'
+      });
+    }
+
+    // 6. Max Recommended Amount based on Scale of Finance
+    const scaleOfFinancePerAcre = 42000;
+    const cropScaleCapacity = Math.round(land_size_acres * scaleOfFinancePerAcre * (cropping_season === 'multi_season' ? 1.4 : 1.0));
+    const cashFlowMaxCapacity = Math.round(netSeasonalCashFlow * 1.5);
+    const recommendedMaxAmount = Math.min(300000, Math.max(50000, Math.min(cropScaleCapacity, cashFlowMaxCapacity)));
+
+    // 7. Outcome Determination
+    let indicativeOutcome = 'potentially_eligible';
+    let explanationEn = '';
+    let explanationTe = '';
+    let explanationHi = '';
+    const missingRequirements = [];
+
+    const isTenantOrOral = ['tenant_farmer', 'oral_lessee', 'sharecropper', 'jlg_member'].includes(tenancy_type);
+
+    if (isTenantOrOral && reqAmt > 160000 && tenancy_type !== 'jlg_member') {
+      indicativeOutcome = 'alternative_pathway';
+      explanationEn = `Under RBI guidelines, collateral-free credit for tenant farmers is capped at ₹1,60,000. For your requested loan of ₹${reqAmt.toLocaleString('en-IN')}, we recommend applying via the Joint Liability Group (JLG) peer guarantee model or restricting the initial tranche to ₹1,50,000.`;
+      explanationTe = `ఆర్బీఐ మార్గదర్శకాల ప్రకారం కౌలు రైతులకు తాకట్టు లేని రుణం గరిష్టంగా ₹1,60,000 వరకు మాత్రమే వర్తిస్తుంది. జేఎల్‌జీ (JLG) సమూహం ద్వారా లేదా ₹1.5 లక్షల పరిమితితో దరఖాస్తు చేసుకోవడం సూచించబడింది.`;
+      explanationHi = `आरबीआई के दिशानिर्देशों के अनुसार बटाईदार किसानों के लिए बिना किसी गारंटी के ऋण ₹1,60,000 तक सीमित है। संयुक्त देयता समूह (JLG) के माध्यम से आवेदन करने की सिफारिश की जाती है।`;
+      missingRequirements.push('JLG Group Formation (4-10 farmers mutual agreement)');
+    } else if (dscr < 1.0) {
+      indicativeOutcome = 'not_currently_eligible';
+      explanationEn = `Based on your declared seasonal income of ₹${grossIncome.toLocaleString('en-IN')} and existing debt obligations of ₹${debts.toLocaleString('en-IN')}, the seasonal cash flow is insufficient to comfortably service a loan of ₹${reqAmt.toLocaleString('en-IN')} (DSCR: ${dscr}). We advise requesting a smaller amount or extending the tenure.`;
+      explanationTe = `మీరు పేర్కొన్న పంట ఆదాయం మరియు ఇప్పటికే ఉన్న రుణ బాధ్యతల ప్రకారం ఈ రుణ మొత్తం తిరిగి చెల్లించే సామర్థ్యం తక్కువగా ఉంది. తక్కువ రుణ మొత్తాన్ని ఎంచుకోవాలని సూచిస్తున్నాము.`;
+      explanationHi = `आपकी अनुमानित मौसमी आय और वर्तमान ऋण को देखते हुए यह ऋण राशि चुकाने में कठिनाई हो सकती है। कृपया कम ऋण राशि का चयन करें।`;
+      missingRequirements.push('Additional Household/Allied Income Proof', 'Debt Rationalization Statement');
+    } else if (land_size_acres <= 0 || !primary_crops || primary_crops.length === 0) {
+      indicativeOutcome = 'more_info_required';
+      explanationEn = `Crucial agricultural details are missing. Please specify your cultivated land area, cropping season, and crop variety to complete the automated scheme matching.`;
+      explanationTe = `పంట సాగు వివరాలు అసంపూర్ణంగా ఉన్నాయి. సాగు భూమి విస్తీర్ణం మరియు పంట రకాన్ని నమోదు చేయండి.`;
+      explanationHi = `कृषि विवरण अधूरा है। कृपया जोते जाने वाले क्षेत्र और फसल का प्रकार स्पष्ट करें।`;
+      missingRequirements.push('Cultivated Land Area (Acres)', 'Crop Sowing Declaration');
+    } else {
+      indicativeOutcome = 'potentially_eligible';
+      explanationEn = `Your agricultural cash flow surplus of ₹${netSeasonalCashFlow.toLocaleString('en-IN')}/season comfortably supports your requested loan of ₹${reqAmt.toLocaleString('en-IN')} (DSCR: ${dscr}x). You are potentially eligible for subsidized interest rates under ${matchedSchemes[0]?.scheme_name || 'KCC'}.`;
+      explanationTe = `మీ వ్యవసాయ పంట మిగులు ₹${netSeasonalCashFlow.toLocaleString('en-IN')} మరియు తిరిగి చెల్లించే నిష్పత్తి (${dscr}x) సంతృప్తికరంగా ఉంది. మీరు ${matchedSchemes[0]?.scheme_name_te || 'కిసాన్ క్రెడిట్ కార్డ్'} కింద సబ్సిడీ వడ్డీ రేటుకు అర్హులు.`;
+      explanationHi = `आपका शुद्ध मौसमी अधिशेष ₹${netSeasonalCashFlow.toLocaleString('en-IN')} इस ऋण राशि (DSCR: ${dscr}x) के लिए पर्याप्त है। आप रियायती ब्याज दर के पात्र हैं।`;
+    }
+
+    if (tenancy_type === 'owner_cultivator') {
+      missingRequirements.push('Dharani Pattadar Passbook / ROR 1-B');
+    } else if (tenancy_type === 'tenant_farmer' || tenancy_type === 'oral_lessee') {
+      missingRequirements.push('Village Panchayat VRO Cultivation Certificate OR Tenancy Undertaking');
+    }
+    missingRequirements.push('Aadhaar Card (e-KYC verified)', 'Bank Passbook Copy (DBT Active)');
+
+    return {
+      indicative_outcome: indicativeOutcome,
+      calculated_debt_service_ratio: dscr,
+      net_seasonal_cashflow: netSeasonalCashFlow,
+      recommended_max_amount: recommendedMaxAmount,
+      seasons_considered: seasonsPerYear,
+      matched_schemes: matchedSchemes,
+      missing_requirements: missingRequirements,
+      factor_breakdowns: {
+        tenancy_status: {
+          type: tenancy_type,
+          recognized_under_rbi: true,
+          collateral_free_eligible: reqAmt <= 160000
+        },
+        cashflow_capacity: {
+          gross_seasonal_income: grossIncome,
+          operating_farming_expenses: expenses,
+          net_seasonal_surplus: netSeasonalCashFlow,
+          debt_service_ratio: dscr,
+          status: dscr >= 1.25 ? 'Strong' : dscr >= 1.0 ? 'Acceptable' : 'Constrained'
+        },
+        scale_of_finance: {
+          acres_cultivated: land_size_acres,
+          scale_limit_benchmark: cropScaleCapacity,
+          requested_amount: reqAmt
+        },
+        credit_history_mode: pathway === 'no_credit_history' 
+          ? 'Assessed exclusively on farm production & cash flow (Zero CIBIL requirement)'
+          : (credit_score_declared ? `Assessed with declared credit profile (${credit_score_declared}/900 - Demo Mode)` : 'Credit history pending verification')
+      },
+      explanations: {
+        en: explanationEn,
+        te: explanationTe,
+        hi: explanationHi
+      },
+      disclaimer: 'Indicative Assessment Only: Final sanction is subject to lender verification.'
+    };
+  }
+  window.evaluateClientAssessment = evaluateClientAssessment;
+
   // 6. Submit Application & Evaluate Indicative Assessment
+  window.submitFarmerLoanApplication = async function(e) {
+    if (e && typeof e.preventDefault === 'function') {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    // Consent check
+    const consentAgri = document.getElementById('chkConsentAgriData');
+    if (consentAgri && !consentAgri.checked) {
+      showToast('Please check the consent declaration to submit your application.');
+      return;
+    }
+
+    const pathway = document.getElementById('loanFormPathway')?.value || 'no_credit_history';
+    const applicantName = document.getElementById('inputLoanApplicantName')?.value?.trim() || currentFarmerName || 'M. Ramesh Goud';
+    const applicantPhone = document.getElementById('inputLoanApplicantPhone')?.value?.trim() || '+91 98480 22338';
+    const state = document.getElementById('inputLoanState')?.value || 'Telangana';
+    const district = document.getElementById('inputLoanDistrict')?.value?.trim() || 'Warangal Rural';
+    const village = document.getElementById('inputLoanVillage')?.value?.trim() || 'Geesugonda';
+    const tenancyType = document.getElementById('selectLoanTenancyType')?.value || 'tenant_farmer';
+    const landAcres = Number(document.getElementById('inputLoanLandAcres')?.value) || 3.5;
+    const evidence = document.getElementById('selectLoanEvidence')?.value || 'tenancy_deed';
+
+    const checkedCrops = Array.from(document.querySelectorAll('input[name="loanCrops"]:checked')).map(cb => cb.value);
+    const crops = checkedCrops.length > 0 ? checkedCrops : ['Telangana Sona Paddy'];
+
+    const season = document.getElementById('selectLoanSeason')?.value || 'kharif';
+    const preferredMandi = document.getElementById('inputLoanMandi')?.value || 'Enumamula Wholesale Mandi (Warangal)';
+    const harvestYield = Number(document.getElementById('inputLoanHarvestYield')?.value) || 70;
+    const grossIncome = Number(document.getElementById('inputLoanGrossIncome')?.value) || 195000;
+    const expenses = Number(document.getElementById('inputLoanExpenses')?.value) || 68000;
+    const debts = Number(document.getElementById('inputLoanDebts')?.value) || 12000;
+    const loanPurpose = document.getElementById('selectLoanPurpose')?.value || 'crop_production_seeds_fertilizers';
+    const requestedAmount = Number(document.getElementById('inputLoanAmountNumber')?.value) || 100000;
+    const tenure = Number(document.getElementById('selectLoanTenure')?.value) || 12;
+
+    let activeFarmerId = currentFarmerId || 'FARMER-TG-7721';
+    const authData = localStorage.getItem('kisan_auth');
+    if (authData) {
+      try {
+        const sess = JSON.parse(authData);
+        if (sess.farmerId) activeFarmerId = sess.farmerId;
+      } catch (err) {}
+    }
+
+    showToast('Running transparent agricultural credit assessment...');
+
+    // Build payload
+    const appNumber = 'APP-' + (pathway === 'no_credit_history' ? 'NCH' : 'CRD') + '-' + Date.now().toString().slice(-6);
+    const txHash = '0x' + Array.from({length: 40}, () => Math.floor(Math.random()*16).toString(16)).join('');
+
+    const assessmentPayload = {
+      pathway,
+      applicant_name: applicantName,
+      applicant_phone: applicantPhone,
+      state,
+      district,
+      village,
+      preferred_mandi: preferredMandi,
+      tenancy_type: tenancyType,
+      land_size_acres: landAcres,
+      cultivation_evidence: evidence,
+      primary_crops: crops,
+      cropping_season: season,
+      expected_harvest_quintals: harvestYield,
+      estimated_harvest_value: grossIncome,
+      loan_purpose: loanPurpose,
+      requested_amount: requestedAmount,
+      preferred_tenure_months: tenure,
+      estimated_seasonal_income: grossIncome,
+      estimated_farming_expenses: expenses,
+      existing_debt_obligations: debts,
+      credit_score_declared: pathway === 'credit_history' ? 785 : null
+    };
+
+    // Local Evaluation Engine
+    const assessmentResult = evaluateClientAssessment(assessmentPayload);
+
+    // Create application record
+    const newApplication = {
+      id: appNumber,
+      application_number: appNumber,
+      farmer_id: activeFarmerId,
+      pathway: pathway,
+      applicant_name: applicantName,
+      applicant_phone: applicantPhone,
+      state: state,
+      district: district,
+      village: village,
+      tenancy_type: tenancyType,
+      land_size_acres: landAcres,
+      cultivation_evidence: evidence,
+      primary_crops: crops,
+      cropping_season: season,
+      expected_harvest_quintals: harvestYield,
+      estimated_harvest_value: grossIncome,
+      loan_purpose: loanPurpose,
+      requested_amount: requestedAmount,
+      preferred_tenure_months: tenure,
+      estimated_seasonal_income: grossIncome,
+      estimated_farming_expenses: expenses,
+      existing_debt_obligations: debts,
+      indicative_status: assessmentResult.indicative_outcome,
+      application_status: 'submitted',
+      is_simulated_assessment: true,
+      matched_schemes: assessmentResult.matched_schemes,
+      factor_breakdowns: assessmentResult.factor_breakdowns || {},
+      missing_requirements: assessmentResult.missing_requirements || [],
+      blockchain_tx_hash: txHash,
+      created_at: new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+    };
+
+    // Save locally
+    farmerLoanApplications.unshift(newApplication);
+    localStorage.setItem('kisan_loan_applications', JSON.stringify(farmerLoanApplications));
+    localStorage.removeItem('kisan_loan_draft');
+
+    // Append to Blockchain Prototype Ledger
+    const schemeTitle = assessmentResult.matched_schemes?.[0]?.scheme_name || 'Kisan Credit Card (Scale of Finance)';
+    const newBlock = {
+      blockNumber: blockchainLedger.length,
+      id: `BLK-${appNumber.slice(-8)}`,
+      hash: txHash,
+      provider: schemeTitle,
+      amount: requestedAmount,
+      timestamp: new Date().toISOString().replace('T', ' ').slice(0, 19),
+      status: "Application Submitted (Audit Hash Logged)",
+      creditScore: pathway === 'credit_history' ? 785 : null,
+      interestRate: "4.0% Subsidized (Effective KCC Rate)",
+      purpose: loanPurpose.replace(/_/g, ' ')
+    };
+    blockchainLedger.push(newBlock);
+    localStorage.setItem('kisan_blockchain', JSON.stringify(blockchainLedger));
+    renderBlockchain();
+
+    // Attempt Supabase Sync (backward compatible)
+    if (window.supabaseClient) {
+      try {
+        window.supabaseClient.from('farmer_loan_applications').insert([{
+          application_number: appNumber,
+          farmer_id: activeFarmerId,
+          pathway: pathway,
+          applicant_name: applicantName,
+          applicant_phone: applicantPhone,
+          state: state,
+          district: district,
+          village: village,
+          preferred_mandi: preferredMandi,
+          tenancy_type: tenancyType,
+          land_size_acres: landAcres,
+          cultivation_evidence: evidence,
+          primary_crops: crops,
+          cropping_season: season,
+          expected_harvest_quintals: harvestYield,
+          estimated_harvest_value: grossIncome,
+          loan_purpose: loanPurpose,
+          requested_amount: requestedAmount,
+          preferred_tenure_months: tenure,
+          estimated_seasonal_income: grossIncome,
+          estimated_farming_expenses: expenses,
+          existing_debt_obligations: debts,
+          indicative_status: assessmentResult.indicative_outcome,
+          application_status: 'submitted',
+          blockchain_tx_hash: txHash
+        }]).then(() => {}).catch(err => console.warn('Supabase application sync skipped:', err));
+
+        // Sync consent record
+        window.supabaseClient.from('consent_records').insert([{
+          farmer_id: activeFarmerId,
+          consent_type: pathway === 'credit_history' ? 'credit_bureau_and_agri_data' : 'inclusive_agri_cashflow_assessment',
+          consent_granted: true
+        }]).then(() => {}).catch(err => console.warn('Supabase consent sync skipped:', err));
+      } catch (sbErr) {
+        console.warn('Supabase application sync notice:', sbErr);
+      }
+    }
+
+    // Close wizard & open assessment modal
+    const modalLoanApp = document.getElementById('modalLoanApplication');
+    if (modalLoanApp) modalLoanApp.classList.remove('open');
+    renderLoanApplications();
+
+    // Show results
+    currentActiveAssessment = assessmentResult;
+    currentActiveAppNumber = appNumber;
+    showAssessmentResultModal(newApplication, assessmentResult);
+  };
+
   const formFarmerLoan = document.getElementById('formFarmerLoan');
   if (formFarmerLoan) {
-    formFarmerLoan.addEventListener('submit', async function(e) {
-      e.preventDefault();
-
-      const pathway = document.getElementById('loanFormPathway').value;
-      const applicantName = document.getElementById('inputLoanApplicantName').value.trim();
-      const applicantPhone = document.getElementById('inputLoanApplicantPhone').value.trim();
-      const state = document.getElementById('inputLoanState').value;
-      const district = document.getElementById('inputLoanDistrict').value;
-      const village = document.getElementById('inputLoanVillage').value;
-      const tenancyType = document.getElementById('selectLoanTenancyType').value;
-      const landAcres = Number(document.getElementById('inputLoanLandAcres').value) || 3;
-      const evidence = document.getElementById('selectLoanEvidence').value;
-
-      const checkedCrops = Array.from(document.querySelectorAll('input[name="loanCrops"]:checked')).map(cb => cb.value);
-      const crops = checkedCrops.length > 0 ? checkedCrops : ['Telangana Sona Paddy'];
-
-      const season = document.getElementById('selectLoanSeason').value;
-      const preferredMandi = document.getElementById('inputLoanMandi').value;
-      const harvestYield = Number(document.getElementById('inputLoanHarvestYield').value) || 70;
-      const grossIncome = Number(document.getElementById('inputLoanGrossIncome').value) || 195000;
-      const expenses = Number(document.getElementById('inputLoanExpenses').value) || 68000;
-      const debts = Number(document.getElementById('inputLoanDebts').value) || 12000;
-      const loanPurpose = document.getElementById('selectLoanPurpose').value;
-      const requestedAmount = Number(document.getElementById('inputLoanAmountNumber').value) || 100000;
-      const tenure = Number(document.getElementById('selectLoanTenure').value) || 12;
-
-      let activeFarmerId = currentFarmerId || 'FARMER-TG-7721';
-      const authData = localStorage.getItem('kisan_auth');
-      if (authData) {
-        try {
-          const sess = JSON.parse(authData);
-          if (sess.farmerId) activeFarmerId = sess.farmerId;
-        } catch (err) {}
-      }
-
-      showToast('Running transparent agricultural credit assessment...');
-
-      // Build payload
-      const appNumber = 'APP-' + (pathway === 'no_credit_history' ? 'NCH' : 'CRD') + '-' + Date.now().toString().slice(-6);
-      const txHash = '0x' + Array.from({length: 40}, () => Math.floor(Math.random()*16).toString(16)).join('');
-
-      const assessmentPayload = {
-        pathway,
-        applicant_name: applicantName,
-        applicant_phone: applicantPhone,
-        state,
-        district,
-        village,
-        preferred_mandi: preferredMandi,
-        tenancy_type: tenancyType,
-        land_size_acres: landAcres,
-        cultivation_evidence: evidence,
-        primary_crops: crops,
-        cropping_season: season,
-        expected_harvest_quintals: harvestYield,
-        estimated_harvest_value: grossIncome,
-        loan_purpose: loanPurpose,
-        requested_amount: requestedAmount,
-        preferred_tenure_months: tenure,
-        estimated_seasonal_income: grossIncome,
-        estimated_farming_expenses: expenses,
-        existing_debt_obligations: debts,
-        credit_score_declared: pathway === 'credit_history' ? 785 : null
-      };
-
-      // Local Evaluation Engine
-      const assessmentResult = evaluateClientAssessment(assessmentPayload);
-
-      // Create application record
-      const newApplication = {
-        id: appNumber,
-        application_number: appNumber,
-        farmer_id: activeFarmerId,
-        pathway: pathway,
-        applicant_name: applicantName,
-        applicant_phone: applicantPhone,
-        state: state,
-        district: district,
-        village: village,
-        tenancy_type: tenancyType,
-        land_size_acres: landAcres,
-        cultivation_evidence: evidence,
-        primary_crops: crops,
-        cropping_season: season,
-        expected_harvest_quintals: harvestYield,
-        estimated_harvest_value: grossIncome,
-        loan_purpose: loanPurpose,
-        requested_amount: requestedAmount,
-        preferred_tenure_months: tenure,
-        estimated_seasonal_income: grossIncome,
-        estimated_farming_expenses: expenses,
-        existing_debt_obligations: debts,
-        indicative_status: assessmentResult.indicative_outcome,
-        application_status: 'submitted',
-        is_simulated_assessment: true,
-        matched_schemes: assessmentResult.matched_schemes,
-        factor_breakdowns: assessmentResult.factor_breakdowns || {},
-        missing_requirements: assessmentResult.missing_requirements || [],
-        blockchain_tx_hash: txHash,
-        created_at: new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-      };
-
-      // Save locally
-      farmerLoanApplications.unshift(newApplication);
-      localStorage.setItem('kisan_loan_applications', JSON.stringify(farmerLoanApplications));
-      localStorage.removeItem('kisan_loan_draft');
-
-      // Append to Blockchain Prototype Ledger
-      const schemeTitle = assessmentResult.matched_schemes?.[0]?.scheme_name || 'Kisan Credit Card (Scale of Finance)';
-      const newBlock = {
-        blockNumber: blockchainLedger.length,
-        id: `BLK-${appNumber.slice(-8)}`,
-        hash: txHash,
-        provider: schemeTitle,
-        amount: requestedAmount,
-        timestamp: new Date().toISOString().replace('T', ' ').slice(0, 19),
-        status: "Application Submitted (Audit Hash Logged)",
-        creditScore: pathway === 'credit_history' ? 785 : null,
-        interestRate: "4.0% Subsidized (Effective KCC Rate)",
-        purpose: loanPurpose.replace(/_/g, ' ')
-      };
-      blockchainLedger.push(newBlock);
-      localStorage.setItem('kisan_blockchain', JSON.stringify(blockchainLedger));
-      renderBlockchain();
-
-      // Attempt Supabase Sync (backward compatible)
-      if (window.supabaseClient) {
-        try {
-          window.supabaseClient.from('farmer_loan_applications').insert([{
-            application_number: appNumber,
-            farmer_id: activeFarmerId,
-            pathway: pathway,
-            applicant_name: applicantName,
-            applicant_phone: applicantPhone,
-            state: state,
-            district: district,
-            village: village,
-            preferred_mandi: preferredMandi,
-            tenancy_type: tenancyType,
-            land_size_acres: landAcres,
-            cultivation_evidence: evidence,
-            primary_crops: crops,
-            cropping_season: season,
-            expected_harvest_quintals: harvestYield,
-            estimated_harvest_value: grossIncome,
-            loan_purpose: loanPurpose,
-            requested_amount: requestedAmount,
-            preferred_tenure_months: tenure,
-            estimated_seasonal_income: grossIncome,
-            estimated_farming_expenses: expenses,
-            existing_debt_obligations: debts,
-            indicative_status: assessmentResult.indicative_outcome,
-            application_status: 'submitted',
-            blockchain_tx_hash: txHash
-          }]).then();
-
-          // Sync consent record
-          window.supabaseClient.from('consent_records').insert([{
-            farmer_id: activeFarmerId,
-            consent_type: pathway === 'credit_history' ? 'credit_bureau_and_agri_data' : 'inclusive_agri_cashflow_assessment',
-            consent_granted: true
-          }]).then();
-        } catch (sbErr) {
-          console.warn('Supabase application sync notice:', sbErr);
-        }
-      }
-
-      // Close wizard & open assessment modal
-      document.getElementById('modalLoanApplication').classList.remove('open');
-      renderLoanApplications();
-
-      // Show results
-      currentActiveAssessment = assessmentResult;
-      currentActiveAppNumber = appNumber;
-      showAssessmentResultModal(newApplication, assessmentResult);
-    });
+    formFarmerLoan.addEventListener('submit', window.submitFarmerLoanApplication);
+  }
+  const btnLoanSubmitEl = document.getElementById('btnLoanSubmit');
+  if (btnLoanSubmitEl) {
+    btnLoanSubmitEl.addEventListener('click', window.submitFarmerLoanApplication);
   }
 
   // 7. Display Assessment Result Modal
