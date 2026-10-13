@@ -312,6 +312,14 @@
             <i data-lucide="bot" class="w-5 h-5 text-fuchsia-600"></i>
             <span data-i18n="nav_chat">AI Kisan Assistant (Chatbot)</span>
           </a>
+          <!-- WhatsApp AI Chatbot Communication Channel Link -->
+          <a class="drawer-item text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/60 rounded-xl" id="drawerWhatsAppBtn" href="https://wa.me/14155238886?text=Namaste%20KisanSaathi" target="_blank" rel="noopener noreferrer">
+            <svg class="w-5 h-5 fill-[#25D366] flex-shrink-0" viewBox="0 0 24 24">
+              <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.592 2.654-.696c1.004.577 1.764.846 2.806.847h.002c3.182 0 5.768-2.587 5.768-5.766.001-3.182-2.585-5.63-5.77-5.63zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.053-1.025-.078-.584-.195-1.378-.583-2.316-1.424-.925-.828-1.523-1.848-1.748-2.235-.226-.388-.024-.597.108-.729.117-.117.26-.301.39-.452.129-.151.172-.258.258-.43.086-.172.043-.323-.021-.452-.065-.129-.582-1.402-.8-1.921-.211-.505-.427-.436-.584-.444-.151-.008-.324-.01-.496-.01-.172 0-.452.065-.689.323-.237.258-.905.884-.905 2.155s.926 2.499 1.055 2.671c.129.172 1.821 2.782 4.412 3.899 2.591 1.117 2.591.744 3.064.698.473-.046 1.527-.624 1.743-1.226.215-.602.215-1.118.151-1.226-.065-.108-.237-.172-.452-.28z"/>
+            </svg>
+            <span class="font-bold text-xs">WhatsApp AI Chatbot (వాట్సాప్)</span>
+            <span class="ml-auto text-[9px] bg-[#25D366] text-white font-extrabold px-1.5 py-0.5 rounded-full uppercase">Live</span>
+          </a>
           <a class="drawer-item" data-navigate="feedback">
             <i data-lucide="message-square" class="w-5 h-5 text-slate-600"></i>
             <span data-i18n="nav_feedback">Contact Admin / Grievance</span>
@@ -882,6 +890,46 @@
             </button>
           </div>
 
+          <!-- WHATSAPP AI ASSISTANT COMMUNICATION CHANNEL (Bilingual Indian Languages) -->
+          <div class="p-4 rounded-3xl bg-gradient-to-br from-emerald-600 via-teal-700 to-green-800 text-white shadow-md relative overflow-hidden border border-emerald-400/30 space-y-3">
+            <div class="flex items-start justify-between gap-3">
+              <div class="space-y-1">
+                <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-extrabold uppercase tracking-wide backdrop-blur-sm">
+                  <span class="w-2 h-2 rounded-full bg-emerald-300 animate-pulse"></span>
+                  WhatsApp Communication Channel
+                </div>
+                <h4 class="text-base font-extrabold flex items-center gap-1.5">
+                  <svg class="w-5 h-5 fill-current text-white flex-shrink-0" viewBox="0 0 24 24">
+                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.592 2.654-.696c1.004.577 1.764.846 2.806.847h.002c3.182 0 5.768-2.587 5.768-5.766.001-3.182-2.585-5.63-5.77-5.63zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.053-1.025-.078-.584-.195-1.378-.583-2.316-1.424-.925-.828-1.523-1.848-1.748-2.235-.226-.388-.024-.597.108-.729.117-.117.26-.301.39-.452.129-.151.172-.258.258-.43.086-.172.043-.323-.021-.452-.065-.129-.582-1.402-.8-1.921-.211-.505-.427-.436-.584-.444-.151-.008-.324-.01-.496-.01-.172 0-.452.065-.689.323-.237.258-.905.884-.905 2.155s.926 2.499 1.055 2.671c.129.172 1.821 2.782 4.412 3.899 2.591 1.117 2.591.744 3.064.698.473-.046 1.527-.624 1.743-1.226.215-.602.215-1.118.151-1.226-.065-.108-.237-.172-.452-.28z"/>
+                  </svg>
+                  <span>WhatsApp AI Kisan Mitra</span>
+                </h4>
+                <p class="text-xs text-emerald-100 leading-snug">
+                  Connect 24/7 on WhatsApp! Get real-time Mandi rates, organic spray recipes &amp; crop loans in <strong class="text-white">English, हिंदी (Hindi), and తెలుగు (Telugu)</strong>.
+                </p>
+              </div>
+              <a id="btnBannerWhatsApp" href="https://wa.me/14155238886?text=Namaste%20KisanSaathi" target="_blank" rel="noopener noreferrer" class="flex-shrink-0 px-3.5 py-2.5 bg-white text-emerald-900 hover:bg-emerald-50 font-extrabold text-xs rounded-2xl shadow-lg transition flex items-center gap-1.5 active:scale-95">
+                <i data-lucide="send" class="w-4 h-4 text-[#25D366]"></i>
+                <span>Open WhatsApp</span>
+              </a>
+            </div>
+
+            <!-- 1-Click WhatsApp Quick Chips (Bilingual Indian Languages) -->
+            <div class="pt-2 border-t border-white/20">
+              <div class="flex items-center justify-between text-[11px] font-semibold text-emerald-200 mb-1.5">
+                <span>1-Tap WhatsApp Queries:</span>
+                <div class="flex gap-1 text-[10px]" id="waLangTabs">
+                  <button type="button" class="wa-lang-tab px-2 py-0.5 rounded-full bg-white text-emerald-900 font-extrabold transition" data-walang="en">English</button>
+                  <button type="button" class="wa-lang-tab px-2 py-0.5 rounded-full bg-emerald-800/80 hover:bg-emerald-800 text-white font-extrabold transition" data-walang="hi">हिंदी</button>
+                  <button type="button" class="wa-lang-tab px-2 py-0.5 rounded-full bg-emerald-800/80 hover:bg-emerald-800 text-white font-extrabold transition" data-walang="te">తెలుగు</button>
+                </div>
+              </div>
+              <div id="waQuickChipsContainer" class="flex gap-1.5 overflow-x-auto pb-1 text-[11px]">
+                <!-- Populated dynamically by app.js based on selected language tab -->
+              </div>
+            </div>
+          </div>
+
           <!-- Chat Messages Area -->
           <div id="chatMessages" class="h-96 overflow-y-auto space-y-3 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
             <!-- Dynamically populated according to active language -->
@@ -1286,6 +1334,23 @@
       </div>
     </div>
   </div>
+
+  <!-- FLOATING WHATSAPP CHATBOT BUTTON (Bilingual Communication Channel) -->
+  <a id="floatingWhatsAppBtn" 
+     href="https://wa.me/14155238886?text=Namaste%20KisanSaathi" 
+     target="_blank" 
+     rel="noopener noreferrer" 
+     class="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-40 bg-[#25D366] hover:bg-[#20bd5a] text-white p-3 md:px-4 md:py-3 rounded-full shadow-2xl flex items-center gap-2 transition-all transform hover:scale-105 active:scale-95 border-2 border-white group"
+     title="Chat with Kisan Mitra on WhatsApp (English, हिंदी, తెలుగు)">
+    <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
+      <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.592 2.654-.696c1.004.577 1.764.846 2.806.847h.002c3.182 0 5.768-2.587 5.768-5.766.001-3.182-2.585-5.63-5.77-5.63zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.053-1.025-.078-.584-.195-1.378-.583-2.316-1.424-.925-.828-1.523-1.848-1.748-2.235-.226-.388-.024-.597.108-.729.117-.117.26-.301.39-.452.129-.151.172-.258.258-.43.086-.172.043-.323-.021-.452-.065-.129-.582-1.402-.8-1.921-.211-.505-.427-.436-.584-.444-.151-.008-.324-.01-.496-.01-.172 0-.452.065-.689.323-.237.258-.905.884-.905 2.155s.926 2.499 1.055 2.671c.129.172 1.821 2.782 4.412 3.899 2.591 1.117 2.591.744 3.064.698.473-.046 1.527-.624 1.743-1.226.215-.602.215-1.118.151-1.226-.065-.108-.237-.172-.452-.28z"/>
+    </svg>
+    <span class="hidden md:inline font-bold text-xs tracking-wide">WhatsApp AI (వాట్సాప్)</span>
+    <span class="absolute -top-1 -right-1 flex h-3 w-3">
+      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+      <span class="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+    </span>
+  </a>
 
   <!-- Notification Toast -->
   <div id="toastNotification" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white px-4 py-2.5 rounded-full text-xs font-semibold shadow-xl opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-2">

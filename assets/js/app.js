@@ -2142,7 +2142,99 @@ function initKisanSaathi() {
         : 'Namaste Ramarao! I am your KisanSaathi AI Assistant for Telangana. Ask me about mandi rates (Enumamula, Bowenpally), organic fertilizers, PMFBY crop insurance, or soil health testing in Warangal and surrounding districts.';
       appendChatMessage('bot', welcomeMsg);
     }
+
+    // Refresh WhatsApp Channel Prompts
+    if (typeof window.initOrUpdateWhatsApp === 'function') {
+      window.initOrUpdateWhatsApp(lang);
+    }
   };
+
+  // =========================================================================
+  // WHATSAPP AI ASSISTANT CHATBOT CHANNEL INTEGRATION (Bilingual Indian Languages)
+  // =========================================================================
+  const waPromptsByLang = {
+    en: [
+      { label: "🌾 Mandi Rates (Warangal)", query: "What are today's mandi prices for paddy and cotton in Warangal?" },
+      { label: "🐛 Neemastra Pest Spray", query: "How to prepare organic neem pest control spray?" },
+      { label: "📋 PMFBY Crop Insurance", query: "How to file crop insurance claim under PMFBY?" },
+      { label: "💳 4% Subsidized Crop Loan", query: "Check my eligible credit score and loan limit" },
+      { label: "🌱 Telangana Sona Seeds", query: "Tell me about Telangana Sona RNR 15048 seed variety" },
+      { label: "🧪 Soil Testing Labs", query: "Where is the nearest soil testing lab in Warangal?" }
+    ],
+    hi: [
+      { label: "🌾 वारंगल मंडी भाव", query: "वारंगल एनाममुला मंडी में आज धान और कपास का भाव क्या है?" },
+      { label: "🐛 जैविक कीटनाशक नीमास्त्र", query: "धान में रस चूसक कीड़ों के लिए जैविक नीमास्त्र स्प्रे कैसे बनाएं?" },
+      { label: "📋 PMFBY फसल बीमा क्लेम", query: "फसल नुकसान पर PMFBY बीमा क्लेम कैसे दर्ज करें?" },
+      { label: "💰 4% फसली ऋण (KCC)", query: "मेरा किसान क्रेडिट स्कोर और ऋण पात्रता क्या है?" },
+      { label: "🌱 तेलंगाना सोना बीज", query: "तेलंगाना सोना RNR 15048 बीज की जानकारी दें" },
+      { label: "🧪 मृदा परीक्षण लैब", query: "वारंगल में नजदीकी सरकारी मिट्टी जांच लैब कहाँ है?" }
+    ],
+    te: [
+      { label: "🌾 వరంగల్ మండి ధరలు", query: "వరంగల్ ఎనుమాముల మండిలో ఈరోజు వరి మరియు పత్తి ధరలు ఎంత?" },
+      { label: "🐛 సేంద్రీయ నీమాస్త్రం", query: "తెగుళ్ల నివారణకు సేంద్రీయ నీమాస్త్రం తయారీ విధానం తెలపండి" },
+      { label: "📋 PMFBY పంట బీమా", query: "అకాల వర్షాల పంట నష్టానికి PMFBY బీమా క్లెయిమ్ ఎలా చేయాలి?" },
+      { label: "💳 4% సబ్సిడీ పంట రుణం", query: "నా క్రెడిట్ స్కోర్ మరియు 4% పంట రుణ పరిమితి తెలపండి" },
+      { label: "🌱 తెలంగాణ సోనా విత్తనాలు", query: "తెలంగాణ సోనా RNR 15048 విత్తన రకం గురించి తెలపండి" },
+      { label: "🧪 ఉచిత నేల పరీక్ష", query: "వరంగల్‌లో సమీప ప్రభుత్వ నేల పరీక్ష కేంద్రం ఎక్కడ ఉంది?" }
+    ]
+  };
+
+  const WA_DEFAULT_GREETINGS = {
+    en: "Namaste, I want agricultural advisory from KisanSaathi AI",
+    hi: "नमस्ते, मुझे किसान साथी AI से कृषि सलाह चाहिए",
+    te: "నమస్కారం, నాకు కిసాన్ సాథి AI నుండి వ్యవసాయ సలహా కావాలి"
+  };
+
+  const WA_PHONE_NUMBER = "14155238886"; // Twilio WhatsApp Sandbox Number
+
+  window.initOrUpdateWhatsApp = function(activeLang) {
+    const lang = ['en', 'hi', 'te'].includes(activeLang) ? activeLang : (activeLang === 'hi' ? 'hi' : 'en');
+    const container = document.getElementById('waQuickChipsContainer');
+    const defaultText = WA_DEFAULT_GREETINGS[lang] || WA_DEFAULT_GREETINGS.en;
+    const defaultUrl = `https://wa.me/${WA_PHONE_NUMBER}?text=${encodeURIComponent(defaultText)}`;
+
+    // Update Banner, Floating, and Drawer Buttons
+    const btnBanner = document.getElementById('btnBannerWhatsApp');
+    if (btnBanner) btnBanner.href = defaultUrl;
+    const btnFloat = document.getElementById('floatingWhatsAppBtn');
+    if (btnFloat) btnFloat.href = defaultUrl;
+    const btnDrawer = document.getElementById('drawerWhatsAppBtn');
+    if (btnDrawer) btnDrawer.href = defaultUrl;
+
+    // Render Quick Action Chips for Selected Indian Language
+    if (container) {
+      const prompts = waPromptsByLang[lang] || waPromptsByLang.en;
+      container.innerHTML = prompts.map(p => `
+        <a href="https://wa.me/${WA_PHONE_NUMBER}?text=${encodeURIComponent(p.query)}"
+           target="_blank"
+           rel="noopener noreferrer"
+           class="whitespace-nowrap px-3 py-1.5 rounded-full font-bold border text-xs bg-white text-emerald-950 hover:bg-emerald-50 border-emerald-300 shadow-xs transition flex-shrink-0 flex items-center gap-1 active:scale-95">
+          <svg class="w-3.5 h-3.5 fill-[#25D366] flex-shrink-0" viewBox="0 0 24 24">
+            <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.592 2.654-.696c1.004.577 1.764.846 2.806.847h.002c3.182 0 5.768-2.587 5.768-5.766.001-3.182-2.585-5.63-5.77-5.63zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.053-1.025-.078-.584-.195-1.378-.583-2.316-1.424-.925-.828-1.523-1.848-1.748-2.235-.226-.388-.024-.597.108-.729.117-.117.26-.301.39-.452.129-.151.172-.258.258-.43.086-.172.043-.323-.021-.452-.065-.129-.582-1.402-.8-1.921-.211-.505-.427-.436-.584-.444-.151-.008-.324-.01-.496-.01-.172 0-.452.065-.689.323-.237.258-.905.884-.905 2.155s.926 2.499 1.055 2.671c.129.172 1.821 2.782 4.412 3.899 2.591 1.117 2.591.744 3.064.698.473-.046 1.527-.624 1.743-1.226.215-.602.215-1.118.151-1.226-.065-.108-.237-.172-.452-.28z"/>
+          </svg>
+          <span>${p.label}</span>
+        </a>
+      `).join('');
+    }
+
+    // Update active tab styling
+    document.querySelectorAll('.wa-lang-tab').forEach(tab => {
+      const tabLang = tab.getAttribute('data-walang');
+      if (tabLang === lang) {
+        tab.className = 'wa-lang-tab px-2 py-0.5 rounded-full bg-white text-emerald-900 font-extrabold transition shadow-xs';
+      } else {
+        tab.className = 'wa-lang-tab px-2 py-0.5 rounded-full bg-emerald-800/80 hover:bg-emerald-800 text-white font-extrabold transition';
+      }
+    });
+  };
+
+  // Bind tab click events
+  document.querySelectorAll('.wa-lang-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const selected = tab.getAttribute('data-walang');
+      window.initOrUpdateWhatsApp(selected);
+    });
+  });
 
   if (chatForm) {
     chatForm.addEventListener('submit', (e) => {

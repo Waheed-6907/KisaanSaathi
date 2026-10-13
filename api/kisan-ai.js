@@ -140,6 +140,65 @@ const KISAN_KNOWLEDGE = {
              "• किसानों को प्रति एकड़ *₹10,000 प्रति वर्ष* की प्रत्यक्ष निवेश सहायता (DBT) दी जाती है।\n" +
              "• स्थिति जांचने के लिए अपने पट्टा पासबुक एवं आधार लिंक का उपयोग करें।"
     }
+  ],
+  te: [
+    {
+      keywords: ['రేటు', 'ధర', 'మండి', 'ధాన్యం', 'వరి', 'పత్తి', 'పసుపు', 'రేట్లు', 'ధరలు', 'rate', 'price', 'mandi'],
+      reply: "*🌾 ఈరోజు మండి ధరలు (తెలంగాణ మండీలు)*\n\n" +
+             "• *తెలంగాణ సోనా (RNR 15048):* క్వింటాలుకు ₹2,650 - ₹2,750 (ఎనుమాముల మండి, వరంగల్)\n" +
+             "• *సోనా మసూరి (BPT 5204):* క్వింటాలుకు ₹2,200 - ₹2,350 (బోవెన్‌పల్లి మండి, సికింద్రాబాద్)\n" +
+             "• *ఉత్తమ పత్తి (Cotton):* క్వింటాలుకు ₹7,450\n" +
+             "• *నిజామాబాద్ పసుపు:* క్వింటాలుకు ₹13,800\n" +
+             "• *తాండూర్ కంది:* క్వింటాలుకు ₹9,800\n\n" +
+             "💡 *కిసాన్ సాథి ద్వారా నేరుగా విక్రయిస్తే 24 గంటల్లో DBT ద్వారా బ్యాంకు ఖాతాలో జమ అవుతుంది.*"
+    },
+    {
+      keywords: ['పురుగు', 'తెగులు', 'స్ప్రే', 'వేప', 'నీమాస్త్రం', 'మందు', 'సేంద్రీయ', 'pest', 'spray', 'neem'],
+      reply: "*🌿 సేంద్రీయ పురుగుమందు: నీమాస్త్రం తయారీ విధానం*\n\n" +
+             "వరి మరియు పత్తిలో కాండం తొలుచు పురుగు, రసం పీల్చే పురుగుల నివారణకు:\n" +
+             "1. 5 కిలోల తాజా వేప ఆకులు, 5 లీటర్ల ఆవు మూత్రం, 2 కిలోల దేశీ ఆవు పేడ.\n" +
+             "2. నీడలో 48 గంటలు పులియబెట్టి, రోజుకు 2 సార్లు కర్రతో కలపండి.\n" +
+             "3. వడకట్టి, *15 లీటర్ల స్ప్రే పంపుకు 200 మి.లీ* కలిపి పిచికారీ చేయండి.\n\n" +
+             "✅ 100% సేంద్రీయ రక్షణ, ఎకరానికి ₹800 పురుగుమందుల ఖర్చు ఆదా."
+    },
+    {
+      keywords: ['బీమా', 'క్లెయిమ్', 'నష్టం', 'వర్షం', 'వరద', 'pmfby', 'insurance', 'claim'],
+      reply: "*📋 ప్రధానమంత్రి ఫసల్ బీమా యోజన (PMFBY)*\n\n" +
+             "అకాల వర్షాలు లేదా తెగుళ్ల వల్ల పంట నష్టం జరిగితే:\n" +
+             "• నష్టం జరిగిన *72 గంటల్లోపు* క్లెయిమ్ నమోదు చేయాలి.\n" +
+             "• *టోల్ ఫ్రీ కిసాన్ కాల్ సెంటర్:* 1800-180-1551\n" +
+             "• *PMFBY హెల్ప్‌లైన్:* 1800-200-5142\n" +
+             "• కిసాన్ సాథి పోర్టల్ ద్వారా పొలం ఫోటో అప్‌లోడ్ చేసి కూడా క్లెయిమ్ చేయవచ్చు."
+    },
+    {
+      keywords: ['రుణం', 'లోన్', 'వడ్డీ', 'క్రెడిట్', 'బ్యాంకు', 'స్కోర్', 'డబ్బు', 'loan', 'credit', 'kcc'],
+      reply: "*💳 కిసాన్ క్రెడిట్ మరియు 4% సబ్సిడీ పంట రుణం*\n\n" +
+             "• మీ పంట రికార్డు ఆధారంగా క్రెడిట్ స్కోర్: *785/900*.\n" +
+             "• తెలంగాణ రాష్ట్ర సహకార బ్యాంకు (TSCAB) ద్వారా *4% రాయితీ వడ్డీతో* ₹3,00,000 వరకు తక్షణ పంట రుణం పొందవచ్చు."
+    },
+    {
+      keywords: ['నేల', 'మట్టి', 'పరీక్ష', 'ల్యాబ్', 'ఎరువులు', 'యూరియా', 'soil', 'lab'],
+      reply: "*🧪 ఉచిత నేల ఆరోగ్య పరీక్ష కేంద్రాలు (తెలంగాణ)*\n\n" +
+             "నేల ఆరోగ్య కార్డు పథకం కింద పరీక్ష ఉచితం:\n" +
+             "• *వరంగల్:* RARS ములుగు రోడ్డు మరియు AMC పైడిపల్లి\n" +
+             "• *హైదరాబాద్:* PJTSAU రాజేంద్రనగర్\n" +
+             "• *మేడ్చల్:* కండ్లకోయి AMC\n" +
+             "• *నిజామాబాద్:* శ్రద్ధానంద్ గంజ్\n\n" +
+             "తెలంగాణ ఎర్ర నేలలకు 6.5 నుండి 7.5 pH అనుకూలం."
+    },
+    {
+      keywords: ['విత్తనాలు', 'రకాలు', 'సోనా', 'rnr', 'వరి', 'seeds', 'variety'],
+      reply: "*🌱 ధృవీకరించబడిన విత్తన రకాలు (PJTSAU)*\n\n" +
+             "• *తెలంగాణ సోనా (RNR 15048):* తక్కువ గ్లైసెమిక్ ఇండెక్స్ (GI 51), అగ్గి తెగులు తట్టుకుంటుంది.\n" +
+             "• *సాంబా మసూరి (BPT 5204):* సన్న బియ్యం రకం.\n" +
+             "• *తాండూర్ కంది (GI ట్యాగ్):* వర్షాధార నేలలకు అనువైన రకం."
+    },
+    {
+      keywords: ['రైతు', 'బంధు', 'భరోసా', 'పథకం', 'సబ్సిడీ', 'rythu', 'bandhu', 'bharosa'],
+      reply: "*🏛️ తెలంగాణ రైతు భరోసా / రైతు బంధు పథకం*\n\n" +
+             "• రైతులకు ఎకరానికి ఏటా *₹10,000* పెట్టుబడి సహాయం నేరుగా బ్యాంక్ ఖాతాల్లో (DBT) జమ చేయబడుతుంది.\n" +
+             "• మీ పట్టాదారు పాస్‌బుక్ వివరాలతో స్థితిని తనిఖీ చేసుకోండి."
+    }
   ]
 };
 
@@ -152,7 +211,7 @@ const GREETINGS = {
                 "• *PMFBY Crop Insurance* (Damage claims within 72 hrs)\n" +
                 "• *Subsidized 4% Crop Loans* & Soil Health Testing\n" +
                 "• *Telangana Sona Seeds* & Rythu Bharosa\n\n" +
-                "Just reply with your query in English or Hindi!",
+                "Just reply with your query in English, Hindi, or Telugu!",
   hi: (name) => `🌾 *नमस्ते ${name || 'किसान साथी'}!* *किसान साथी AI सहायक* (तेलंगाना) में आपका स्वागत है।\n\n` +
                 "आज मैं आपकी क्या सहायता कर सकता हूँ? आप पूछ सकते हैं:\n" +
                 "• *ताजा मंडी भाव* (वारंगल एनाममुला, बोवेनपल्ली)\n" +
@@ -160,7 +219,15 @@ const GREETINGS = {
                 "• *फसल बीमा क्लेम* (PMFBY 72 घंटे में सूचना)\n" +
                 "• *4% फसली ऋण (KCC)* एवं निःशुल्क मिट्टी जांच\n" +
                 "• *तेलंगाना सोना बीज* एवं रायथू भरोसा योजना\n\n" +
-                "कृपया अपना प्रश्न हिंदी या अंग्रेजी में लिखकर भेजें!"
+                "कृपया अपना प्रश्न हिंदी या अंग्रेजी में लिखकर भेजें!",
+  te: (name) => `🌾 *నమస్కారం ${name || 'రైతు మిత్రమా'}!* *కిసాన్ సాథి AI సహాయకుడికి* స్వాగతం (తెలంగాణ).\n\n` +
+                "నేను మీకు ఎలా సహాయపడగలను? మీరు వీటి గురించి అడగవచ్చు:\n" +
+                "• *తాజా మండి ధరలు* (వరంగల్ ఎనుమాముల, హైదరాబాద్ బోవెన్‌పల్లి)\n" +
+                "• *సేంద్రీయ పురుగుమందు* (నీమాస్త్రం తయారీ విధానం)\n" +
+                "• *PMFBY పంట బీమా* (72 గంటల్లో క్లెయిమ్ నమోదు)\n" +
+                "• *4% సబ్సిడీ పంట రుణం* & ఉచిత నేల పరీక్ష కేంద్రాలు\n" +
+                "• *తెలంగాణ సోనా విత్తనాలు* & రైతు భరోసా పథకం\n\n" +
+                "మీ ప్రశ్నను తెలుగు, హిందీ లేదా ఇంగ్లీషులో పంపండి!"
 };
 
 // General fallback advisories
@@ -178,18 +245,33 @@ const FALLBACKS = {
       "2. *कीटनाशक व रोग नियंत्रण* (जैसे 'नीमास्त्र स्प्रे')\n" +
       "3. *फसल बीमा क्लेम*\n" +
       "4. *मिट्टी जांच या बीज किस्में*\n\n" +
-      "📞 *टोल-फ्री किसान कॉल सेंटर:* 1800-180-1551"
+      "📞 *टोल-फ्री किसान कॉल सेंटर:* 1800-180-1551",
+  te: "🌾 *కిసాన్ సాథి వ్యవసాయ సలహా*\n\n" +
+      "మీ సందేశానికి ధన్యవాదాలు! తెలంగాణ వ్యవసాయ సలహా కోసం దయచేసి మీ ప్రశ్న దేనికి సంబంధించినదో తెలపండి:\n" +
+      "1. *మండి ధరలు* (ఉదా: 'వరి ధర ఎంత')\n" +
+      "2. *తెగుళ్ల నివారణ* (ఉదా: 'నీమాస్త్రం స్ప్రే')\n" +
+      "3. *PMFBY పంట బీమా క్లెయిమ్*\n" +
+      "4. *నేల పరీక్ష లేదా విత్తన రకాలు*\n\n" +
+      "📞 *టోల్-ఫ్రీ కిసాన్ కాల్ సెంటర్:* 1800-180-1551"
 };
 
 /**
  * Detect language of incoming message
  */
 function detectLanguage(text) {
+  // Contains Telugu Unicode range
+  if (/[\u0C00-\u0C7F]/.test(text)) {
+    return 'te';
+  }
   // Contains Devanagari Unicode range
   if (/[\u0900-\u097F]/.test(text)) {
     return 'hi';
   }
   const lower = (text || '').toLowerCase().trim();
+  const teluguPhrases = ['dharalu', 'mandi dharalu', 'enta', 'ela cheyali', 'neemastram', 'namaskaram', 'telangana sona', 'pasupu'];
+  if (teluguPhrases.some(p => lower.includes(p))) {
+    return 'te';
+  }
   const hindiPhrases = ['kya hai', 'bhav kya', 'kaise banaye', 'kripya', 'namaskar', 'kitna hai', 'bataye', 'bataiye', 'keeda'];
   if (hindiPhrases.some(p => lower.includes(p))) {
     return 'hi';
@@ -227,7 +309,7 @@ Format instructions:
 - Output in WhatsApp markdown (*bold*, bullet points).
 - Keep response under 1200 characters.
 - Tone: Respectful, practical, clear, encouraging.
-- Language: Respond in ${lang === 'hi' ? 'Hindi (Devanagari)' : 'English'}.
+- Language: Respond in ${lang === 'te' ? 'Telugu (తెలుగు)' : (lang === 'hi' ? 'Hindi (Devanagari)' : 'English')}.
 - End with Kisan Call Center Helpline: 1800-180-1551.`;
 
     const payload = JSON.stringify({
@@ -294,7 +376,7 @@ function callOpenAIAPI(apiKey, prompt, lang, profileName) {
     const systemPrompt = `You are KisanSaathi AI, an expert agricultural assistant dedicated to Telangana farmers.
 Farmer's name: "${profileName || 'Farmer'}".
 Provide accurate Telangana farming advisory (Mandi rates in Enumamula/Bowenpally, Organic Neemastra spray, PMFBY insurance 72h, 4% crop loan, Rythu Bharosa).
-Respond in ${lang === 'hi' ? 'Hindi' : 'English'} with WhatsApp markdown (*bold*, bullets), max 1200 chars. Helpline: 1800-180-1551.`;
+Respond in ${lang === 'te' ? 'Telugu' : (lang === 'hi' ? 'Hindi' : 'English')} with WhatsApp markdown (*bold*, bullets), max 1200 chars. Helpline: 1800-180-1551.`;
 
     const payload = JSON.stringify({
       model: "gpt-4o-mini",

@@ -148,6 +148,20 @@ async function runTests() {
     assert.ok(res.body.includes('एनाममुला मंडी'));
   });
 
+  // Test 6b: Telugu query (Bilingual Indian language for Telangana)
+  await test('POST Telugu query returns Telugu advisory in TwiML', async () => {
+    const bodyStr = querystring.stringify({
+      Body: 'వరంగల్ మండిలో వరి ధర ఎంత?',
+      From: 'whatsapp:+919876543210'
+    });
+    const req = createMockReq({ body: bodyStr });
+    const res = await runHandler(req);
+
+    assert.strictEqual(res.statusCode, 200);
+    assert.ok(res.body.includes('తెలంగాణ సోనా'));
+    assert.ok(res.body.includes('ఎనుమాముల మండి'));
+  });
+
   // Test 7: Empty message handling
   await test('POST empty Body returns friendly guidance without error', async () => {
     const bodyStr = querystring.stringify({
