@@ -343,7 +343,8 @@ CREATE TABLE IF NOT EXISTS public.consumer_demands (
     target_price_per_kg NUMERIC NOT NULL,
     delivery_destination TEXT NOT NULL DEFAULT 'Bowenpally Modern Market Yard, Secunderabad',
     status TEXT DEFAULT 'open', -- 'open', 'matched', 'fulfilled'
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Seed Default Consumers / Agro-Vendors
