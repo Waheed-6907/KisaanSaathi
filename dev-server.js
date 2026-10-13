@@ -214,8 +214,6 @@ function handleRequest(req, res) {
       return res.end(JSON.stringify({ error: 'TextBee route error', details: err.message }));
     }
   }
-    }
-  }
 
   // Support communication with bound internal service 'web-platform' via WEB_PLATFORM_URL if present
   if (process.env.WEB_PLATFORM_URL && (reqPath.startsWith('/platform') || reqPath.startsWith('/api/platform'))) {
