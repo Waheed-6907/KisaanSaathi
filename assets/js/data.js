@@ -765,7 +765,7 @@ const KISAN_DATA = {
     { file: "assets/images/ss4.png", title: "Grain Quality Grading", desc: "Inspection metrics, moisture and defect ratios" },
     { file: "assets/images/ss5.png", title: "Farmer's Profile", desc: "Identity, land records, rating and direct wallet shortcuts" },
     { file: "assets/images/ss6.png", title: "Predicted Quality by ML Model", desc: "Instant automated grading (Elite / Premium / Classic)" },
-    { file: "assets/images/ss7.png", title: "Weather Updates", desc: "Telangana temperature, humidity, rainfall probability" },
+    { file: "assets/images/ss7.png", title: "Inclusive Credit Assessment", desc: "NABARD scale of finance and cash flow loan assessment" },
     { file: "assets/images/ss8.png", title: "Feature Search Grid", desc: "Instant access to all modules and advisory tools" },
     { file: "assets/images/ss9.png", title: "Information Section", desc: "Production methods, pest solutions and govt schemes" },
     { file: "assets/images/ss10.png", title: "Farmer's Earning Wallet", desc: "Crop sale earnings, recent transactions and bank transfer" },

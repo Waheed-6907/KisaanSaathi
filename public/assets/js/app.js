@@ -1669,7 +1669,6 @@ function initKisanSaathi() {
       godowns: 'sectionGodowns',
       logistics: 'sectionLogistics',
       marketIntel: 'sectionInventory',
-      weather: 'sectionWeather',
       chat: 'sectionChat',
       profile: 'sectionProfile',
       about: 'sectionAbout',
@@ -1751,7 +1750,6 @@ function initKisanSaathi() {
     applyViewMode(currentViewMode === 'mobile' ? 'desktop' : 'mobile');
   });
 
-  document.getElementById('btnQuickWeather').addEventListener('click', () => navigateTo('weather'));
   document.getElementById('btnQuickProfile').addEventListener('click', () => navigateTo('profile'));
   document.getElementById('btnOpenSearch').addEventListener('click', () => openSearchModal());
 
@@ -5767,34 +5765,6 @@ function initKisanSaathi() {
 
 
   // =========================================================================
-  // SECTION 11: WEATHER ADVISORY (WeatherActivity)
-  // =========================================================================
-  // =========================================================================
-  // SECTION 11: WEATHER ADVISORY (WeatherActivity)
-  // =========================================================================
-  const weatherPresets = {
-    warangal: { temp: "33 °C", condition: "Sunny & Warm (Enumamula Basin)", humidity: "55%", pressure: "1011 hPa", advisory: "Optimal condition for paddy harvesting and red gram pod development." },
-    hyderabad: { temp: "32 °C", condition: "Clear Skies (Rajendranagar Agro-Belt)", humidity: "50%", pressure: "1012 hPa", advisory: "Ideal weather for vegetable marketing and polyhouse floriculture." },
-    secunderabad: { temp: "31 °C", condition: "Partly Cloudy (Bowenpally Terminal)", humidity: "52%", pressure: "1013 hPa", advisory: "Dry weather favorable for bulk grain loading and mandi transport." },
-    medchal: { temp: "30 °C", condition: "Pleasant & Breezy (Kandlakoi)", humidity: "58%", pressure: "1014 hPa", advisory: "Good time for soil moisture conservation and micro-irrigation." },
-    nizamabad: { temp: "34 °C", condition: "Sunny & Dry (Shradhanand Gunj)", humidity: "48%", pressure: "1009 hPa", advisory: "Suitable for turmeric curing and seed drying operations." }
-  };
-
-  const weatherDistrictSelect = document.getElementById('weatherDistrictSelect');
-  if (weatherDistrictSelect) {
-    weatherDistrictSelect.addEventListener('change', (e) => {
-      const val = e.target.value;
-      const w = weatherPresets[val] || weatherPresets.warangal;
-      document.getElementById('weatherTemp').textContent = w.temp;
-      document.getElementById('weatherCondition').textContent = w.condition;
-      document.getElementById('weatherHumidity').textContent = `Humidity: ${w.humidity}`;
-      document.getElementById('weatherPressure').textContent = `Pressure: ${w.pressure}`;
-      const advEl = document.querySelector('#sectionWeather p.text-xs.text-gray-600');
-      if (advEl) advEl.textContent = w.advisory;
-    });
-  }
-
-  // =========================================================================
   // SECTION 12: AI KISAN ASSISTANT CHATBOT (Bilingual: English & Hindi)
   // =========================================================================
   const chatMessages = document.getElementById('chatMessages');
@@ -6990,7 +6960,6 @@ function initKisanSaathi() {
     { title: "Crop Production", icon: "book-open", target: "info" },
     { title: "Godowns & Storage", icon: "warehouse", target: "godowns" },
     { title: "Logistics Network", icon: "navigation", target: "logistics" },
-    { title: "Weather Forecast", icon: "cloud-sun", target: "weather" },
     { title: "AI Kisan Chat", icon: "bot", target: "chat" },
     { title: "About Application", icon: "info", target: "about" }
   ];

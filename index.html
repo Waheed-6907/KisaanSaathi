@@ -497,10 +497,6 @@
             <i data-lucide="navigation" class="w-5 h-5 text-cyan-600"></i>
             <span data-i18n="nav_logistics">Logistics Network</span>
           </a>
-          <a class="drawer-item" data-navigate="weather">
-            <i data-lucide="cloud-sun" class="w-5 h-5 text-sky-500"></i>
-            <span data-i18n="nav_weather">Weather Forecast</span>
-          </a>
           <a class="drawer-item" data-navigate="chat">
             <i data-lucide="bot" class="w-5 h-5 text-fuchsia-600"></i>
             <span data-i18n="nav_chat">AI Kisan Assistant (Chatbot)</span>
@@ -567,10 +563,6 @@
             <i data-lucide="navigation" class="w-5 h-5 text-cyan-600"></i>
             <span>Agri-Freight Logistics</span>
           </a>
-          <a class="drawer-item" data-navigate="weather">
-            <i data-lucide="cloud-sun" class="w-5 h-5 text-sky-500"></i>
-            <span>Mandi Weather Forecast</span>
-          </a>
           <a class="drawer-item" data-navigate="chat">
             <i data-lucide="bot" class="w-5 h-5 text-fuchsia-600"></i>
             <span>AI Procurement Assistant</span>
@@ -615,10 +607,6 @@
           <!-- Search Feature Grid Button -->
           <button id="btnOpenSearch" class="p-2 hover:bg-white/20 rounded-lg transition" title="Search Features">
             <i data-lucide="search" class="w-5 h-5"></i>
-          </button>
-          <!-- Quick Weather shortcut -->
-          <button id="btnQuickWeather" class="p-2 hover:bg-white/20 rounded-lg transition" title="Weather Updates">
-            <i data-lucide="cloud-sun" class="w-5 h-5"></i>
           </button>
           <!-- Profile Shortcut -->
           <button id="btnQuickProfile" class="w-8 h-8 rounded-full bg-white/20 border border-white/40 flex items-center justify-center font-bold text-sm">
@@ -1945,53 +1933,6 @@
                 </p>
               </div>
             </div>
-          </div>
-        </section>
-
-        <!-- SECTION 12: WEATHER FORECAST (WeatherActivity) -->
-        <section id="sectionWeather" class="app-section hidden space-y-4">
-          <div class="bg-gradient-to-br from-sky-500 via-indigo-600 to-purple-700 text-white p-6 rounded-3xl shadow-lg relative overflow-hidden">
-            <div class="flex justify-between items-start">
-              <div>
-                <select id="weatherDistrictSelect" class="bg-white/20 text-white font-bold text-sm px-3 py-1 rounded-xl border border-white/30 backdrop-blur-sm focus:outline-none mb-1">
-                  <option value="warangal" class="text-gray-900">Warangal (Enumamula)</option>
-                  <option value="hyderabad" class="text-gray-900">Hyderabad (Rajendranagar)</option>
-                  <option value="secunderabad" class="text-gray-900">Secunderabad (Bowenpally)</option>
-                  <option value="medchal" class="text-gray-900">Medchal (Kandlakoi)</option>
-                  <option value="nizamabad" class="text-gray-900">Nizamabad (Shradhanand Gunj)</option>
-                </select>
-                <p id="weatherTimeLabel" class="text-xs text-sky-100">Live Satellite Agro-Meteorology</p>
-              </div>
-              <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                <i data-lucide="sun" class="w-10 h-10 text-yellow-300 animate-spin" style="animation-duration: 25s"></i>
-              </div>
-            </div>
-
-            <div class="my-4 flex items-baseline gap-2">
-              <span id="weatherTemp" class="text-5xl font-extrabold tracking-tight">33 °C</span>
-              <span id="weatherCondition" class="text-lg font-medium text-sky-100">Sunny & Warm</span>
-            </div>
-
-            <div class="grid grid-cols-2 gap-2 text-xs border-t border-white/20 pt-3">
-              <div class="flex items-center gap-2">
-                <i data-lucide="droplets" class="w-4 h-4 text-cyan-200"></i>
-                <span id="weatherHumidity">Humidity: 55%</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <i data-lucide="gauge" class="w-4 h-4 text-cyan-200"></i>
-                <span id="weatherPressure">Pressure: 1011 hPa</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Agro Advisory Based on Weather -->
-          <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-2">
-            <h4 class="font-bold text-sm text-gray-800 flex items-center gap-1.5 text-purple-700">
-              <i data-lucide="alert-circle" class="w-4 h-4"></i> Farmer Advisory for Today
-            </h4>
-            <p class="text-xs text-gray-600 leading-relaxed">
-              Favorable weather for paddy harvesting and drying across Warangal and Nizamabad mandals. Provide protective irrigation to cotton and red gram crops.
-            </p>
           </div>
         </section>
 
