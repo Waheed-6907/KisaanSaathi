@@ -336,7 +336,7 @@ Format instructions:
         'Content-Type': 'application/json',
         'Content-Length': Buffer.byteLength(payload)
       },
-      timeout: 10000
+      timeout: 15000
     };
 
     const req = https.request(options, (res) => {
@@ -368,21 +368,32 @@ Format instructions:
   });
 }
 
+const GEMINI_MODELS = [
+  'gemini-3.5-flash-lite',
+  'gemini-flash-lite-latest',
+  'gemini-3.5-flash',
+  'gemini-3.7-flash',
+  'gemini-3.6-flash',
+  'gemini-3.8-flash'
+];
+
 /**
- * Call Gemini with automatic model fallback (gemini-1.5-flash -> gemini-2.0-flash)
+ * Call Gemini with multi-model fallback across available Google AI models
  */
 async function callGeminiWithFallback(apiKey, prompt, lang, profileName) {
-  try {
-    return await callGeminiAPI(apiKey, prompt, lang, profileName, 'gemini-1.5-flash');
-  } catch (err1) {
-    console.warn('[KisanAI] gemini-1.5-flash note:', err1.message, '- retrying with gemini-2.0-flash');
+  let lastError = null;
+  for (const model of GEMINI_MODELS) {
     try {
-      return await callGeminiAPI(apiKey, prompt, lang, profileName, 'gemini-2.0-flash');
-    } catch (err2) {
-      console.warn('[KisanAI] gemini-2.0-flash note:', err2.message);
-      throw err2;
+      const result = await callGeminiAPI(apiKey, prompt, lang, profileName, model);
+      if (result) {
+        return { text: result, model };
+      }
+    } catch (err) {
+      lastError = err;
+      console.warn(`[KisanAI] Model ${model} notice:`, err.message);
     }
   }
+  throw lastError || new Error('All candidate Gemini models exhausted');
 }
 
 /**
@@ -494,7 +505,7 @@ async function getKisanAiResponse(rawMessage, { profileName = '', fromNumber = '
   if (geminiKey) {
     try {
       const geminiReply = await callGeminiWithFallback(geminiKey, query, lang, profileName);
-      if (geminiReply) return geminiReply;
+      if (geminiReply && geminiReply.text) return geminiReply.text;
     } catch (err) {
       console.warn('[KisanAI] Gemini API failed, falling back to core knowledge engine:', err.message);
     }
@@ -595,8 +606,9 @@ async function kisanAiHandler(req, res) {
         provider = 'greeting';
       } else {
         try {
-          reply = await callGeminiWithFallback(activeGeminiKey, message, lang, profileName);
-          provider = 'gemini-1.5-flash';
+          const geminiResult = await callGeminiWithFallback(activeGeminiKey, message, lang, profileName);
+          reply = geminiResult.text;
+          provider = geminiResult.model;
         } catch (err) {
           console.warn('[KisanAI API] Gemini call error:', err.message);
           reply = await getKisanAiResponse(message, { profileName, preferredLanguage: lang });
