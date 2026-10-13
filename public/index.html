@@ -574,6 +574,14 @@
             <span class="font-bold text-xs">WhatsApp Procurement (వాట్సాప్)</span>
             <span class="ml-auto text-[9px] bg-[#25D366] text-white font-extrabold px-1.5 py-0.5 rounded-full uppercase">Live</span>
           </a>
+          <a class="drawer-item text-blue-900 bg-blue-50 hover:bg-blue-100 border border-blue-200/60 rounded-xl cursor-pointer" onclick="openTextBeeStatusModal()">
+            <i data-lucide="smartphone" class="w-5 h-5 text-blue-600 flex-shrink-0"></i>
+            <div class="flex-1 min-w-0">
+              <span class="font-bold text-xs block leading-tight">SMS Gateway (TextBee)</span>
+              <span class="text-[10px] text-blue-600 block leading-tight">Vivo Android &bull; Jio SIM</span>
+            </div>
+            <span id="textbeeDrawerStatusPill" class="ml-auto text-[9px] bg-blue-600 text-white font-extrabold px-1.5 py-0.5 rounded-full uppercase">SMS</span>
+          </a>
           <a class="drawer-item" data-navigate="feedback">
             <i data-lucide="message-square" class="w-5 h-5 text-slate-600"></i>
             <span>Contact Mandi Admin</span>
@@ -3614,6 +3622,102 @@
           </button>
         </div>
       </div>
+    </div>
+  <!-- Modal K: TextBee SMS Gateway Status & Diagnostics Modal -->
+  <div id="modalTextBeeStatus" class="modal-overlay">
+    <div class="modal-content max-w-xl p-5 space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold shadow-sm">
+            <i data-lucide="smartphone" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-gray-900">TextBee SMS Gateway Status</h3>
+            <p class="text-xs text-gray-500">Android SMS Gateway (Vivo Device &bull; Jio SIM)</p>
+          </div>
+        </div>
+        <button id="btnCloseTextBeeModal" type="button" class="text-gray-400 hover:text-gray-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Live Gateway Status Cards -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+        <div class="bg-blue-50/60 p-2.5 rounded-xl border border-blue-100 text-center">
+          <span class="text-[10px] text-gray-500 block">Gateway Device</span>
+          <span id="tbStatusDevice" class="font-extrabold text-blue-900 text-xs">Vivo (Jio SIM)</span>
+        </div>
+        <div class="bg-emerald-50/60 p-2.5 rounded-xl border border-emerald-100 text-center">
+          <span class="text-[10px] text-gray-500 block">Inbound Received</span>
+          <span id="tbStatusInbound" class="font-extrabold text-emerald-800 text-sm">0</span>
+        </div>
+        <div class="bg-purple-50/60 p-2.5 rounded-xl border border-purple-100 text-center">
+          <span class="text-[10px] text-gray-500 block">Outbound Dispatched</span>
+          <span id="tbStatusOutbound" class="font-extrabold text-purple-800 text-sm">0</span>
+        </div>
+        <div class="bg-amber-50/60 p-2.5 rounded-xl border border-amber-100 text-center">
+          <span class="text-[10px] text-gray-500 block">Webhook Route</span>
+          <span id="tbStatusWebhook" class="font-extrabold text-amber-800 text-xs">Active</span>
+        </div>
+      </div>
+
+      <!-- Live Configuration Inspector -->
+      <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 text-xs space-y-2">
+        <span class="font-bold text-gray-800 block text-xs flex items-center gap-1.5">
+          <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
+          <span>Server Gateway Configuration (Masked)</span>
+        </span>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-gray-600">
+          <div>
+            <span class="text-gray-400 block text-[10px] uppercase font-bold">API Key:</span>
+            <span id="tbConfigApiKey" class="font-mono text-gray-800 font-semibold">Checking...</span>
+          </div>
+          <div>
+            <span class="text-gray-400 block text-[10px] uppercase font-bold">Device ID:</span>
+            <span id="tbConfigDeviceId" class="font-mono text-gray-800 font-semibold">Checking...</span>
+          </div>
+          <div class="sm:col-span-2">
+            <span class="text-gray-400 block text-[10px] uppercase font-bold">Public Webhook URL (Enter in TextBee):</span>
+            <div class="flex items-center gap-2 mt-0.5">
+              <input type="text" id="tbConfigWebhookUrl" readonly value="https://kisaan-saathi-pi.vercel.app/api/textbee-webhook" class="flex-1 bg-white border border-gray-200 px-2 py-1 rounded text-xs font-mono text-gray-700" />
+              <button type="button" id="btnCopyTbWebhookUrl" class="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded font-bold text-[11px] text-gray-700">Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIVO ANDROID DIAGNOSTIC NOTICE -->
+      <div class="bg-amber-50 p-3.5 rounded-xl border border-amber-200 text-amber-950 text-xs space-y-2">
+        <div class="flex items-center gap-1.5 font-bold text-amber-900">
+          <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 flex-shrink-0"></i>
+          <span>Diagnostic Fix: Incoming SMS arrives in Vivo Inbox but missing in TextBee Activity?</span>
+        </div>
+        <p class="text-[11px] text-amber-800 leading-relaxed">
+          On Vivo Android phones (Funtouch OS), background power management blocks third-party SMS listeners unless explicitly exempted:
+        </p>
+        <div class="bg-white/80 p-2.5 rounded-lg border border-amber-100 text-[11px] space-y-1 text-gray-700">
+          <div>1. <strong>Settings &gt; Battery &gt; Background power consumption:</strong> Set TextBee to <em>"High background power usage"</em>.</div>
+          <div>2. <strong>Settings &gt; Applications &amp; Permissions &gt; Autostart:</strong> Toggle TextBee to <em>Enabled</em>.</div>
+          <div>3. <strong>App Permissions &gt; SMS:</strong> Set TextBee to <em>"Allow all the time"</em>.</div>
+          <div>4. <strong>Recent Apps:</strong> Swipe down on TextBee card and tap the 🔒 padlock icon to prevent process termination.</div>
+          <div>5. <strong>Notification Shade:</strong> Verify the continuous notification <em>"TextBee Gateway is active"</em> is showing.</div>
+        </div>
+      </div>
+
+      <!-- Actions & Interactive Diagnostics -->
+      <div class="flex flex-wrap gap-2 pt-1 text-xs">
+        <button type="button" id="btnRunTbDiagnostics" class="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-sm transition flex items-center gap-1.5">
+          <i data-lucide="activity" class="w-3.5 h-3.5"></i>
+          <span>Run Live Health Diagnostic</span>
+        </button>
+        <button type="button" id="btnTriggerTbPoll" class="px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl shadow-sm transition flex items-center gap-1.5">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+          <span>Poll Inbound SMS Now</span>
+        </button>
+      </div>
+
+      <!-- Diagnostic Results Display -->
+      <div id="tbDiagnosticOutput" class="hidden p-3 rounded-xl border text-xs font-mono whitespace-pre-wrap bg-gray-900 text-gray-100 max-h-48 overflow-y-auto"></div>
     </div>
   </div>
 

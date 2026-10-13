@@ -56,9 +56,13 @@ const jsFiles = [
   'api/logistics.js', 
   'api/voice-saathi.js',
   'api/market-prices.js',
-  'api/market-agent.js',
   'api/credit-assessment.js',
-  'api/crop-vision.js'
+  'api/crop-vision.js',
+  'api/textbee-service.js',
+  'api/textbee-webhook.js',
+  'api/textbee-poll.js',
+  'api/textbee-status.js',
+  'api/textbee.js'
 ];
 for (const jsFile of jsFiles) {
   const fullPath = path.join(__dirname, jsFile);

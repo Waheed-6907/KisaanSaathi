@@ -6381,6 +6381,121 @@ function initKisanSaathi() {
   // Initialize status on load
   setTimeout(updateGeminiConnectionStatus, 1000);
 
+  // =========================================================================
+  // TEXTBEE ANDROID SMS GATEWAY INTEGRATION MODAL & DIAGNOSTICS
+  // =========================================================================
+  const modalTextBeeStatus = document.getElementById('modalTextBeeStatus');
+  const btnCloseTextBeeModal = document.getElementById('btnCloseTextBeeModal');
+  const btnCopyTbWebhookUrl = document.getElementById('btnCopyTbWebhookUrl');
+  const btnRunTbDiagnostics = document.getElementById('btnRunTbDiagnostics');
+  const btnTriggerTbPoll = document.getElementById('btnTriggerTbPoll');
+  const tbDiagnosticOutput = document.getElementById('tbDiagnosticOutput');
+
+  window.openTextBeeStatusModal = async function() {
+    if (modalTextBeeStatus) {
+      modalTextBeeStatus.classList.add('open');
+      closeDrawer();
+      if (window.lucide) lucide.createIcons();
+      await refreshTextBeeStatus();
+    }
+  };
+
+  async function refreshTextBeeStatus() {
+    try {
+      const res = await fetch('/api/textbee-status');
+      if (!res.ok) return;
+      const data = await res.json();
+
+      const tbApiKeyEl = document.getElementById('tbConfigApiKey');
+      const tbDeviceIdEl = document.getElementById('tbConfigDeviceId');
+      const tbInboundEl = document.getElementById('tbStatusInbound');
+      const tbOutboundEl = document.getElementById('tbStatusOutbound');
+      const tbWebhookUrlEl = document.getElementById('tbConfigWebhookUrl');
+      const drawerPill = document.getElementById('textbeeDrawerStatusPill');
+
+      if (tbApiKeyEl) tbApiKeyEl.textContent = data.gateway?.apiKeyMasked || 'Not set in env';
+      if (tbDeviceIdEl) tbDeviceIdEl.textContent = data.gateway?.deviceIdMasked || 'Vivo (Unset in env)';
+      if (tbInboundEl) tbInboundEl.textContent = data.telemetry?.incomingCount || 0;
+      if (tbOutboundEl) tbOutboundEl.textContent = data.telemetry?.outgoingCount || 0;
+      if (tbWebhookUrlEl && data.gateway?.publicWebhookUrl) {
+        tbWebhookUrlEl.value = data.gateway.publicWebhookUrl;
+      }
+      if (drawerPill && data.gateway?.isConfigured) {
+        drawerPill.textContent = 'ONLINE';
+        drawerPill.className = 'ml-auto text-[9px] bg-emerald-600 text-white font-extrabold px-1.5 py-0.5 rounded-full uppercase';
+      }
+    } catch (_e) {}
+  }
+
+  if (btnCloseTextBeeModal && modalTextBeeStatus) {
+    btnCloseTextBeeModal.addEventListener('click', () => {
+      modalTextBeeStatus.classList.remove('open');
+    });
+  }
+
+  if (btnCopyTbWebhookUrl) {
+    btnCopyTbWebhookUrl.addEventListener('click', () => {
+      const urlInput = document.getElementById('tbConfigWebhookUrl');
+      if (urlInput) {
+        navigator.clipboard.writeText(urlInput.value).then(() => {
+          showToast('TextBee Webhook URL copied to clipboard!');
+        }).catch(() => {
+          urlInput.select();
+          document.execCommand('copy');
+          showToast('Copied to clipboard!');
+        });
+      }
+    });
+  }
+
+  if (btnRunTbDiagnostics) {
+    btnRunTbDiagnostics.addEventListener('click', async () => {
+      if (tbDiagnosticOutput) {
+        tbDiagnosticOutput.classList.remove('hidden');
+        tbDiagnosticOutput.textContent = 'Running live TextBee gateway diagnostic check...';
+      }
+      try {
+        const res = await fetch('/api/textbee-status');
+        const data = await res.json();
+        if (tbDiagnosticOutput) {
+          tbDiagnosticOutput.textContent = JSON.stringify({
+            gatewayConfig: data.gateway,
+            telemetry: data.telemetry,
+            liveDiagnostics: data.liveDiagnostics,
+            verdict: data.liveDiagnostics?.verdict,
+            remediation: data.vivoRemediationGuide
+          }, null, 2);
+        }
+      } catch (err) {
+        if (tbDiagnosticOutput) {
+          tbDiagnosticOutput.textContent = `Diagnostic error: ${err.message}`;
+        }
+      }
+    });
+  }
+
+  if (btnTriggerTbPoll) {
+    btnTriggerTbPoll.addEventListener('click', async () => {
+      if (tbDiagnosticOutput) {
+        tbDiagnosticOutput.classList.remove('hidden');
+        tbDiagnosticOutput.textContent = 'Polling TextBee incoming messages API...';
+      }
+      try {
+        const res = await fetch('/api/textbee-poll');
+        const data = await res.json();
+        if (tbDiagnosticOutput) {
+          tbDiagnosticOutput.textContent = JSON.stringify(data, null, 2);
+        }
+        await refreshTextBeeStatus();
+        showToast(`Polled ${data.polledCount || 0} messages (${data.newMessagesProcessed || 0} new)`);
+      } catch (err) {
+        if (tbDiagnosticOutput) {
+          tbDiagnosticOutput.textContent = `Poll error: ${err.message}`;
+        }
+      }
+    });
+  }
+
   // Chat Form Submission
   if (chatForm) {
     chatForm.addEventListener('submit', async (e) => {
