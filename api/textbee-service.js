@@ -553,16 +553,28 @@ async function processKisanSaathiCommand(rawCommandText, senderPhone = '') {
   }
 }
 
-module.exports = {
-  getConfig,
-  telemetry,
-  recordFailure,
-  isDuplicateMessage,
-  markMessageProcessed,
-  normalizePhoneNumber,
-  verifyWebhookSignature,
-  sendSms,
-  fetchIncomingMessages,
-  fetchDevices,
-  processKisanSaathiCommand
-};
+function textbeeServiceHandler(req, res) {
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'application/json');
+  return res.end(JSON.stringify({
+    service: 'Kisan Saathi TextBee SMS Gateway Core Service',
+    status: 'active',
+    configured: Boolean(process.env.TEXTBEE_API_KEY && process.env.TEXTBEE_DEVICE_ID),
+    timestamp: new Date().toISOString()
+  }));
+}
+
+module.exports = textbeeServiceHandler;
+module.exports.textbeeServiceHandler = textbeeServiceHandler;
+module.exports.getConfig = getConfig;
+module.exports.telemetry = telemetry;
+module.exports.recordFailure = recordFailure;
+module.exports.isDuplicateMessage = isDuplicateMessage;
+module.exports.markMessageProcessed = markMessageProcessed;
+module.exports.normalizePhoneNumber = normalizePhoneNumber;
+module.exports.verifyWebhookSignature = verifyWebhookSignature;
+module.exports.sendSms = sendSms;
+module.exports.fetchIncomingMessages = fetchIncomingMessages;
+module.exports.fetchDevices = fetchDevices;
+module.exports.processKisanSaathiCommand = processKisanSaathiCommand;
+
