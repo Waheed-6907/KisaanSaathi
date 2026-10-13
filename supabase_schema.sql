@@ -55,13 +55,21 @@ ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS agri_credit_score INT DEFAU
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS pre_approved_loan NUMERIC DEFAULT 250000.00;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS wallet_balance NUMERIC DEFAULT 25000.00;
 
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS company_name TEXT;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS delivery_address TEXT;
+
 -- Seed Default Demo Farmer
-INSERT INTO public.profiles (farmer_id, full_name, phone, village, district, state, password_pin, agri_credit_score, pre_approved_loan, wallet_balance)
-VALUES ('FARMER-TG-7721', 'K. Ramarao Reddy', '9848022334', 'Geesugonda', 'Warangal Rural', 'Telangana', '1234', 785, 300000, 45200)
+INSERT INTO public.profiles (farmer_id, full_name, phone, village, district, state, password_pin, agri_credit_score, pre_approved_loan, wallet_balance, role)
+VALUES ('FARMER-TG-7721', 'K. Ramarao Reddy', '9848022334', 'Geesugonda', 'Warangal Rural', 'Telangana', '1234', 785, 300000, 45200, 'farmer')
 ON CONFLICT (farmer_id) DO UPDATE SET
     full_name = EXCLUDED.full_name,
     phone = EXCLUDED.phone,
     password_pin = EXCLUDED.password_pin;
+
+-- Seed Default Demo Consumer / Vendor
+INSERT INTO public.profiles (farmer_id, full_name, phone, village, district, state, password_pin, role, company_name, delivery_address, wallet_balance)
+VALUES ('CONSUMER-TG-5001', 'Bowenpally Bulk Millers', '9440188234', 'Secunderabad', 'Hyderabad', 'Telangana', '1234', 'consumer', 'Deccan Grain Corporation Ltd', 'Bowenpally Modern Market Yard, Secunderabad, Telangana', 150000)
+ON CONFLICT (farmer_id) DO NOTHING;
 
 -- ----------------------------------------------------------------------------
 -- 3. CROPS & INVENTORY TABLE (Produce Listings, Pricing & Computer Vision Grades)
@@ -95,14 +103,16 @@ ALTER TABLE public.crops ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'listed';
 ALTER TABLE public.crops ADD COLUMN IF NOT EXISTS image_url TEXT DEFAULT 'assets/raw/paddy.png';
 
 -- ----------------------------------------------------------------------------
--- 4. NEGOTIATIONS & COUNTER-OFFER DESK
+-- 4. NEGOTIATIONS & COUNTER-OFFER DESK (Connects Consumer Offers to Farmer)
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.negotiations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     farmer_id TEXT NOT NULL DEFAULT 'FARMER-TG-7721',
+    consumer_id TEXT,
     crop_name TEXT NOT NULL,
     buyer_name TEXT NOT NULL,
     buyer_company TEXT,
+    buyer_phone TEXT,
     mandi_location TEXT DEFAULT 'Bowenpally Modern Market Yard',
     offer_price_per_kg NUMERIC NOT NULL,
     offered_quantity_kg NUMERIC NOT NULL,
@@ -112,15 +122,23 @@ CREATE TABLE IF NOT EXISTS public.negotiations (
 );
 
 ALTER TABLE public.negotiations ADD COLUMN IF NOT EXISTS farmer_id TEXT DEFAULT 'FARMER-TG-7721';
+ALTER TABLE public.negotiations ADD COLUMN IF NOT EXISTS consumer_id TEXT;
+ALTER TABLE public.negotiations ADD COLUMN IF NOT EXISTS buyer_phone TEXT;
+ALTER TABLE public.negotiations ADD COLUMN IF NOT EXISTS buyer_company TEXT;
+ALTER TABLE public.negotiations ADD COLUMN IF NOT EXISTS mandi_location TEXT DEFAULT 'Bowenpally Modern Market Yard';
 
 -- ----------------------------------------------------------------------------
--- 5. ORDERS & BLOCKCHAIN ESCROW SETTLEMENTS
+-- 5. ORDERS & BLOCKCHAIN ESCROW SETTLEMENTS (Delivery Location decided by Consumer)
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.orders (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     farmer_id TEXT NOT NULL DEFAULT 'FARMER-TG-7721',
+    consumer_id TEXT,
     crop_name TEXT NOT NULL,
     buyer_name TEXT NOT NULL,
+    buyer_phone TEXT,
+    delivery_location TEXT DEFAULT 'Bowenpally Modern Market Yard, Secunderabad',
+    delivery_status TEXT DEFAULT 'Processing', -- 'Processing', 'In Transit', 'Delivered'
     quantity_kg NUMERIC NOT NULL,
     total_amount NUMERIC NOT NULL,
     price_per_kg NUMERIC,
@@ -132,6 +150,10 @@ CREATE TABLE IF NOT EXISTS public.orders (
 );
 
 ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS farmer_id TEXT DEFAULT 'FARMER-TG-7721';
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS consumer_id TEXT;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS buyer_phone TEXT;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS delivery_location TEXT DEFAULT 'Bowenpally Modern Market Yard, Secunderabad';
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS delivery_status TEXT DEFAULT 'Processing';
 ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS price_per_kg NUMERIC;
 
 -- ----------------------------------------------------------------------------
@@ -292,6 +314,64 @@ DROP POLICY IF EXISTS "Public All Grievances" ON public.grievance_tickets;
 DROP POLICY IF EXISTS "Public All Logins" ON public.user_logins;
 DROP POLICY IF EXISTS "Public All Godowns" ON public.godowns_and_warehouses;
 DROP POLICY IF EXISTS "Public All Logistics" ON public.logistics_providers;
+
+-- ----------------------------------------------------------------------------
+-- 12. CONSUMERS / AGRO-VENDORS DIRECTORY & BUYER DEMANDS
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.consumers (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    consumer_id TEXT UNIQUE NOT NULL,
+    company_name TEXT NOT NULL,
+    contact_name TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    email TEXT,
+    password_pin TEXT DEFAULT '1234',
+    gst_number TEXT DEFAULT '36AAACB1234F1Z8',
+    delivery_address TEXT NOT NULL DEFAULT 'Bowenpally Modern Market Yard, Secunderabad, Telangana',
+    escrow_balance NUMERIC DEFAULT 150000.00,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.consumer_demands (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    consumer_id TEXT NOT NULL DEFAULT 'CONSUMER-TG-5001',
+    company_name TEXT NOT NULL DEFAULT 'Bowenpally Bulk Millers',
+    crop_name TEXT NOT NULL,
+    category TEXT DEFAULT 'Paddy / Grains',
+    required_quantity_kg NUMERIC NOT NULL,
+    target_price_per_kg NUMERIC NOT NULL,
+    delivery_destination TEXT NOT NULL DEFAULT 'Bowenpally Modern Market Yard, Secunderabad',
+    status TEXT DEFAULT 'open', -- 'open', 'matched', 'fulfilled'
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Seed Default Consumers / Agro-Vendors
+INSERT INTO public.consumers (consumer_id, company_name, contact_name, phone, email, delivery_address, escrow_balance)
+VALUES 
+    ('CONSUMER-TG-5001', 'Bowenpally Bulk Millers', 'Shaik Ateeq', '9440188234', 'procurement@bowenpallymillers.in', 'Bowenpally Modern Market Yard, Secunderabad, Telangana', 150000.00),
+    ('CONSUMER-TG-3646', 'Deccan Agro Processors', 'Shaik Ateeq', '9848011223', 'shaik@deccanagro.org', 'Enumamula Agriculture Market, Warangal, Telangana', 220000.00)
+ON CONFLICT (consumer_id) DO UPDATE SET
+    company_name = EXCLUDED.company_name,
+    contact_name = EXCLUDED.contact_name,
+    delivery_address = EXCLUDED.delivery_address;
+
+-- Seed Default Procurement Demands
+INSERT INTO public.consumer_demands (consumer_id, company_name, crop_name, category, required_quantity_kg, target_price_per_kg, delivery_destination)
+VALUES
+    ('CONSUMER-TG-5001', 'Bowenpally Bulk Millers', 'Telangana Sona Super Fine Paddy (RNR 15048)', 'Paddy / Grains', 5000, 28.00, 'Bowenpally Modern Market Yard, Secunderabad'),
+    ('CONSUMER-TG-5001', 'Bowenpally Bulk Millers', 'Tandur Organic Red Gram (GI Arhar)', 'Pulses / Dal', 2000, 84.00, 'Bowenpally Modern Market Yard, Secunderabad'),
+    ('CONSUMER-TG-3646', 'Deccan Agro Processors', 'Long Staple Telangana Cotton', 'Cash Crop', 3500, 72.00, 'Enumamula Agriculture Market, Warangal')
+ON CONFLICT DO NOTHING;
+
+ALTER TABLE public.consumers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.consumer_demands ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Public All Consumers" ON public.consumers;
+DROP POLICY IF EXISTS "Public All Consumer Demands" ON public.consumer_demands;
+
+CREATE POLICY "Public All Consumers" ON public.consumers FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Public All Consumer Demands" ON public.consumer_demands FOR ALL USING (true) WITH CHECK (true);
 
 -- Universal CRUD policies (SELECT, INSERT, UPDATE, DELETE)
 CREATE POLICY "Public All Todos" ON public.todos FOR ALL USING (true) WITH CHECK (true);

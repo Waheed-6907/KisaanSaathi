@@ -9,6 +9,12 @@ function initKisanSaathi() {
   let activeLeafletMap = null;
   let currentFarmerId = null;
   let currentFarmerName = null;
+  let currentPortalRole = 'farmer'; // 'farmer' or 'consumer'
+  let currentConsumerId = null;
+  let currentConsumerCompany = null;
+  let currentDeliveryAddress = 'Bowenpally Modern Market Yard, Secunderabad, Telangana';
+  let activeConsumerTab = 'farmers'; // 'farmers', 'marketplace', 'offers'
+  let selectedFarmerFilterId = null;
 
   // Local state clone of KISAN_DATA
   let inventory = JSON.parse(localStorage.getItem('kisan_inventory')) || [...KISAN_DATA.inventory];
@@ -461,6 +467,7 @@ function initKisanSaathi() {
 
     const localSession = {
       authenticated: true,
+      role: 'farmer',
       farmerId: farmerId,
       farmerName: farmerName,
       email: email,
@@ -478,11 +485,13 @@ function initKisanSaathi() {
     localStorage.setItem('kisan_auth', JSON.stringify(localSession));
 
     // Update global references
+    currentPortalRole = 'farmer';
     currentFarmerId = farmerId;
     currentFarmerName = farmerName;
 
     // Update UI elements
     applyFarmerProfileUI(farmerName, email, phone, district, farmerId, walletBalance, creditScore, preApprovedLoan);
+    updatePortalRoleUI();
     updateSupabaseBadge(true);
 
     // Completely dismiss login screen and redirect to homepage
@@ -498,6 +507,112 @@ function initKisanSaathi() {
     // Record login in database & sync user-scoped data
     await recordLoginInDatabase(farmerProfile, farmerName, provider);
     await syncWithSupabase();
+  }
+
+  // Update header and navigation to match active portal role
+  function updatePortalRoleUI() {
+    const portalSwitchLabel = document.getElementById('portalSwitchLabel');
+    const appHeaderTitle = document.getElementById('appHeaderTitle');
+    const drawerHeaderFarmer = document.getElementById('drawerHeaderFarmer');
+    const drawerHeaderConsumer = document.getElementById('drawerHeaderConsumer');
+    const drawerNavFarmer = document.getElementById('drawerNavFarmer');
+    const drawerNavConsumer = document.getElementById('drawerNavConsumer');
+    const bottomNavFarmer = document.getElementById('bottomNavFarmer');
+    const bottomNavConsumer = document.getElementById('bottomNavConsumer');
+    const drawerPortalBadgeFooter = document.getElementById('drawerPortalBadgeFooter');
+
+    if (currentPortalRole === 'consumer') {
+      if (portalSwitchLabel) portalSwitchLabel.textContent = '👨‍🌾 Switch to Farmer Portal';
+      if (appHeaderTitle) appHeaderTitle.textContent = 'KisanSaathi (Consumer Desk)';
+      if (drawerHeaderFarmer) drawerHeaderFarmer.classList.add('hidden');
+      if (drawerHeaderConsumer) drawerHeaderConsumer.classList.remove('hidden');
+      if (drawerNavFarmer) drawerNavFarmer.classList.add('hidden');
+      if (drawerNavConsumer) drawerNavConsumer.classList.remove('hidden');
+      if (bottomNavFarmer) bottomNavFarmer.classList.add('hidden');
+      if (bottomNavConsumer) bottomNavConsumer.classList.remove('hidden');
+      if (drawerPortalBadgeFooter) drawerPortalBadgeFooter.textContent = 'Vendor Procurement Portal v3.5';
+
+      const drawerCompanyEl = document.getElementById('drawerConsumerCompanyName');
+      const drawerPersonEl = document.getElementById('drawerConsumerPerson');
+      const drawerDeliveryEl = document.getElementById('drawerConsumerDeliveryBadge');
+      const drawerEscrowBadgeEl = document.getElementById('drawerConsumerEscrowBadge');
+      const drawerEscrowTextEl = document.getElementById('drawerEscrowBalanceText');
+
+      if (drawerCompanyEl) drawerCompanyEl.textContent = currentConsumerCompany || 'Bowenpally Bulk Millers';
+      if (drawerPersonEl) drawerPersonEl.textContent = (currentConsumerPerson || 'Shaik Ateeq') + ' • Agro-Buyer Desk';
+      if (drawerDeliveryEl) drawerDeliveryEl.textContent = currentDeliveryAddress || 'Bowenpally Modern Market Yard';
+      if (drawerEscrowBadgeEl) drawerEscrowBadgeEl.textContent = 'Buyer Escrow: ₹' + (currentConsumerEscrow || 150000).toLocaleString('en-IN');
+      if (drawerEscrowTextEl) drawerEscrowTextEl.textContent = '₹' + (currentConsumerEscrow || 150000).toLocaleString('en-IN');
+
+      const dashTitle = document.getElementById('consumerDashboardTitle');
+      const dashSubtitle = document.getElementById('consumerCompanySubtitle');
+      const dashDelivery = document.getElementById('consumerDecidedDeliveryLocation');
+      const ordersDelivery = document.getElementById('consumerOrdersDecidedLocation');
+
+      if (dashTitle) dashTitle.textContent = currentConsumerCompany || 'Bowenpally Bulk Millers';
+      if (dashSubtitle) dashSubtitle.textContent = currentConsumerId ? `ID: ${currentConsumerId} | Agro-Procurement Desk` : 'Deccan Grain Corporation Ltd';
+      if (dashDelivery) dashDelivery.textContent = currentDeliveryAddress;
+      if (ordersDelivery) ordersDelivery.textContent = currentDeliveryAddress;
+    } else {
+      if (portalSwitchLabel) portalSwitchLabel.textContent = '🏢 Consumer / Vendor Portal';
+      if (appHeaderTitle) appHeaderTitle.textContent = (I18N[currentLanguage] || I18N.en).app_name;
+      if (drawerHeaderFarmer) drawerHeaderFarmer.classList.remove('hidden');
+      if (drawerHeaderConsumer) drawerHeaderConsumer.classList.add('hidden');
+      if (drawerNavFarmer) drawerNavFarmer.classList.remove('hidden');
+      if (drawerNavConsumer) drawerNavConsumer.classList.add('hidden');
+      if (bottomNavFarmer) bottomNavFarmer.classList.remove('hidden');
+      if (bottomNavConsumer) bottomNavConsumer.classList.add('hidden');
+      if (drawerPortalBadgeFooter) drawerPortalBadgeFooter.textContent = 'KisanSaathi v3.5 (Telangana)';
+    }
+
+    if (window.lucide) lucide.createIcons();
+  }
+
+  // Set active consumer/vendor session across storage, UI, and navigation
+  async function setActiveConsumerSession(consumerProfile, provider = 'credentials') {
+    const consumerId = consumerProfile.farmer_id || consumerProfile.consumer_id || 'CONSUMER-TG-5001';
+    const companyName = consumerProfile.company_name || consumerProfile.full_name || 'Bowenpally Bulk Millers';
+    const contactName = consumerProfile.full_name || 'Shaik Ateeq';
+    const phone = consumerProfile.phone || '9440188234';
+    const deliveryAddress = consumerProfile.delivery_address || consumerProfile.village || 'Bowenpally Modern Market Yard, Secunderabad, Telangana';
+    const escrowBalance = Number(consumerProfile.wallet_balance || consumerProfile.escrow_balance || 150000);
+
+    currentPortalRole = 'consumer';
+    currentConsumerId = consumerId;
+    currentConsumerCompany = companyName;
+    currentConsumerPerson = contactName;
+    currentDeliveryAddress = deliveryAddress;
+    currentConsumerEscrow = escrowBalance;
+
+    const localSession = {
+      authenticated: true,
+      role: 'consumer',
+      consumerId: consumerId,
+      companyName: companyName,
+      contactName: contactName,
+      phone: phone,
+      deliveryAddress: deliveryAddress,
+      escrowBalance: escrowBalance,
+      provider: provider,
+      loginTime: new Date().toISOString()
+    };
+
+    localStorage.setItem('kisan_auth', JSON.stringify(localSession));
+
+    updatePortalRoleUI();
+    hideLoginScreen();
+    updateSupabaseBadge(true);
+    navigateTo('consumer');
+
+    // Clean URL query and hash
+    if (window.location.search.includes('code=') || window.location.hash.includes('access_token=')) {
+      const cleanUrl = window.location.origin + window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+    }
+
+    // Record login audit in user_logins
+    await recordLoginInDatabase(consumerProfile, companyName, provider);
+    showToast(`Welcome, ${companyName}! Logged in as Consumer/Vendor.`);
   }
 
   // Handle Google OAuth callback & profile resolution
@@ -629,23 +744,37 @@ function initKisanSaathi() {
       try {
         const localSession = JSON.parse(authData);
         if (localSession && localSession.authenticated) {
-          currentFarmerId = localSession.farmerId || 'FARMER-TG-7721';
-          currentFarmerName = localSession.farmerName || 'Farmer';
-          applyFarmerProfileUI(
-            localSession.farmerName,
-            localSession.email,
-            localSession.phone,
-            localSession.district,
-            localSession.farmerId,
-            localSession.walletBalance,
-            localSession.creditScore,
-            localSession.preApprovedLoan
-          );
-          hideLoginScreen();
-          updateSupabaseBadge(true);
-          syncWithSupabase();
-          navigateTo('inventory');
-          return;
+          if (localSession.role === 'consumer') {
+            currentPortalRole = 'consumer';
+            currentConsumerId = localSession.consumerId || 'CONSUMER-TG-5001';
+            currentConsumerCompany = localSession.companyName || 'Bowenpally Bulk Millers';
+            currentDeliveryAddress = localSession.deliveryAddress || 'Bowenpally Modern Market Yard, Secunderabad, Telangana';
+            hideLoginScreen();
+            updatePortalRoleUI();
+            updateSupabaseBadge(true);
+            navigateTo('consumer');
+            return;
+          } else {
+            currentPortalRole = 'farmer';
+            currentFarmerId = localSession.farmerId || 'FARMER-TG-7721';
+            currentFarmerName = localSession.farmerName || 'Farmer';
+            applyFarmerProfileUI(
+              localSession.farmerName,
+              localSession.email,
+              localSession.phone,
+              localSession.district,
+              localSession.farmerId,
+              localSession.walletBalance,
+              localSession.creditScore,
+              localSession.preApprovedLoan
+            );
+            hideLoginScreen();
+            updatePortalRoleUI();
+            updateSupabaseBadge(true);
+            syncWithSupabase();
+            navigateTo('inventory');
+            return;
+          }
         }
       } catch (e) {
         console.warn('Corrupted local auth data');
@@ -888,6 +1017,48 @@ function initKisanSaathi() {
   }
   window.switchLoginTab = switchLoginTab;
 
+  // Switch between Farmer Portal and Consumer/Vendor Portal
+  function switchPortalRole(role) {
+    const farmerBtn = document.getElementById('btnRolePortalFarmer');
+    const consumerBtn = document.getElementById('btnRolePortalConsumer');
+    const farmerSec = document.getElementById('portalFarmerSection');
+    const consumerSec = document.getElementById('portalConsumerSection');
+
+    if (role === 'consumer') {
+      if (farmerSec) farmerSec.classList.add('hidden');
+      if (consumerSec) consumerSec.classList.remove('hidden');
+      if (farmerBtn) farmerBtn.className = 'flex-1 py-2 rounded-xl text-gray-600 hover:text-gray-900 transition flex items-center justify-center gap-1.5 font-bold';
+      if (consumerBtn) consumerBtn.className = 'flex-1 py-2 rounded-xl bg-amber-600 text-white shadow transition flex items-center justify-center gap-1.5 font-bold';
+    } else {
+      if (farmerSec) farmerSec.classList.remove('hidden');
+      if (consumerSec) consumerSec.classList.add('hidden');
+      if (farmerBtn) farmerBtn.className = 'flex-1 py-2 rounded-xl bg-purple-700 text-white shadow transition flex items-center justify-center gap-1.5 font-bold';
+      if (consumerBtn) consumerBtn.className = 'flex-1 py-2 rounded-xl text-gray-600 hover:text-gray-900 transition flex items-center justify-center gap-1.5 font-bold';
+    }
+  }
+  window.switchPortalRole = switchPortalRole;
+
+  // Switch Consumer Login vs Register tabs
+  function switchConsumerLoginTab(tab) {
+    const loginSec = document.getElementById('consumerLoginFormSection');
+    const regSec = document.getElementById('consumerRegisterFormSection');
+    const btnLogin = document.getElementById('tabBtnConsumerLogin');
+    const btnReg = document.getElementById('tabBtnConsumerRegister');
+
+    if (tab === 'login') {
+      if (loginSec) loginSec.classList.remove('hidden');
+      if (regSec) regSec.classList.add('hidden');
+      if (btnLogin) btnLogin.className = 'flex-1 pb-2.5 border-b-2 border-amber-600 text-amber-700 font-bold';
+      if (btnReg) btnReg.className = 'flex-1 pb-2.5 text-gray-500 hover:text-gray-800 font-medium';
+    } else {
+      if (loginSec) loginSec.classList.add('hidden');
+      if (regSec) regSec.classList.remove('hidden');
+      if (btnLogin) btnLogin.className = 'flex-1 pb-2.5 text-gray-500 hover:text-gray-800 font-medium';
+      if (btnReg) btnReg.className = 'flex-1 pb-2.5 border-b-2 border-amber-600 text-amber-700 font-bold';
+    }
+  }
+  window.switchConsumerLoginTab = switchConsumerLoginTab;
+
   async function handleSignOut() {
     if (window.supabaseClient) {
       try {
@@ -1060,6 +1231,229 @@ function initKisanSaathi() {
     });
   }
 
+  // Bind Quick Demo Farmer Login Button
+  const btnQuickDemoFarmerLogin = document.getElementById('btnQuickDemoFarmerLogin');
+  if (btnQuickDemoFarmerLogin) {
+    btnQuickDemoFarmerLogin.addEventListener('click', async () => {
+      showToast('Logging in as Demo Farmer (K. Ramarao Reddy)...');
+      const demoFarmer = {
+        farmer_id: 'FARMER-TG-7721',
+        full_name: 'K. Ramarao Reddy',
+        phone: '9848022334',
+        village: 'Geesugonda',
+        district: 'Warangal Rural',
+        state: 'Telangana',
+        wallet_balance: 74200,
+        agri_credit_score: 785,
+        pre_approved_loan: 300000,
+        role: 'farmer'
+      };
+      await setActiveFarmerSession(demoFarmer, 'demo');
+    });
+  }
+
+  // Bind Consumer Login Button
+  const btnSubmitConsumerLogin = document.getElementById('btnSubmitConsumerLogin');
+  if (btnSubmitConsumerLogin) {
+    btnSubmitConsumerLogin.addEventListener('click', async () => {
+      const phoneInput = document.getElementById('consumerLoginPhone');
+      const pinInput = document.getElementById('consumerLoginPin');
+      const phone = phoneInput ? phoneInput.value.trim() : '';
+      const pin = pinInput ? pinInput.value.trim() : '';
+
+      if (!phone || phone.length < 10) {
+        alert('Please enter your 10-digit registered buyer/consumer mobile number.');
+        return;
+      }
+
+      showToast('Verifying consumer / vendor in Supabase...');
+
+      if (window.supabaseClient) {
+        try {
+          const { data, error } = await window.supabaseClient
+            .from('profiles')
+            .select('*')
+            .eq('phone', phone);
+
+          if (error) {
+            console.error('Consumer login error:', error);
+            alert('Login query error: ' + error.message);
+            return;
+          }
+
+          if (!data || data.length === 0) {
+            alert('❌ Buyer mobile +91 ' + phone + ' is NOT registered!\n\nPlease click "New Vendor Registration" to create your buyer account.');
+            switchConsumerLoginTab('register');
+            const regPhone = document.getElementById('consumerRegPhone');
+            if (regPhone) regPhone.value = phone;
+            return;
+          }
+
+          const consumerProfile = data[0];
+          if (consumerProfile.password_pin && pin && consumerProfile.password_pin !== pin) {
+            alert('❌ Incorrect PIN entered! Please enter your valid 4-digit PIN.');
+            return;
+          }
+
+          await setActiveConsumerSession(consumerProfile, 'credentials');
+        } catch (err) {
+          console.error('Consumer login exception:', err);
+          alert('Login error: ' + err.message);
+        }
+      } else {
+        alert('Supabase client offline.');
+      }
+    });
+  }
+
+  // Bind Quick Demo Consumer Login Button
+  const btnQuickDemoConsumerLogin = document.getElementById('btnQuickDemoConsumerLogin');
+  if (btnQuickDemoConsumerLogin) {
+    btnQuickDemoConsumerLogin.addEventListener('click', async () => {
+      showToast('Logging in as Demo Consumer (Bowenpally Bulk Millers)...');
+      const demoConsumer = {
+        farmer_id: 'CONSUMER-TG-5001',
+        full_name: 'Bowenpally Bulk Millers',
+        company_name: 'Deccan Grain Corporation Ltd',
+        phone: '9440188234',
+        delivery_address: 'Bowenpally Modern Market Yard, Secunderabad, Telangana',
+        village: 'Bowenpally Modern Market Yard, Secunderabad, Telangana',
+        role: 'consumer'
+      };
+      await setActiveConsumerSession(demoConsumer, 'demo');
+    });
+  }
+
+  // Bind Consumer Registration Button
+  const btnSubmitConsumerRegister = document.getElementById('btnSubmitConsumerRegister');
+  if (btnSubmitConsumerRegister) {
+    btnSubmitConsumerRegister.addEventListener('click', async () => {
+      const companyInput = document.getElementById('consumerRegCompany');
+      const nameInput = document.getElementById('consumerRegName');
+      const phoneInput = document.getElementById('consumerRegPhone');
+      const deliverySelect = document.getElementById('consumerRegDeliverySelect');
+      const customAddressInput = document.getElementById('consumerRegCustomAddress');
+      const pinInput = document.getElementById('consumerRegPin');
+
+      const companyName = companyInput ? companyInput.value.trim() : '';
+      const contactName = nameInput ? nameInput.value.trim() : '';
+      const phone = phoneInput ? phoneInput.value.trim() : '';
+      const pin = pinInput ? pinInput.value.trim() : '1234';
+
+      let deliveryAddress = deliverySelect ? deliverySelect.value : 'Bowenpally Modern Market Yard, Secunderabad, Telangana';
+      if (deliveryAddress === 'custom' && customAddressInput && customAddressInput.value.trim()) {
+        deliveryAddress = customAddressInput.value.trim();
+      }
+
+      if (!companyName || companyName.length < 2) {
+        alert('Please enter your Company / Firm name.');
+        return;
+      }
+      if (!contactName || contactName.length < 2) {
+        alert('Please enter Contact Person Name.');
+        return;
+      }
+      if (!phone || phone.length < 10) {
+        alert('Please enter a valid 10-digit mobile number.');
+        return;
+      }
+
+      showToast('Registering buyer / vendor in Supabase...');
+
+      if (window.supabaseClient) {
+        try {
+          const { data: existing, error: checkErr } = await window.supabaseClient
+            .from('profiles')
+            .select('*')
+            .eq('phone', phone);
+
+          if (!checkErr && existing && existing.length > 0) {
+            alert('⚠️ A profile with mobile +91 ' + phone + ' already exists!\n\nSwitching to Login so you can log in.');
+            switchConsumerLoginTab('login');
+            const loginPhone = document.getElementById('consumerLoginPhone');
+            if (loginPhone) loginPhone.value = phone;
+            return;
+          }
+
+          const consumerId = 'CONSUMER-TG-' + Math.floor(1000 + Math.random() * 9000);
+          const profileData = {
+            farmer_id: consumerId,
+            full_name: contactName,
+            phone: phone,
+            village: deliveryAddress,
+            district: 'Hyderabad',
+            state: 'Telangana',
+            role: 'consumer',
+            wallet_balance: 100000.00,
+            agri_credit_score: 790,
+            pre_approved_loan: 500000.00,
+            updated_at: new Date().toISOString()
+          };
+
+          // Try inserting with company_name, delivery_address, password_pin
+          let insertRes = await window.supabaseClient.from('profiles').insert([{
+            ...profileData,
+            company_name: companyName,
+            delivery_address: deliveryAddress,
+            password_pin: pin
+          }]).select();
+
+          if (insertRes.error) {
+            console.warn('Retrying consumer insert without extra columns:', insertRes.error.message);
+            insertRes = await window.supabaseClient.from('profiles').insert([profileData]).select();
+          }
+
+          if (insertRes.error) {
+            alert('Registration error: ' + insertRes.error.message);
+            return;
+          }
+
+          const createdProfile = (insertRes.data && insertRes.data[0]) ? insertRes.data[0] : profileData;
+          createdProfile.company_name = companyName;
+          createdProfile.delivery_address = deliveryAddress;
+
+          await setActiveConsumerSession(createdProfile, 'registered');
+        } catch (err) {
+          console.error('Consumer registration error:', err);
+          alert('Registration error: ' + err.message);
+        }
+      } else {
+        alert('Supabase client offline.');
+      }
+    });
+  }
+
+  // Delivery dropdown toggle custom address input
+  const consumerRegDeliverySelect = document.getElementById('consumerRegDeliverySelect');
+  if (consumerRegDeliverySelect) {
+    consumerRegDeliverySelect.addEventListener('change', () => {
+      const customInput = document.getElementById('consumerRegCustomAddress');
+      if (customInput) {
+        if (consumerRegDeliverySelect.value === 'custom') {
+          customInput.classList.remove('hidden');
+          customInput.focus();
+        } else {
+          customInput.classList.add('hidden');
+        }
+      }
+    });
+  }
+
+  const selectOfferDeliveryLocation = document.getElementById('selectOfferDeliveryLocation');
+  if (selectOfferDeliveryLocation) {
+    selectOfferDeliveryLocation.addEventListener('change', () => {
+      const customInput = document.getElementById('inputOfferCustomLocation');
+      if (customInput) {
+        if (selectOfferDeliveryLocation.value === 'custom') {
+          customInput.classList.remove('hidden');
+          customInput.focus();
+        } else {
+          customInput.classList.add('hidden');
+        }
+      }
+    });
+  }
+
   const btnGoogleLogin = document.getElementById('btnGoogleLogin');
   if (btnGoogleLogin) {
     btnGoogleLogin.addEventListener('click', async () => {
@@ -1221,21 +1615,40 @@ function initKisanSaathi() {
   function navigateTo(sectionId) {
     activeSection = sectionId;
 
+    // Handle consumer sub-navigation aliases
+    if (sectionId === 'consumer-farmers') {
+      sectionId = 'consumer';
+      activeConsumerTab = 'farmers';
+    } else if (sectionId === 'consumer-marketplace') {
+      sectionId = 'consumer';
+      activeConsumerTab = 'marketplace';
+    } else if (sectionId === 'consumer-offers') {
+      sectionId = 'consumer';
+      activeConsumerTab = 'offers';
+    } else if (sectionId === 'consumer-demands') {
+      sectionId = 'consumer';
+      activeConsumerTab = 'demands';
+    }
+
     // Hide all sections
     document.querySelectorAll('.app-section').forEach(sec => sec.classList.add('hidden'));
 
-    // Highlight active drawer item
+    // Highlight active drawer item across both menus
     document.querySelectorAll('.drawer-item').forEach(item => {
-      if (item.getAttribute('data-navigate') === sectionId) {
+      const navTarget = item.getAttribute('data-navigate');
+      if (navTarget === sectionId || 
+         (sectionId === 'consumer' && navTarget === `consumer-${activeConsumerTab}`)) {
         item.classList.add('active');
       } else {
         item.classList.remove('active');
       }
     });
 
-    // Highlight bottom navigation items
+    // Highlight bottom navigation items across both menus
     document.querySelectorAll('.phone-bottom-nav .nav-item').forEach(btn => {
-      if (btn.getAttribute('data-navigate') === sectionId) {
+      const navTarget = btn.getAttribute('data-navigate');
+      if (navTarget === sectionId ||
+         (sectionId === 'consumer' && navTarget === `consumer-${activeConsumerTab}`)) {
         btn.classList.add('active');
       } else {
         btn.classList.remove('active');
@@ -1260,10 +1673,13 @@ function initKisanSaathi() {
       profile: 'sectionProfile',
       about: 'sectionAbout',
       screenshots: 'sectionScreenshots',
-      feedback: 'sectionFeedback'
+      feedback: 'sectionFeedback',
+      consumer: 'sectionConsumerDashboard',
+      'consumer-orders': 'sectionConsumerOrders',
+      'consumer-wallet': 'sectionConsumerWallet'
     };
 
-    const targetId = sectionMap[sectionId] || 'sectionInventory';
+    const targetId = sectionMap[sectionId] || (currentPortalRole === 'consumer' ? 'sectionConsumerDashboard' : 'sectionInventory');
     const targetEl = document.getElementById(targetId);
     if (targetEl) {
       targetEl.classList.remove('hidden');
@@ -1276,7 +1692,8 @@ function initKisanSaathi() {
     renderActiveSection();
 
     // Scroll to top
-    document.getElementById('mainContent').scrollTop = 0;
+    const mainEl = document.getElementById('mainContent');
+    if (mainEl) mainEl.scrollTop = 0;
   }
   window.navigateTo = navigateTo;
 
@@ -1294,9 +1711,37 @@ function initKisanSaathi() {
     drawerBackdrop.classList.remove('open');
   }
 
-  document.getElementById('btnOpenDrawer').addEventListener('click', openDrawer);
-  document.getElementById('btnCloseDrawer').addEventListener('click', closeDrawer);
-  drawerBackdrop.addEventListener('click', closeDrawer);
+  const btnOpenDrawer = document.getElementById('btnOpenDrawer');
+  if (btnOpenDrawer) btnOpenDrawer.addEventListener('click', openDrawer);
+
+  const btnCloseDrawer = document.getElementById('btnCloseDrawer');
+  if (btnCloseDrawer) btnCloseDrawer.addEventListener('click', closeDrawer);
+
+  const btnCloseDrawerConsumer = document.getElementById('btnCloseDrawerConsumer');
+  if (btnCloseDrawerConsumer) btnCloseDrawerConsumer.addEventListener('click', closeDrawer);
+
+  if (drawerBackdrop) drawerBackdrop.addEventListener('click', closeDrawer);
+
+  // Switch to consumer/farmer from drawer buttons
+  const drawerBtnSwitchToConsumer = document.getElementById('drawerBtnSwitchToConsumer');
+  if (drawerBtnSwitchToConsumer) {
+    drawerBtnSwitchToConsumer.addEventListener('click', () => {
+      currentPortalRole = 'consumer';
+      updatePortalRoleUI();
+      navigateTo('consumer');
+      showToast('Switched to Consumer / Vendor Portal');
+    });
+  }
+
+  const drawerBtnSwitchToFarmer = document.getElementById('drawerBtnSwitchToFarmer');
+  if (drawerBtnSwitchToFarmer) {
+    drawerBtnSwitchToFarmer.addEventListener('click', () => {
+      currentPortalRole = 'farmer';
+      updatePortalRoleUI();
+      navigateTo('inventory');
+      showToast('Switched to Farmer Portal');
+    });
+  }
 
   // Bind drawer navigation links
   document.querySelectorAll('.drawer-item').forEach(link => {
@@ -1326,6 +1771,34 @@ function initKisanSaathi() {
     applyViewMode(currentViewMode === 'mobile' ? 'desktop' : 'mobile');
   });
 
+  // Switch Portal Header Button
+  const btnSwitchActivePortal = document.getElementById('btnSwitchActivePortal');
+  if (btnSwitchActivePortal) {
+    btnSwitchActivePortal.addEventListener('click', () => {
+      if (currentPortalRole === 'farmer') {
+        currentPortalRole = 'consumer';
+        updatePortalRoleUI();
+        navigateTo('consumer');
+        showToast('Switched to Consumer / Vendor Portal');
+      } else {
+        currentPortalRole = 'farmer';
+        updatePortalRoleUI();
+        navigateTo('inventory');
+        showToast('Switched to Farmer Portal');
+      }
+    });
+  }
+
+  const btnSwitchToFarmerView = document.getElementById('btnSwitchToFarmerView');
+  if (btnSwitchToFarmerView) {
+    btnSwitchToFarmerView.addEventListener('click', () => {
+      currentPortalRole = 'farmer';
+      updatePortalRoleUI();
+      navigateTo('inventory');
+      showToast('Switched to Farmer Portal');
+    });
+  }
+
   document.getElementById('btnQuickWeather').addEventListener('click', () => navigateTo('weather'));
   document.getElementById('btnQuickProfile').addEventListener('click', () => navigateTo('profile'));
   document.getElementById('btnOpenSearch').addEventListener('click', () => openSearchModal());
@@ -1335,6 +1808,15 @@ function initKisanSaathi() {
     switch (activeSection) {
       case 'inventory':
         renderInventory();
+        break;
+      case 'consumer':
+        renderConsumerDashboard();
+        break;
+      case 'consumer-orders':
+        renderConsumerOrders();
+        break;
+      case 'consumer-wallet':
+        renderConsumerWallet();
         break;
       case 'negotiate':
         renderNegotiations();
@@ -1861,6 +2343,7 @@ function initKisanSaathi() {
     container.innerHTML = negotiations.map(n => {
       const isPending = n.status === 'pending';
       const isAccepted = n.status === 'accepted';
+      const decidedLocation = n.buyer?.location || n.mandi_location || 'Bowenpally Modern Market Yard, Secunderabad, Telangana';
 
       return `
         <div class="kisan-card p-4 space-y-3 border-l-4 ${isPending ? 'border-amber-500' : isAccepted ? 'border-emerald-500' : 'border-gray-400'}">
@@ -1873,8 +2356,17 @@ function initKisanSaathi() {
                   ${isPending ? 'Pending Action' : isAccepted ? 'Agreed & Settled' : 'Declined'}
                 </span>
               </div>
-              <p class="text-[11px] text-gray-500">${n.buyer.location} | ${n.buyer.phone}</p>
+              <p class="text-[11px] text-gray-500">${n.buyer.phone} | ${n.buyer.company || 'Direct Buyer'}</p>
               <p class="text-xs font-semibold text-gray-700 mt-0.5">${n.itemTitle} (${n.quantity} Kg)</p>
+            </div>
+          </div>
+
+          <!-- Decided Delivery Destination Highlight -->
+          <div class="bg-emerald-50/80 border border-emerald-300 rounded-xl p-2.5 flex items-start gap-2 text-xs">
+            <i data-lucide="map-pin" class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5"></i>
+            <div>
+              <span class="text-[10px] text-emerald-800 uppercase font-bold tracking-wide block">Buyer's Decided Delivery Destination:</span>
+              <span class="font-bold text-gray-900">${decidedLocation}</span>
             </div>
           </div>
 
@@ -1895,10 +2387,11 @@ function initKisanSaathi() {
 
           ${isPending ? `
             <div class="flex gap-2 pt-1">
-              <button onclick="handleNegotiation('${n.id}', 'accept')" class="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-sm transition">
-                Accept ₹${n.proposedPrice}/Kg
+              <button onclick="handleNegotiation('${n.id}', 'accept')" class="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-sm transition flex items-center justify-center gap-1.5">
+                <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+                <span>Accept Offer & Proceed with Delivery (₹${n.proposedPrice}/Kg)</span>
               </button>
-              <button onclick="handleNegotiation('${n.id}', 'reject')" class="px-4 py-2 border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-xl font-semibold text-xs transition">
+              <button onclick="handleNegotiation('${n.id}', 'reject')" class="px-3.5 py-2 border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-xl font-semibold text-xs transition">
                 Decline
               </button>
             </div>
@@ -1917,33 +2410,36 @@ function initKisanSaathi() {
     if (!nego) return;
 
     if (action === 'accept') {
+      const decidedLocation = nego.buyer?.location || nego.mandi_location || 'Bowenpally Modern Market Yard, Secunderabad, Telangana';
       nego.status = 'accepted';
-      nego.note = `Accepted at ₹${nego.proposedPrice}/Kg. Dispatched via Telangana Logistics.`;
+      nego.note = `Accepted at ₹${nego.proposedPrice}/Kg. Dispatched to: ${decidedLocation}`;
 
-      // Auto generate order and credit wallet!
+      // Auto generate order with decided delivery destination and 'Processing' status
       const totalAmount = nego.proposedPrice * nego.quantity;
-      orders.unshift({
+      const newOrder = {
         id: `ORD-${Date.now().toString().slice(-5)}`,
         receiptNumber: `KS-TG-2026-${Math.floor(Math.random() * 90000 + 10000)}`,
         date: new Date().toLocaleDateString('en-GB'),
         amount: totalAmount,
         completed: false,
-        status: 'In Transit',
+        status: 'Processing', // Farmer can proceed with delivery
+        delivery_location: decidedLocation,
         buyer: {
           first_name: nego.buyer.name,
           phone: nego.buyer.phone,
-          address: `${nego.buyer.location}, Telangana`
+          address: decidedLocation
         },
         items: [
           { name: nego.itemTitle, quantity: nego.quantity, pricePerKg: nego.proposedPrice, total: totalAmount }
         ],
         route: {
           origin: "Geesugonda, Warangal (17.9689, 79.5941)",
-          destination: `${nego.buyer.location} (17.4770, 78.4870)`,
+          destination: `${decidedLocation} (17.4770, 78.4870)`,
           distanceKm: 148,
           logisticsPartner: "VRL Telangana Agri-Freight"
         }
-      });
+      };
+      orders.unshift(newOrder);
 
       // Update wallet
       wallet.balance += totalAmount;
@@ -1953,7 +2449,7 @@ function initKisanSaathi() {
         amount: totalAmount,
         type: "credit",
         time: new Date().toLocaleString(),
-        desc: `Accepted negotiation: ${nego.itemTitle}`
+        desc: `Accepted deal for ${nego.itemTitle} (Destination: ${decidedLocation})`
       });
 
       localStorage.setItem('kisan_orders', JSON.stringify(orders));
@@ -2010,7 +2506,7 @@ function initKisanSaathi() {
         }
       }
 
-      showToast(`Offer accepted! ₹${totalAmount.toLocaleString('en-IN')} added to Escrow.`);
+      showToast(`Offer accepted! Order generated for delivery to ${decidedLocation}.`);
     } else {
       nego.status = 'rejected';
       nego.note = `Declined offer. Asking price maintained.`;
@@ -2038,58 +2534,117 @@ function initKisanSaathi() {
       return;
     }
 
-    container.innerHTML = orders.map(order => `
-      <div class="kisan-card p-4 space-y-3 cursor-pointer hover:border-purple-300 transition" onclick="openOrderDetailsModal('${order.id}')">
-        <div class="flex justify-between items-start">
-          <div>
-            <span class="text-[10px] text-gray-500 font-mono">${order.receiptNumber}</span>
-            <h4 class="font-bold text-sm text-gray-900">${order.buyer.first_name}</h4>
-          </div>
-          <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${order.status === 'Delivered' ? 'bg-emerald-100 text-emerald-800' : 'bg-blue-100 text-blue-800'}">
-            ${order.status}
-          </span>
-        </div>
+    container.innerHTML = orders.map(order => {
+      const isProcessing = order.status === 'Processing';
+      const isInTransit = order.status === 'In Transit';
+      const isDelivered = order.status === 'Delivered';
+      const deliveryLocation = order.delivery_location || order.buyer?.address || 'Bowenpally Modern Market Yard, Secunderabad, Telangana';
 
-        <p class="text-xs text-gray-600">${order.buyer.address}</p>
-
-        <div class="bg-gray-50 p-2.5 rounded-xl flex justify-between items-center text-xs">
-          <div>
-            <span class="text-gray-500">Items: </span>
-            <span class="font-semibold text-gray-800">${order.items.map(i => `${i.name} (${i.quantity}Kg)`).join(', ')}</span>
+      return `
+        <div class="kisan-card p-4 space-y-3 cursor-pointer hover:border-purple-300 transition" onclick="openOrderDetailsModal('${order.id}')">
+          <div class="flex justify-between items-start">
+            <div>
+              <span class="text-[10px] text-gray-500 font-mono">${order.receiptNumber}</span>
+              <h4 class="font-bold text-sm text-gray-900">${order.buyer.first_name}</h4>
+            </div>
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${isDelivered ? 'bg-emerald-100 text-emerald-800' : isInTransit ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800'}">
+              ${isDelivered ? '✅ Delivered' : isInTransit ? '🚚 In Transit' : '⏳ Processing'}
+            </span>
           </div>
-          <div class="font-bold text-purple-700 text-sm">
-            ₹${order.amount.toLocaleString('en-IN')}
+
+          <!-- Decided Delivery Destination Highlight -->
+          <div class="bg-blue-50/80 border border-blue-200 rounded-xl p-2.5 flex items-start gap-2 text-xs">
+            <i data-lucide="map-pin" class="w-4 h-4 text-blue-600 shrink-0 mt-0.5"></i>
+            <div>
+              <span class="text-[10px] text-blue-800 uppercase font-bold tracking-wide block">Decided Delivery Destination:</span>
+              <span class="font-bold text-gray-900">${deliveryLocation}</span>
+            </div>
+          </div>
+
+          <div class="bg-gray-50 p-2.5 rounded-xl flex justify-between items-center text-xs">
+            <div>
+              <span class="text-gray-500">Items: </span>
+              <span class="font-semibold text-gray-800">${order.items.map(i => `${i.name} (${i.quantity}Kg)`).join(', ')}</span>
+            </div>
+            <div class="font-bold text-purple-700 text-sm">
+              ₹${order.amount.toLocaleString('en-IN')}
+            </div>
+          </div>
+
+          <!-- Delivery Progression Action Button -->
+          <div class="pt-1">
+            ${isProcessing ? `
+              <button type="button" onclick="event.stopPropagation(); advanceOrderDelivery('${order.id}', 'In Transit')" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs shadow transition flex items-center justify-center gap-1.5">
+                <i data-lucide="truck" class="w-3.5 h-3.5"></i>
+                <span>Proceed with Delivery &rarr; Dispatch Shipment</span>
+              </button>
+            ` : isInTransit ? `
+              <button type="button" onclick="event.stopPropagation(); advanceOrderDelivery('${order.id}', 'Delivered')" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow transition flex items-center justify-center gap-1.5">
+                <i data-lucide="check-check" class="w-3.5 h-3.5"></i>
+                <span>Confirm Delivery at Destination & Release Escrow</span>
+              </button>
+            ` : `
+              <div class="text-center py-1 text-emerald-700 font-bold text-xs flex items-center justify-center gap-1">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                <span>Delivery Fulfilled | Escrow Released to Wallet</span>
+              </div>
+            `}
+          </div>
+
+          <div class="flex justify-between items-center text-[11px] text-gray-500 pt-1 border-t">
+            <span>Date: ${order.date}</span>
+            <span class="text-purple-600 font-semibold flex items-center gap-1">
+              <i data-lucide="map-pin" class="w-3 h-3"></i> View Route & Transit &rarr;
+            </span>
           </div>
         </div>
-
-        <div class="flex justify-between items-center text-[11px] text-gray-500 pt-1 border-t">
-          <span>Date: ${order.date}</span>
-          <span class="text-purple-600 font-semibold flex items-center gap-1">
-            <i data-lucide="map-pin" class="w-3 h-3"></i> View Route & Transit &rarr;
-          </span>
-        </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
 
     if (window.lucide) lucide.createIcons();
   }
+
+  // Advance delivery progression
+  window.advanceOrderDelivery = function(orderId, nextStatus) {
+    const order = orders.find(o => o.id === orderId);
+    if (!order) return;
+
+    order.status = nextStatus;
+    if (nextStatus === 'Delivered') {
+      order.completed = true;
+    }
+    localStorage.setItem('kisan_orders', JSON.stringify(orders));
+
+    if (window.supabaseClient && order.id && !order.id.startsWith('ORD-')) {
+      try {
+        window.supabaseClient.from('orders').update({
+          escrow_status: nextStatus === 'Delivered' ? 'escrow_released' : 'in_transit'
+        }).eq('id', order.id).then();
+      } catch (e) {}
+    }
+
+    showToast(`Shipment updated: ${nextStatus}!`);
+    renderOrders();
+  };
 
   // Interactive Map & Order Details Modal
   window.openOrderDetailsModal = function(orderId) {
     const order = orders.find(o => o.id === orderId);
     if (!order) return;
 
+    const deliveryLocation = order.delivery_location || order.buyer?.address || 'Bowenpally Modern Market Yard, Secunderabad, Telangana';
+
     document.getElementById('modalOrderReceiptId').textContent = order.receiptNumber;
     document.getElementById('modalOrderBuyerName').textContent = order.buyer.first_name;
     document.getElementById('modalOrderAmount').textContent = `Total: ₹${order.amount.toLocaleString('en-IN')}`;
-    document.getElementById('modalOrderBuyerAddress').textContent = order.buyer.address;
+    document.getElementById('modalOrderBuyerAddress').textContent = deliveryLocation;
     document.getElementById('modalOrderCallLink').href = `tel:${order.buyer.phone}`;
     document.getElementById('modalOrderStatusBadge').textContent = order.status;
-    document.getElementById('modalOrderDistance').textContent = `${order.route.distanceKm} Km (${order.route.logisticsPartner})`;
+    document.getElementById('modalOrderDistance').textContent = `${order.route?.distanceKm || 148} Km (VRL Telangana Agri-Freight)`;
 
-    // Google Maps link with exact GPS coordinates (Warangal to Bowenpally Secunderabad)
+    // Google Maps link with exact destination
     document.getElementById('modalOrderGoogleMapsBtn').href =
-      `https://www.google.com/maps/dir/?api=1&origin=17.9689,79.5941&destination=17.4770,78.4870`;
+      `https://www.google.com/maps/dir/?api=1&origin=17.9689,79.5941&destination=${encodeURIComponent(deliveryLocation)}`;
 
     document.getElementById('modalOrderDetails').classList.add('open');
 
@@ -2115,9 +2670,16 @@ function initKisanSaathi() {
         .bindPopup('<b>Farmer Origin:</b> Geesugonda, Warangal')
         .openPopup();
 
-      // Buyer Mandi Marker (Bowenpally / Hyderabad Mandi)
-      const buyerMarker = L.marker([17.4770, 78.4870]).addTo(activeLeafletMap)
-        .bindPopup(`<b>Buyer Mandi:</b> ${order.buyer.first_name}`);
+      // Resolve coordinates based on decided delivery destination
+      let destLat = 17.4770, destLng = 78.4870; // Bowenpally default
+      if (deliveryLocation.includes('Gudimalkapur')) { destLat = 17.3820; destLng = 78.4410; }
+      else if (deliveryLocation.includes('Enumamula')) { destLat = 17.9940; destLng = 79.6120; }
+      else if (deliveryLocation.includes('Kandlakoi') || deliveryLocation.includes('Medchal')) { destLat = 17.6250; destLng = 78.4820; }
+      else if (deliveryLocation.includes('Nizamabad')) { destLat = 18.6720; destLng = 78.0940; }
+
+      // Buyer Mandi Marker (Consumer Decided Destination)
+      const buyerMarker = L.marker([destLat, destLng]).addTo(activeLeafletMap)
+        .bindPopup(`<b>Decided Delivery Destination:</b><br/>${deliveryLocation}`);
 
       // Route Polyline
       const routeCoordinates = [
@@ -2127,7 +2689,7 @@ function initKisanSaathi() {
         [17.6528, 78.9669], // Aler
         [17.5110, 78.8893], // Bhongir
         [17.4527, 78.6835], // Ghatkesar / Uppal
-        [17.4770, 78.4870]  // Bowenpally Wholesale Mandi, Secunderabad
+        [destLat, destLng]  // Consumer Decided Destination
       ];
 
       const polyline = L.polyline(routeCoordinates, {
@@ -3994,15 +4556,1135 @@ function initKisanSaathi() {
     });
   }
 
-  // Initial Bootup
-  checkAuthStatus();
-  applyViewMode(currentViewMode);
-  applyLanguage(currentLanguage);
-  if (typeof initOrUpdateChat === 'function') {
-    initOrUpdateChat(currentLanguage);
+  // =========================================================================
+  // SECTION 18: CONSUMER / VENDOR DASHBOARD CONTROLLER
+  // =========================================================================
+  let cachedFarmersDirectory = [];
+  let cachedMarketplaceCrops = [];
+  let cachedConsumerDemands = [];
+
+  function switchConsumerTab(tab) {
+    activeConsumerTab = tab;
+    const tabFarmers = document.getElementById('tabConsumerFarmers');
+    const tabMarketplace = document.getElementById('tabConsumerMarketplace');
+    const tabOffers = document.getElementById('tabConsumerOffers');
+    const tabDemands = document.getElementById('tabConsumerDemands');
+
+    const viewFarmers = document.getElementById('consumerFarmersView');
+    const viewMarketplace = document.getElementById('consumerMarketplaceView');
+    const viewOffers = document.getElementById('consumerOffersView');
+    const viewDemands = document.getElementById('consumerDemandsView');
+
+    [tabFarmers, tabMarketplace, tabOffers, tabDemands].forEach(t => {
+      if (t) t.className = 'flex-1 pb-2.5 text-gray-500 hover:text-gray-800 flex items-center justify-center gap-1 font-bold shrink-0 px-2';
+    });
+    [viewFarmers, viewMarketplace, viewOffers, viewDemands].forEach(v => {
+      if (v) v.classList.add('hidden');
+    });
+
+    if (tab === 'farmers') {
+      if (tabFarmers) tabFarmers.className = 'flex-1 pb-2.5 border-b-2 border-amber-600 text-amber-700 flex items-center justify-center gap-1 font-bold shrink-0 px-2';
+      if (viewFarmers) viewFarmers.classList.remove('hidden');
+      renderConsumerFarmersList();
+    } else if (tab === 'marketplace') {
+      if (tabMarketplace) tabMarketplace.className = 'flex-1 pb-2.5 border-b-2 border-amber-600 text-amber-700 flex items-center justify-center gap-1 font-bold shrink-0 px-2';
+      if (viewMarketplace) viewMarketplace.classList.remove('hidden');
+      renderConsumerMarketplace();
+    } else if (tab === 'offers') {
+      if (tabOffers) tabOffers.className = 'flex-1 pb-2.5 border-b-2 border-amber-600 text-amber-700 flex items-center justify-center gap-1 font-bold shrink-0 px-2';
+      if (viewOffers) viewOffers.classList.remove('hidden');
+      renderConsumerOffers();
+    } else if (tab === 'demands') {
+      if (tabDemands) tabDemands.className = 'flex-1 pb-2.5 border-b-2 border-amber-600 text-amber-700 flex items-center justify-center gap-1 font-bold shrink-0 px-2';
+      if (viewDemands) viewDemands.classList.remove('hidden');
+      renderConsumerDemands();
+    }
+
+    if (window.lucide) lucide.createIcons();
   }
-  loadSoilLabsData();
-  navigateTo('inventory');
+  window.switchConsumerTab = switchConsumerTab;
+
+  function clearFarmerInventoryFilter() {
+    selectedFarmerFilterId = null;
+    const banner = document.getElementById('consumerFilterFarmerBanner');
+    if (banner) banner.classList.add('hidden');
+    renderConsumerMarketplace();
+  }
+  window.clearFarmerInventoryFilter = clearFarmerInventoryFilter;
+
+  async function renderConsumerDashboard() {
+    const titleEl = document.getElementById('consumerDashboardTitle');
+    const companySubEl = document.getElementById('consumerCompanySubtitle');
+    const deliveryLocationEl = document.getElementById('consumerDecidedDeliveryLocation');
+
+    if (titleEl) titleEl.textContent = currentConsumerCompany || 'Bowenpally Bulk Millers';
+    if (companySubEl) companySubEl.textContent = currentConsumerId ? `ID: ${currentConsumerId} | Direct Agricultural Procurement Desk` : 'Deccan Grain Corporation Ltd';
+    if (deliveryLocationEl) deliveryLocationEl.textContent = currentDeliveryAddress || 'Bowenpally Modern Market Yard, Secunderabad, Telangana';
+
+    // Update metrics counts
+    fetchConsumerMetrics();
+
+    // Render active tab
+    switchConsumerTab(activeConsumerTab || 'farmers');
+  }
+
+  async function fetchConsumerMetrics() {
+    if (window.supabaseClient) {
+      try {
+        const { data: profs } = await window.supabaseClient.from('profiles').select('farmer_id').eq('role', 'farmer');
+        const count = profs?.length || 5;
+        const statEl = document.getElementById('consumerStatFarmers');
+        if (statEl) statEl.textContent = `${count} Verified`;
+      } catch (e) {}
+
+      try {
+        const { data: crops } = await window.supabaseClient.from('crops').select('id');
+        const count = crops?.length || 11;
+        const statEl = document.getElementById('consumerStatCrops');
+        if (statEl) statEl.textContent = `${count} Crops`;
+      } catch (e) {}
+
+      try {
+        const { data: negs } = await window.supabaseClient.from('negotiations').select('id');
+        const count = negs?.length || 3;
+        const statEl = document.getElementById('consumerStatOffers');
+        const offerCountEl = document.getElementById('consumerOfferCount');
+        if (statEl) statEl.textContent = `${count} Deals`;
+        if (offerCountEl) offerCountEl.textContent = count;
+      } catch (e) {}
+
+      try {
+        const { data: demands } = await window.supabaseClient.from('consumer_demands').select('id');
+        const count = demands?.length || 2;
+        const statEl = document.getElementById('consumerStatDemands');
+        if (statEl) statEl.textContent = `${count} Active`;
+      } catch (e) {}
+    }
+  }
+
+  // 1. Render Verified Farmers Directory (with Live Crop Counts from Supabase)
+  async function renderConsumerFarmersList() {
+    const container = document.getElementById('consumerFarmersList');
+    const countLabel = document.getElementById('farmerDirectoryCount');
+    if (!container) return;
+
+    container.innerHTML = `
+      <div class="py-8 text-center text-xs text-gray-500">
+        <div class="w-8 h-8 border-3 border-amber-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+        <span>Fetching verified Telangana farmers and harvest counts from Supabase...</span>
+      </div>
+    `;
+
+    let farmers = [];
+    let allCrops = [];
+
+    if (window.supabaseClient) {
+      try {
+        const [profRes, cropRes] = await Promise.all([
+          window.supabaseClient.from('profiles').select('*').eq('role', 'farmer').order('full_name', { ascending: true }),
+          window.supabaseClient.from('crops').select('id, farmer_id, crop_name, quantity_kg, price_per_kg')
+        ]);
+
+        if (!profRes.error && profRes.data && profRes.data.length > 0) {
+          farmers = profRes.data;
+        }
+        if (!cropRes.error && cropRes.data) {
+          allCrops = cropRes.data;
+        }
+      } catch (e) {
+        console.warn('Farmers fetch notice:', e);
+      }
+    }
+
+    if (farmers.length === 0) {
+      farmers = [
+        {
+          farmer_id: 'FARMER-TG-7721',
+          full_name: 'K. Ramarao Reddy',
+          village: 'Geesugonda',
+          district: 'Warangal Rural',
+          phone: '9848022334',
+          agri_credit_score: 785
+        },
+        {
+          farmer_id: 'FARMER-TG-8459',
+          full_name: 'Waheed Mujtaba',
+          village: 'Enumamula',
+          district: 'Warangal Urban',
+          phone: '9248006556',
+          agri_credit_score: 780
+        },
+        {
+          farmer_id: 'FARMER-TG-2683',
+          full_name: 'Mallesh Goud',
+          village: 'Kandlakoi',
+          district: 'Medchal-Malkajgiri',
+          phone: '9248006568',
+          agri_credit_score: 775
+        }
+      ];
+    }
+
+    // Attach crop count to each farmer and sort farmers with crops to the top
+    farmers.forEach(f => {
+      f.cropCount = allCrops.filter(c => c.farmer_id === f.farmer_id).length;
+    });
+    farmers.sort((a, b) => (b.cropCount || 0) - (a.cropCount || 0));
+
+    cachedFarmersDirectory = farmers;
+    if (countLabel) countLabel.textContent = `${farmers.length} Farmers Listed (${allCrops.length || 11} Crops Live)`;
+
+    container.innerHTML = farmers.map(f => {
+      const cropCount = f.cropCount || 0;
+      const cropBadge = cropCount > 0 
+        ? `<span class="text-[11px] bg-emerald-50 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full border border-emerald-200 inline-flex items-center gap-1"><i data-lucide="sprout" class="w-3 h-3 text-emerald-600"></i> ${cropCount} Live Harvest Crops Listed</span>`
+        : `<span class="text-[11px] bg-gray-100 text-gray-600 font-medium px-2 py-0.5 rounded-full inline-flex items-center gap-1">0 Listed • Direct Mandi Member</span>`;
+
+      return `
+        <div class="kisan-card p-4 space-y-3 hover:border-amber-400 transition">
+          <div class="flex items-start justify-between">
+            <div class="flex gap-3 items-center">
+              <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center font-bold text-base shadow-sm">
+                ${f.full_name ? f.full_name.charAt(0) : 'F'}
+              </div>
+              <div>
+                <div class="flex items-center gap-1.5">
+                  <h4 class="font-bold text-sm text-gray-900">${f.full_name || 'Farmer'}</h4>
+                  <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-0.5">
+                    <i data-lucide="shield-check" class="w-3 h-3 text-emerald-600"></i> Verified
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500">${f.village || 'Telangana'}, ${f.district || 'Warangal'}</p>
+                <p class="text-[11px] font-mono text-gray-400">ID: ${f.farmer_id} | Phone: +91 ${f.phone || '9848022334'}</p>
+              </div>
+            </div>
+            <span class="text-xs font-bold bg-purple-50 text-purple-700 px-2.5 py-1 rounded-xl border border-purple-200">
+              Score: ${f.agri_credit_score || 780}
+            </span>
+          </div>
+
+          <div class="pt-0.5 flex items-center justify-between">
+            ${cropBadge}
+            <a href="tel:${f.phone || '9848022334'}" class="text-xs text-amber-700 font-bold hover:underline flex items-center gap-1">
+              <i data-lucide="phone" class="w-3 h-3"></i> Call Farmer
+            </a>
+          </div>
+
+          <div class="pt-1 flex gap-2">
+            <button type="button" onclick="selectFarmerProduce('${f.farmer_id}', '${encodeURIComponent(f.full_name || 'Farmer')}')" class="flex-1 py-2.5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white rounded-xl font-bold text-xs shadow transition flex items-center justify-center gap-1.5">
+              <i data-lucide="package" class="w-4 h-4"></i>
+              <span>${cropCount > 0 ? `View Farmer's Produce (${cropCount}) & Make Offer` : `View Farmer's Inventory & Make Offer`}</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    if (window.lucide) lucide.createIcons();
+  }
+
+  window.selectFarmerProduce = function(farmerId, encodedName) {
+    const farmerName = decodeURIComponent(encodedName);
+    selectedFarmerFilterId = farmerId;
+    const banner = document.getElementById('consumerFilterFarmerBanner');
+    const label = document.getElementById('consumerFilterFarmerLabel');
+    if (banner) banner.classList.remove('hidden');
+    if (label) label.textContent = `Showing live produce from farmer: ${farmerName} (${farmerId})`;
+    switchConsumerTab('marketplace');
+  };
+
+  // 2. Render Telangana Marketplace Produce (Live from Supabase Crops Table)
+  async function renderConsumerMarketplace() {
+    const container = document.getElementById('consumerProduceGrid');
+    if (!container) return;
+
+    container.innerHTML = `
+      <div class="py-8 text-center text-xs text-gray-500">
+        <div class="w-8 h-8 border-3 border-amber-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+        <span>Loading harvest listings from Supabase crops table...</span>
+      </div>
+    `;
+
+    let crops = [];
+    let allCropsForFallback = [];
+
+    if (window.supabaseClient) {
+      try {
+        const { data: allData } = await window.supabaseClient.from('crops').select('*').order('created_at', { ascending: false });
+        if (allData && allData.length > 0) {
+          allCropsForFallback = allData;
+          if (selectedFarmerFilterId) {
+            crops = allData.filter(c => c.farmer_id === selectedFarmerFilterId);
+          } else {
+            crops = allData;
+          }
+        }
+      } catch (e) {
+        console.warn('Crops fetch notice:', e);
+      }
+    }
+
+    // If specific farmer has 0 crops, show notice and all crops below so page is never empty
+    let emptyNotice = '';
+    if (crops.length === 0 && selectedFarmerFilterId) {
+      emptyNotice = `
+        <div class="bg-amber-50 p-3 rounded-xl border border-amber-200 text-xs text-amber-900 mb-2 flex items-center justify-between">
+          <span>This farmer currently has no active listings. Showing all available Telangana crops below:</span>
+          <button type="button" onclick="clearFarmerInventoryFilter()" class="font-bold underline text-amber-800">Clear Filter</button>
+        </div>
+      `;
+      crops = allCropsForFallback.length > 0 ? allCropsForFallback : [];
+    }
+
+    if (crops.length === 0) {
+      crops = [
+        {
+          id: 'crop-seed-1',
+          farmer_id: 'FARMER-TG-7721',
+          farmer_name: 'K. Ramarao Reddy',
+          crop_name: 'Telangana Sona Super Fine Paddy (RNR 15048)',
+          category: 'Paddy / Grains',
+          variety: 'Low Glycemic Sona',
+          quantity_kg: 1200,
+          price_per_kg: 28.5,
+          ai_grade: 'Elite',
+          image_url: 'assets/raw/paddy.png'
+        },
+        {
+          id: 'crop-seed-2',
+          farmer_id: 'FARMER-TG-7721',
+          farmer_name: 'K. Ramarao Reddy',
+          crop_name: 'Tandur Organic Red Gram (GI Tagged Arhar)',
+          category: 'Pulses / Dal',
+          variety: 'PRG-176',
+          quantity_kg: 450,
+          price_per_kg: 85.0,
+          ai_grade: 'Premium',
+          image_url: 'assets/raw/arhar.png'
+        },
+        {
+          id: 'crop-seed-3',
+          farmer_id: 'FARMER-TG-8459',
+          farmer_name: 'Waheed Mujtaba',
+          crop_name: 'Fresh Green Bhendi (Okra)',
+          category: 'Vegetables',
+          variety: 'Telangana F1 Hybrid',
+          quantity_kg: 654,
+          price_per_kg: 65.0,
+          ai_grade: 'Elite',
+          image_url: 'assets/raw/cropquality.jpeg'
+        }
+      ];
+    }
+
+    cachedMarketplaceCrops = crops;
+
+    // Build farmer name map from cachedFarmersDirectory
+    const farmerNameMap = {};
+    cachedFarmersDirectory.forEach(f => {
+      farmerNameMap[f.farmer_id] = f.full_name;
+    });
+
+    container.innerHTML = emptyNotice + crops.map(c => {
+      const img = c.image_url || 'assets/raw/paddy.png';
+      const grade = c.ai_grade || 'Elite';
+      const badgeClass = grade.toLowerCase().includes('elite') ? 'badge-elite' : 'badge-premium';
+      const farmerName = c.farmer_name || farmerNameMap[c.farmer_id] || (c.farmer_id === 'FARMER-TG-7721' ? 'K. Ramarao Reddy' : c.farmer_id === 'FARMER-TG-8459' ? 'Waheed Mujtaba' : c.farmer_id || 'Telangana Farmer');
+
+      return `
+        <div class="kisan-card p-4 space-y-3 hover:border-amber-400 transition">
+          <div class="flex gap-3.5">
+            <img src="${img}" alt="${c.crop_name}" class="w-20 h-20 rounded-2xl object-cover border" onerror="this.src='assets/raw/paddy.png'" />
+            <div class="flex-1 min-w-0">
+              <div class="flex justify-between items-start gap-1">
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${badgeClass} shrink-0">
+                  ${grade} Grade AI Verified
+                </span>
+                <span class="text-[11px] font-medium text-purple-700 bg-purple-50 px-2 py-0.5 rounded-lg truncate">
+                  👨‍🌾 ${farmerName}
+                </span>
+              </div>
+              <h4 class="font-bold text-sm text-gray-900 mt-1 truncate">${c.crop_name}</h4>
+              <p class="text-xs text-gray-500">${c.variety || c.category || 'Agricultural Produce'}</p>
+            </div>
+          </div>
+
+          <div class="bg-gray-50 p-2.5 rounded-xl flex justify-between items-center text-xs">
+            <div>
+              <span class="text-gray-500 block text-[11px]">Farmer Asking Price</span>
+              <span class="text-base font-extrabold text-purple-700">₹${c.price_per_kg} <span class="text-xs font-normal">/ Kg</span></span>
+            </div>
+            <div class="text-right">
+              <span class="text-gray-500 block text-[11px]">Available Stock</span>
+              <span class="text-sm font-bold text-gray-800">${Number(c.quantity_kg).toLocaleString('en-IN')} Kg</span>
+            </div>
+          </div>
+
+          <div class="pt-1">
+            <button type="button" onclick="openConsumerOfferModal('${c.id}', '${c.farmer_id || 'FARMER-TG-7721'}')" class="w-full py-2.5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white rounded-xl font-bold text-xs shadow transition flex items-center justify-center gap-2">
+              <i data-lucide="handshake" class="w-4 h-4"></i>
+              <span>Make Price Offer to Farmer (${farmerName})</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    if (window.lucide) lucide.createIcons();
+  }
+
+  // 3. Render Consumer's Submitted Offers
+  async function renderConsumerOffers() {
+    const container = document.getElementById('consumerOffersList');
+    if (!container) return;
+
+    container.innerHTML = `
+      <div class="py-8 text-center text-xs text-gray-500">
+        <div class="w-8 h-8 border-3 border-amber-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+        <span>Syncing your counter-offers from Supabase negotiations table...</span>
+      </div>
+    `;
+
+    let userOffers = [];
+    if (window.supabaseClient) {
+      try {
+        const { data, error } = await window.supabaseClient
+          .from('negotiations')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (!error && data && data.length > 0) {
+          userOffers = data;
+        }
+      } catch (e) {
+        console.warn('Negotiations fetch notice:', e);
+      }
+    }
+
+    if (userOffers.length === 0) {
+      userOffers = negotiations.map(n => ({
+        id: n.id,
+        crop_name: n.itemTitle,
+        buyer_name: n.buyer.name,
+        buyer_phone: n.buyer.phone,
+        mandi_location: n.buyer.location,
+        offer_price_per_kg: n.proposedPrice,
+        offered_quantity_kg: n.quantity,
+        status: n.status,
+        created_at: new Date().toISOString()
+      }));
+    }
+
+    if (userOffers.length === 0) {
+      container.innerHTML = `
+        <div class="bg-white p-6 rounded-2xl border text-center space-y-3">
+          <i data-lucide="handshake" class="w-10 h-10 text-amber-500 mx-auto"></i>
+          <h4 class="font-bold text-sm text-gray-800">No Offers Placed Yet</h4>
+          <p class="text-xs text-gray-500">Browse verified farmers or the Telangana marketplace and submit an offer to negotiate prices!</p>
+          <button type="button" onclick="switchConsumerTab('marketplace')" class="px-4 py-2 bg-amber-600 text-white text-xs font-bold rounded-xl">
+            Go to Marketplace
+          </button>
+        </div>
+      `;
+      if (window.lucide) lucide.createIcons();
+      return;
+    }
+
+    container.innerHTML = userOffers.map(o => {
+      const isPending = o.status === 'pending';
+      const isAccepted = o.status === 'accepted';
+
+      const totalDeal = (o.offer_price_per_kg || 0) * (o.offered_quantity_kg || 0);
+      const destination = o.mandi_location || currentDeliveryAddress || 'Bowenpally Modern Market Yard, Secunderabad';
+
+      return `
+        <div class="kisan-card p-4 space-y-3 border-l-4 ${isPending ? 'border-amber-500' : isAccepted ? 'border-emerald-500' : 'border-gray-400'}">
+          <div class="flex justify-between items-start">
+            <div>
+              <h4 class="font-bold text-sm text-gray-900">${o.crop_name}</h4>
+              <p class="text-xs text-gray-500">Quantity: ${o.offered_quantity_kg} Kg</p>
+            </div>
+            <span class="text-xs font-bold px-2.5 py-0.5 rounded-full ${isPending ? 'bg-amber-100 text-amber-800' : isAccepted ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-700'}">
+              ${isPending ? '⏳ Awaiting Farmer Review' : isAccepted ? '✅ Accepted & In Transit' : '❌ Declined'}
+            </span>
+          </div>
+
+          <!-- Decided Delivery Destination -->
+          <div class="bg-amber-50/80 border border-amber-200 rounded-xl p-2.5 flex items-start gap-2 text-xs">
+            <i data-lucide="map-pin" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+            <div>
+              <span class="text-[10px] text-amber-800 uppercase font-bold tracking-wide block">Your Decided Delivery Destination:</span>
+              <span class="font-bold text-gray-900">${destination}</span>
+            </div>
+          </div>
+
+          <div class="bg-gray-50 p-2.5 rounded-xl flex justify-between items-center text-xs">
+            <div>
+              <span class="text-gray-500 block">Offered Price</span>
+              <span class="text-sm font-extrabold text-amber-700">₹${o.offer_price_per_kg} / Kg</span>
+            </div>
+            <div class="text-right">
+              <span class="text-gray-500 block">Total Escrow Value</span>
+              <span class="text-sm font-extrabold text-emerald-700">₹${totalDeal.toLocaleString('en-IN')}</span>
+            </div>
+          </div>
+
+          ${isAccepted ? `
+            <div class="pt-1 flex items-center justify-between text-xs text-emerald-800 font-semibold bg-emerald-50 p-2 rounded-xl border border-emerald-200">
+              <span class="flex items-center gap-1.5">
+                <i data-lucide="truck" class="w-4 h-4 text-emerald-600"></i> Dispatch In Transit
+              </span>
+              <button type="button" onclick="navigateTo('consumer-orders')" class="underline font-bold hover:text-emerald-950">
+                Track Inbound Delivery &rarr;
+              </button>
+            </div>
+          ` : isPending ? `
+            <p class="text-[11px] text-gray-500 italic">This offer is live on the farmer's counter-offer desk. You will be notified upon decision.</p>
+          ` : `
+            <p class="text-[11px] text-gray-500 italic">Offer was declined by the farmer. You can place a revised counter-offer from the marketplace.</p>
+          `}
+        </div>
+      `;
+    }).join('');
+
+    if (window.lucide) lucide.createIcons();
+  }
+
+  // 4. Render Consumer Procurement Demands
+  async function renderConsumerDemands() {
+    const container = document.getElementById('consumerDemandsList');
+    const destInput = document.getElementById('inputDemandDeliveryLocation');
+    if (destInput) destInput.value = currentDeliveryAddress || 'Bowenpally Modern Market Yard, Secunderabad, Telangana';
+    if (!container) return;
+
+    let demands = [];
+    if (window.supabaseClient) {
+      try {
+        const { data, error } = await window.supabaseClient.from('consumer_demands').select('*').order('created_at', { ascending: false });
+        if (!error && data && data.length > 0) {
+          demands = data;
+        }
+      } catch (e) {
+        console.warn('Demands fetch notice:', e);
+      }
+    }
+
+    if (demands.length === 0) {
+      demands = [
+        {
+          id: 'DEMAND-1',
+          crop_name: 'Telangana Sona Super Fine Paddy (RNR 15048)',
+          category: 'Paddy / Grains',
+          required_quantity_kg: 5000,
+          target_price_per_kg: 28.0,
+          delivery_destination: currentDeliveryAddress || 'Bowenpally Modern Market Yard, Secunderabad',
+          status: 'open'
+        },
+        {
+          id: 'DEMAND-2',
+          crop_name: 'Tandur Organic Red Gram (GI Arhar)',
+          category: 'Pulses / Dal',
+          required_quantity_kg: 2000,
+          target_price_per_kg: 84.0,
+          delivery_destination: currentDeliveryAddress || 'Bowenpally Modern Market Yard, Secunderabad',
+          status: 'open'
+        }
+      ];
+    }
+
+    cachedConsumerDemands = demands;
+    const statEl = document.getElementById('consumerStatDemands');
+    if (statEl) statEl.textContent = `${demands.length} Active`;
+
+    container.innerHTML = demands.map(d => `
+      <div class="kisan-card p-3.5 space-y-2 border-l-4 border-l-amber-500">
+        <div class="flex items-center justify-between">
+          <h5 class="font-bold text-xs text-gray-900">${d.crop_name}</h5>
+          <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">
+            🟢 Active Requirement
+          </span>
+        </div>
+        <div class="flex justify-between items-center text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
+          <span>Target Price: <strong class="text-amber-800">₹${d.target_price_per_kg} / Kg</strong></span>
+          <span>Required: <strong class="text-gray-900">${Number(d.required_quantity_kg).toLocaleString('en-IN')} Kg</strong></span>
+        </div>
+        <p class="text-[11px] text-gray-500 flex items-center gap-1">
+          <i data-lucide="map-pin" class="w-3 h-3 text-amber-600 shrink-0"></i>
+          <span>Delivery: ${d.delivery_destination}</span>
+        </p>
+      </div>
+    `).join('');
+
+    if (window.lucide) lucide.createIcons();
+  }
+
+  // 5. Render Consumer Inbound Orders & Dispatches
+  async function renderConsumerOrders() {
+    const container = document.getElementById('consumerOrdersContainer');
+    const destEl = document.getElementById('consumerOrdersDecidedLocation');
+    if (destEl) destEl.textContent = currentDeliveryAddress || 'Bowenpally Modern Market Yard, Secunderabad, Telangana';
+    if (!container) return;
+
+    container.innerHTML = `
+      <div class="py-8 text-center text-xs text-gray-500">
+        <div class="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+        <span>Fetching inbound harvest orders from Supabase...</span>
+      </div>
+    `;
+
+    let inboundOrders = [];
+    if (window.supabaseClient) {
+      try {
+        const { data, error } = await window.supabaseClient.from('orders').select('*').order('created_at', { ascending: false });
+        if (!error && data && data.length > 0) {
+          inboundOrders = data;
+        }
+      } catch (e) {
+        console.warn('Orders fetch notice:', e);
+      }
+    }
+
+    if (inboundOrders.length === 0) {
+      inboundOrders = [
+        {
+          id: 'ORD-2026-9821',
+          crop_name: 'Telangana Sona Super Fine Paddy',
+          farmer_id: 'FARMER-TG-7721',
+          farmer_name: 'K. Ramarao Reddy',
+          farmer_phone: '9848022334',
+          quantity_kg: 1000,
+          total_amount: 27500,
+          delivery_location: currentDeliveryAddress,
+          delivery_status: 'In Transit',
+          escrow_status: 'escrow_locked',
+          truck_no: 'TS-08-UB-4819',
+          driver_name: 'S. Narsimha (+91 9441203498)'
+        },
+        {
+          id: 'ORD-2026-9822',
+          crop_name: 'Organic Tandur Red Gram (Arhar Dal)',
+          farmer_id: 'FARMER-TG-7721',
+          farmer_name: 'K. Ramarao Reddy',
+          farmer_phone: '9848022334',
+          quantity_kg: 450,
+          total_amount: 38250,
+          delivery_location: currentDeliveryAddress,
+          delivery_status: 'Processing',
+          escrow_status: 'escrow_locked',
+          truck_no: 'AP-29-TA-8921',
+          driver_name: 'P. Yadagiri (+91 9848123456)'
+        },
+        {
+          id: 'ORD-2026-9799',
+          crop_name: 'Bhendi (Fresh Green Okra)',
+          farmer_id: 'FARMER-TG-8459',
+          farmer_name: 'Waheed Mujtaba',
+          farmer_phone: '9248006556',
+          quantity_kg: 654,
+          total_amount: 42510,
+          delivery_location: currentDeliveryAddress,
+          delivery_status: 'Delivered',
+          escrow_status: 'completed',
+          truck_no: 'TS-03-TC-1204',
+          driver_name: 'M. Ramesh'
+        }
+      ];
+    }
+
+    const totalWeight = inboundOrders.reduce((sum, o) => sum + (Number(o.quantity_kg) || 0), 0);
+    const totalEscrow = inboundOrders.reduce((sum, o) => sum + (Number(o.total_amount) || 0), 0);
+
+    const countStat = document.getElementById('statConsumerOrdersCount');
+    const weightStat = document.getElementById('statConsumerOrdersWeight');
+    const escrowStat = document.getElementById('statConsumerOrdersEscrow');
+
+    if (countStat) countStat.textContent = `${inboundOrders.length} Shipments`;
+    if (weightStat) weightStat.textContent = `${totalWeight.toLocaleString('en-IN')} Kg`;
+    if (escrowStat) escrowStat.textContent = `₹${totalEscrow.toLocaleString('en-IN')}`;
+
+    container.innerHTML = inboundOrders.map(o => {
+      const isDelivered = (o.delivery_status || '').toLowerCase() === 'delivered';
+      const isInTransit = (o.delivery_status || '').toLowerCase().includes('transit');
+      const farmerName = o.farmer_name || (o.farmer_id === 'FARMER-TG-7721' ? 'K. Ramarao Reddy' : o.farmer_id === 'FARMER-TG-8459' ? 'Waheed Mujtaba' : 'Telangana Farmer');
+
+      return `
+        <div class="kisan-card p-4 space-y-3 hover:border-blue-300 transition">
+          <div class="flex justify-between items-start">
+            <div>
+              <span class="text-[10px] text-gray-500 font-mono">ID: ${o.id ? o.id.slice(0, 13) : 'ORD-2026-9821'}</span>
+              <h4 class="font-bold text-sm text-gray-900">${o.crop_name}</h4>
+              <p class="text-xs text-gray-600">Farmer: <strong>${farmerName}</strong> | Ph: +91 ${o.buyer_phone || o.farmer_phone || '9848022334'}</p>
+            </div>
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${isDelivered ? 'bg-emerald-100 text-emerald-800' : isInTransit ? 'bg-blue-100 text-blue-800 animate-pulse' : 'bg-amber-100 text-amber-800'}">
+              ${isDelivered ? '✅ Delivered' : isInTransit ? '🚚 In Transit' : '⏳ Farm Packaging'}
+            </span>
+          </div>
+
+          <!-- Decided Delivery Destination on Order Card -->
+          <div class="bg-blue-50/80 border border-blue-200 rounded-xl p-2.5 flex items-start gap-2 text-xs">
+            <i data-lucide="map-pin" class="w-4 h-4 text-blue-600 shrink-0 mt-0.5"></i>
+            <div>
+              <span class="text-[10px] text-blue-800 uppercase font-bold tracking-wide block">Decided Delivery Destination:</span>
+              <span class="font-bold text-gray-900">${o.delivery_location || currentDeliveryAddress}</span>
+            </div>
+          </div>
+
+          <!-- Quantity and Escrow Valuation -->
+          <div class="bg-gray-50 p-2.5 rounded-xl flex justify-between items-center text-xs">
+            <div>
+              <span class="text-gray-500 block text-[11px]">Shipment Quantity</span>
+              <span class="font-bold text-gray-900">${Number(o.quantity_kg).toLocaleString('en-IN')} Kg</span>
+            </div>
+            <div class="text-right">
+              <span class="text-gray-500 block text-[11px]">Total Escrow Value</span>
+              <span class="font-extrabold text-emerald-700 text-sm">₹${Number(o.total_amount).toLocaleString('en-IN')}</span>
+            </div>
+          </div>
+
+          <!-- Transit Logistics Info & Escrow Release Action -->
+          <div class="pt-1 flex gap-2">
+            ${!isDelivered ? `
+              <button type="button" onclick="confirmConsumerDeliveryReceipt('${o.id}')" class="flex-1 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold rounded-xl text-xs shadow transition flex items-center justify-center gap-1.5">
+                <i data-lucide="check-circle" class="w-4 h-4"></i>
+                <span>Confirm Mandi Receipt & Release Escrow</span>
+              </button>
+              <a href="tel:${o.buyer_phone || '9441203498'}" class="py-2.5 px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-xs flex items-center justify-center gap-1">
+                <i data-lucide="phone" class="w-3.5 h-3.5"></i> Call Fleet
+              </a>
+            ` : `
+              <div class="w-full py-2 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5">
+                <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
+                <span>Escrow Disbursed to Farmer DBT Account (Completed)</span>
+              </div>
+            `}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    if (window.lucide) lucide.createIcons();
+  }
+
+  // 6. Confirm Delivery Receipt & Release Escrow
+  window.confirmConsumerDeliveryReceipt = async function(orderId) {
+    if (!confirm('Confirm produce receipt at your decided delivery location? This will release the escrow funds directly to the farmer.')) {
+      return;
+    }
+
+    showToast('Releasing escrow payment to farmer DBT account...');
+
+    if (window.supabaseClient && orderId && !orderId.startsWith('ORD-')) {
+      try {
+        await window.supabaseClient.from('orders').update({
+          delivery_status: 'Delivered',
+          escrow_status: 'completed'
+        }).eq('id', orderId);
+      } catch (e) {
+        console.warn('Order status update notice:', e);
+      }
+    }
+
+    showToast('Delivery verified! Escrow payment released to farmer successfully.');
+    renderConsumerOrders();
+  };
+
+  // 7. Render Consumer Escrow Wallet
+  function renderConsumerWallet() {
+    const balEl = document.getElementById('consumerWalletBalance');
+    const availEl = document.getElementById('consumerWalletAvailable');
+    const lockedEl = document.getElementById('consumerWalletLocked');
+    const container = document.getElementById('consumerEscrowLedgerContainer');
+
+    const total = currentConsumerEscrow || 150000;
+    const locked = 42500;
+    const available = Math.max(0, total - locked);
+
+    if (balEl) balEl.textContent = '₹' + total.toLocaleString('en-IN');
+    if (availEl) availEl.textContent = '₹' + available.toLocaleString('en-IN');
+    if (lockedEl) lockedEl.textContent = '₹' + locked.toLocaleString('en-IN');
+
+    if (!container) return;
+
+    const ledger = [
+      {
+        title: 'Escrow Locked for 1,000 Kg Paddy (K. Ramarao Reddy)',
+        type: 'lock',
+        amount: 27500,
+        tx: '0x9a8f...39b1',
+        time: 'Today, 11:20 AM',
+        status: 'Active Escrow'
+      },
+      {
+        title: 'Escrow Locked for 450 Kg Arhar Dal (K. Ramarao Reddy)',
+        type: 'lock',
+        amount: 38250,
+        tx: '0x7e12...99ca',
+        time: 'Yesterday, 04:45 PM',
+        status: 'Active Escrow'
+      },
+      {
+        title: 'Instant Escrow Deposit via Corporate NetBanking',
+        type: 'credit',
+        amount: 50000,
+        tx: '0x3b41...88ef',
+        time: '11 Oct 2026',
+        status: 'Confirmed'
+      },
+      {
+        title: 'Escrow Released to Waheed Mujtaba (Delivered 654 Kg Bhendi)',
+        type: 'release',
+        amount: 42510,
+        tx: '0x5c88...1219',
+        time: '10 Oct 2026',
+        status: 'Farmer DBT Settled'
+      }
+    ];
+
+    container.innerHTML = ledger.map(l => `
+      <div class="kisan-card p-3 flex justify-between items-center text-xs">
+        <div>
+          <h5 class="font-bold text-gray-900">${l.title}</h5>
+          <span class="text-[10px] text-gray-400 font-mono">Tx: ${l.tx} | ${l.time}</span>
+        </div>
+        <div class="text-right">
+          <span class="font-extrabold text-sm ${l.type === 'credit' ? 'text-emerald-600' : l.type === 'release' ? 'text-purple-600' : 'text-amber-600'}">
+            ${l.type === 'credit' ? '+' : '-'}₹${l.amount.toLocaleString('en-IN')}
+          </span>
+          <span class="block text-[10px] font-bold text-gray-500">${l.status}</span>
+        </div>
+      </div>
+    `).join('');
+
+    if (window.lucide) lucide.createIcons();
+  }
+
+  // 8. Open Consumer Offer Modal
+  window.openConsumerOfferModal = function(cropId, farmerId) {
+    let crop = cachedMarketplaceCrops.find(c => c.id === cropId);
+    if (!crop) {
+      crop = {
+        id: cropId,
+        crop_name: 'Telangana Agricultural Produce',
+        price_per_kg: 50,
+        quantity_kg: 300,
+        image_url: 'assets/raw/paddy.png',
+        farmer_id: farmerId
+      };
+    }
+
+    const modal = document.getElementById('modalConsumerOffer');
+    if (!modal) return;
+
+    document.getElementById('offerCropId').value = crop.id;
+    document.getElementById('offerFarmerId').value = farmerId || crop.farmer_id || 'FARMER-TG-7721';
+    document.getElementById('offerModalCropName').textContent = crop.crop_name;
+    document.getElementById('offerModalCropImg').src = crop.image_url || 'assets/raw/paddy.png';
+    document.getElementById('offerModalAskingPrice').textContent = `₹${crop.price_per_kg} / Kg`;
+    document.getElementById('offerModalStockQty').textContent = `${crop.quantity_kg} Kg`;
+    document.getElementById('offerModalFarmerInfo').textContent = `Direct to Farmer ${farmerId || crop.farmer_id || 'FARMER-TG-7721'}`;
+
+    const inputPrice = document.getElementById('inputOfferPrice');
+    const inputQty = document.getElementById('inputOfferQuantity');
+    const selectLocation = document.getElementById('selectOfferDeliveryLocation');
+    const totalEl = document.getElementById('offerModalTotalCalculated');
+
+    inputPrice.value = crop.price_per_kg;
+    inputQty.value = Math.min(100, crop.quantity_kg || 100);
+
+    // Set delivery destination to consumer's default
+    if (selectLocation) {
+      selectLocation.value = currentDeliveryAddress || 'Bowenpally Modern Market Yard, Secunderabad, Telangana';
+    }
+
+    function updateTotal() {
+      const p = Number(inputPrice.value) || 0;
+      const q = Number(inputQty.value) || 0;
+      totalEl.textContent = `₹${(p * q).toLocaleString('en-IN')}`;
+    }
+
+    inputPrice.oninput = updateTotal;
+    inputQty.oninput = updateTotal;
+    updateTotal();
+
+    modal.classList.add('open');
+  };
+
+  // Close Offer Modal
+  const btnCloseConsumerOfferModal = document.getElementById('btnCloseConsumerOfferModal');
+  if (btnCloseConsumerOfferModal) {
+    btnCloseConsumerOfferModal.addEventListener('click', () => {
+      document.getElementById('modalConsumerOffer').classList.remove('open');
+    });
+  }
+
+  // Handle Offer Submission
+  const formConsumerOffer = document.getElementById('formConsumerOffer');
+  if (formConsumerOffer) {
+    formConsumerOffer.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const cropId = document.getElementById('offerCropId').value;
+      const targetFarmerId = document.getElementById('offerFarmerId').value || 'FARMER-TG-7721';
+      const cropName = document.getElementById('offerModalCropName').textContent;
+      const offerPrice = Number(document.getElementById('inputOfferPrice').value);
+      const offerQty = Number(document.getElementById('inputOfferQuantity').value);
+      const selectLocation = document.getElementById('selectOfferDeliveryLocation');
+      const customLocationInput = document.getElementById('inputOfferCustomLocation');
+      const noteInput = document.getElementById('inputOfferNote');
+
+      let decidedLocation = selectLocation ? selectLocation.value : 'Bowenpally Modern Market Yard, Secunderabad, Telangana';
+      if (decidedLocation === 'custom' && customLocationInput && customLocationInput.value.trim()) {
+        decidedLocation = customLocationInput.value.trim();
+      }
+
+      if (!offerPrice || offerPrice <= 0 || !offerQty || offerQty <= 0) {
+        alert('Please enter a valid offer price and quantity.');
+        return;
+      }
+
+      showToast('Submitting offer to farmer negotiation desk in Supabase...');
+
+      const buyerName = currentConsumerCompany || 'Bowenpally Bulk Millers';
+      const buyerPhone = '9440188234';
+      const consumerId = currentConsumerId || 'CONSUMER-TG-5001';
+
+      // 1. Create local negotiation entry
+      const newNego = {
+        id: `NEGO-${Date.now().toString().slice(-4)}`,
+        itemTitle: cropName,
+        actualPrice: offerPrice,
+        proposedPrice: offerPrice,
+        quantity: offerQty,
+        image: 'assets/raw/paddy.png',
+        status: 'pending',
+        note: noteInput?.value?.trim() || 'Counter offer sent by consumer',
+        buyer: {
+          name: buyerName,
+          company: buyerName,
+          phone: buyerPhone,
+          location: decidedLocation
+        }
+      };
+      negotiations.unshift(newNego);
+      localStorage.setItem('kisan_negotiations', JSON.stringify(negotiations));
+
+      // 2. Insert into Supabase negotiations table
+      if (window.supabaseClient) {
+        try {
+          const offerPayload = {
+            crop_name: cropName,
+            buyer_name: buyerName,
+            buyer_company: `[FARMER:${targetFarmerId}][CONSUMER:${consumerId}] ${buyerName}`,
+            buyer_phone: buyerPhone,
+            mandi_location: decidedLocation,
+            offer_price_per_kg: offerPrice,
+            offered_quantity_kg: offerQty,
+            status: 'pending'
+          };
+
+          let insertRes = await window.supabaseClient.from('negotiations').insert([{
+            ...offerPayload,
+            farmer_id: targetFarmerId,
+            consumer_id: consumerId
+          }]).select();
+
+          if (insertRes.error) {
+            console.warn('Retrying negotiation insert without farmer_id column:', insertRes.error.message);
+            insertRes = await window.supabaseClient.from('negotiations').insert([offerPayload]).select();
+          }
+
+          if (!insertRes.error) {
+            console.log('✔ Offer synced successfully to Supabase negotiations table!');
+          }
+        } catch (err) {
+          console.warn('Negotiation sync notice:', err);
+        }
+      }
+
+      document.getElementById('modalConsumerOffer').classList.remove('open');
+      showToast(`Offer of ₹${(offerPrice * offerQty).toLocaleString('en-IN')} sent to farmer's desk!`);
+      switchConsumerTab('offers');
+    });
+  }
+
+  // 9. Handle Post Bulk Procurement Requirement Form
+  const formConsumerDemand = document.getElementById('formConsumerDemand');
+  if (formConsumerDemand) {
+    formConsumerDemand.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const cropName = document.getElementById('inputDemandCropName').value;
+      const category = document.getElementById('inputDemandCategory').value;
+      const qty = Number(document.getElementById('inputDemandQuantity').value);
+      const price = Number(document.getElementById('inputDemandPrice').value);
+      const dest = document.getElementById('inputDemandDeliveryLocation').value;
+
+      if (!qty || qty <= 0 || !price || price <= 0) {
+        alert('Please enter valid quantity and target price.');
+        return;
+      }
+
+      showToast('Broadcasting procurement demand to Telangana farmers...');
+
+      const newDemand = {
+        consumer_id: currentConsumerId || 'CONSUMER-TG-5001',
+        company_name: currentConsumerCompany || 'Bowenpally Bulk Millers',
+        crop_name: cropName,
+        category: category,
+        required_quantity_kg: qty,
+        target_price_per_kg: price,
+        delivery_destination: dest || currentDeliveryAddress,
+        status: 'open'
+      };
+
+      if (window.supabaseClient) {
+        try {
+          await window.supabaseClient.from('consumer_demands').insert([newDemand]);
+        } catch (e) {
+          console.warn('Demand insert notice:', e);
+        }
+      }
+
+      showToast(`Demand for ${qty} Kg of ${cropName} broadcasted to farmers!`);
+      formConsumerDemand.reset();
+      renderConsumerDemands();
+    });
+  }
+
+  // 10. Change Decided Delivery Destination Modal Handlers
+  window.openChangeDeliveryModal = function() {
+    const modal = document.getElementById('modalChangeConsumerDelivery');
+    if (modal) modal.classList.add('open');
+  };
+
+  window.closeChangeDeliveryModal = function() {
+    const modal = document.getElementById('modalChangeConsumerDelivery');
+    if (modal) modal.classList.remove('open');
+  };
+
+  const btnEditConsumerDeliveryLocation = document.getElementById('btnEditConsumerDeliveryLocation');
+  if (btnEditConsumerDeliveryLocation) {
+    btnEditConsumerDeliveryLocation.addEventListener('click', openChangeDeliveryModal);
+  }
+
+  const btnCloseChangeDeliveryModal = document.getElementById('btnCloseChangeDeliveryModal');
+  if (btnCloseChangeDeliveryModal) {
+    btnCloseChangeDeliveryModal.addEventListener('click', closeChangeDeliveryModal);
+  }
+
+  const selectChangeDeliveryLocation = document.getElementById('selectChangeDeliveryLocation');
+  const wrapperCustomDeliveryLocation = document.getElementById('wrapperCustomDeliveryLocation');
+  if (selectChangeDeliveryLocation && wrapperCustomDeliveryLocation) {
+    selectChangeDeliveryLocation.addEventListener('change', () => {
+      if (selectChangeDeliveryLocation.value === 'custom') {
+        wrapperCustomDeliveryLocation.classList.remove('hidden');
+      } else {
+        wrapperCustomDeliveryLocation.classList.add('hidden');
+      }
+    });
+  }
+
+  const formUpdateDeliveryDestination = document.getElementById('formUpdateDeliveryDestination');
+  if (formUpdateDeliveryDestination) {
+    formUpdateDeliveryDestination.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      let chosen = selectChangeDeliveryLocation ? selectChangeDeliveryLocation.value : currentDeliveryAddress;
+      if (chosen === 'custom') {
+        const customInput = document.getElementById('inputCustomDeliveryLocation');
+        if (customInput && customInput.value.trim()) {
+          chosen = customInput.value.trim();
+        }
+      }
+
+      currentDeliveryAddress = chosen;
+
+      // Update in localStorage
+      const authData = localStorage.getItem('kisan_auth');
+      if (authData) {
+        try {
+          const sess = JSON.parse(authData);
+          sess.deliveryAddress = currentDeliveryAddress;
+          localStorage.setItem('kisan_auth', JSON.stringify(sess));
+        } catch (e) {}
+      }
+
+      // Update in Supabase profiles & consumers
+      if (window.supabaseClient && currentConsumerId) {
+        try {
+          window.supabaseClient.from('profiles').update({ delivery_address: currentDeliveryAddress }).eq('farmer_id', currentConsumerId).then();
+          window.supabaseClient.from('consumers').update({ delivery_address: currentDeliveryAddress }).eq('consumer_id', currentConsumerId).then();
+        } catch (e) {}
+      }
+
+      updatePortalRoleUI();
+      closeChangeDeliveryModal();
+      showToast('Decided delivery destination updated successfully!');
+    });
+  }
+
+  // 11. Buyer Escrow Deposit Modal Handlers
+  window.openConsumerEscrowDepositModal = function() {
+    const modal = document.getElementById('modalConsumerEscrowDeposit');
+    if (modal) modal.classList.add('open');
+  };
+
+  window.closeConsumerEscrowDepositModal = function() {
+    const modal = document.getElementById('modalConsumerEscrowDeposit');
+    if (modal) modal.classList.remove('open');
+  };
+
+  window.setDepositAmount = function(amt) {
+    const inp = document.getElementById('inputEscrowDepositAmount');
+    if (inp) inp.value = amt;
+  };
+
+  const btnCloseEscrowDepositModal = document.getElementById('btnCloseEscrowDepositModal');
+  if (btnCloseEscrowDepositModal) {
+    btnCloseEscrowDepositModal.addEventListener('click', closeConsumerEscrowDepositModal);
+  }
+
+  const formEscrowDeposit = document.getElementById('formEscrowDeposit');
+  if (formEscrowDeposit) {
+    formEscrowDeposit.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const amount = Number(document.getElementById('inputEscrowDepositAmount').value) || 50000;
+      currentConsumerEscrow = (currentConsumerEscrow || 150000) + amount;
+
+      // Update localStorage
+      const authData = localStorage.getItem('kisan_auth');
+      if (authData) {
+        try {
+          const sess = JSON.parse(authData);
+          sess.escrowBalance = currentConsumerEscrow;
+          localStorage.setItem('kisan_auth', JSON.stringify(sess));
+        } catch (e) {}
+      }
+
+      updatePortalRoleUI();
+      renderConsumerWallet();
+      closeConsumerEscrowDepositModal();
+      showToast(`₹${amount.toLocaleString('en-IN')} deposited into Multi-Sig Escrow Vault!`);
+    });
+  }
+
+  // Initial Bootup Sequence: Correctly routes to Consumer or Farmer portal
+  async function bootApplication() {
+    await checkAuthStatus();
+    applyViewMode(currentViewMode);
+    applyLanguage(currentLanguage);
+    if (typeof initOrUpdateChat === 'function') {
+      initOrUpdateChat(currentLanguage);
+    }
+    loadSoilLabsData();
+
+    if (currentPortalRole === 'consumer') {
+      updatePortalRoleUI();
+      navigateTo('consumer');
+    } else {
+      updatePortalRoleUI();
+      navigateTo('inventory');
+    }
+  }
+
+  bootApplication();
 }
 
 // Client-side initialization: Execute only when running in a browser environment with DOM
