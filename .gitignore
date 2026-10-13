@@ -4,6 +4,7 @@ jspm_packages/
 
 # Vercel deployment cache
 .vercel
+.next/
 
 # Environment variables
 .env

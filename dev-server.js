@@ -148,6 +148,28 @@ function handleRequest(req, res) {
     }
   }
 
+  // API Route: /api/market-prices (Market Intelligence & Mandi Pricing API)
+  if (reqPath === '/api/market-prices') {
+    try {
+      const marketPricesHandler = require('./api/market-prices.js');
+      return marketPricesHandler(req, res);
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error: 'Market Prices error', details: err.message }));
+    }
+  }
+
+  // API Route: /api/market-agent (Kisan Sathi Grounded Pricing AI Agent)
+  if (reqPath === '/api/market-agent') {
+    try {
+      const marketAgentHandler = require('./api/market-agent.js');
+      return marketAgentHandler(req, res);
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error: 'Market Agent error', details: err.message }));
+    }
+  }
+
   // Support communication with bound internal service 'web-platform' via WEB_PLATFORM_URL if present
   if (process.env.WEB_PLATFORM_URL && (reqPath.startsWith('/platform') || reqPath.startsWith('/api/platform'))) {
     try {

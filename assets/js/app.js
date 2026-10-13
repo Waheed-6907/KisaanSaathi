@@ -1668,6 +1668,7 @@ function initKisanSaathi() {
       info: 'sectionInfo',
       godowns: 'sectionGodowns',
       logistics: 'sectionLogistics',
+      marketIntel: 'sectionMarketIntel',
       weather: 'sectionWeather',
       chat: 'sectionChat',
       profile: 'sectionProfile',
@@ -1789,6 +1790,9 @@ function initKisanSaathi() {
         break;
       case 'logistics':
         renderLogistics();
+        break;
+      case 'marketIntel':
+        renderMarketIntelligence();
         break;
       case 'about':
         renderAboutTeam();
@@ -6442,6 +6446,367 @@ function initKisanSaathi() {
       closeConsumerEscrowDepositModal();
       showToast(`₹${amount.toLocaleString('en-IN')} deposited into Multi-Sig Escrow Vault!`);
     });
+  }
+
+  // =========================================================================
+  // SECTION: KISAN SATHI MARKET INTELLIGENCE (Verified Mandi Pricing & Net Return)
+  // =========================================================================
+  let marketIntelligenceInitialized = false;
+  let cachedMarketPrices = null;
+
+  async function loadMarketPricesData() {
+    if (cachedMarketPrices) return cachedMarketPrices;
+    try {
+      const res = await fetch('/api/market-prices?action=latest');
+      if (res.ok) {
+        const data = await res.json();
+        cachedMarketPrices = data;
+        return data;
+      }
+    } catch (_e) {}
+
+    try {
+      const res = await fetch('assets/data/market_prices.json');
+      if (res.ok) {
+        const data = await res.json();
+        cachedMarketPrices = data;
+        return data;
+      }
+    } catch (_e) {}
+
+    return { observations: [], commodities: [], markets: [] };
+  }
+
+  function switchMarketTab(tabKey) {
+    document.querySelectorAll('.market-tab-btn').forEach(btn => {
+      if (btn.getAttribute('data-markettab') === tabKey) {
+        btn.classList.add('active', 'bg-emerald-700', 'text-white');
+        btn.classList.remove('bg-gray-100', 'text-gray-700');
+      } else {
+        btn.classList.remove('active', 'bg-emerald-700', 'text-white');
+        btn.classList.add('bg-gray-100', 'text-gray-700');
+      }
+    });
+
+    const panels = {
+      overview: 'markettabContentOverview',
+      prices: 'markettabContentPrices',
+      compare: 'markettabContentCompare',
+      calculator: 'markettabContentCalculator',
+      agent: 'markettabContentAgent',
+      sources: 'markettabContentSources'
+    };
+
+    Object.entries(panels).forEach(([key, id]) => {
+      const el = document.getElementById(id);
+      if (el) {
+        if (key === tabKey) el.classList.remove('hidden');
+        else el.classList.add('hidden');
+      }
+    });
+
+    if (window.lucide) lucide.createIcons();
+  }
+
+  async function renderMarketIntelligence() {
+    const data = await loadMarketPricesData();
+    const records = data.records || data.observations || [];
+
+    // Render Highlights
+    const overviewGrid = document.getElementById('marketOverviewGrid');
+    if (overviewGrid && overviewGrid.children.length === 0) {
+      overviewGrid.innerHTML = records.slice(0, 6).map(r => `
+        <div class="bg-white p-3.5 rounded-2xl border border-gray-200 shadow-sm space-y-2 hover:border-emerald-400 transition">
+          <div class="flex justify-between items-start">
+            <div>
+              <span class="font-bold text-gray-900 text-xs block">${r.commodityName}</span>
+              <span class="text-[11px] text-gray-500">${r.marketName} &bull; ${r.districtName || 'Telangana'}</span>
+            </div>
+            <span class="px-2 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-800 rounded-full">
+              ${r.observationDate}
+            </span>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 flex justify-between items-center">
+            <div>
+              <span class="text-[10px] text-gray-500 block">Modal Benchmark Rate</span>
+              <span class="text-base font-extrabold text-emerald-800">₹${Number(r.modalPrice).toLocaleString('en-IN')}</span>
+              <span class="text-[10px] text-gray-500">/ Qtl (₹${r.modalPricePerKg}/Kg)</span>
+            </div>
+            <div class="text-right text-[11px] text-gray-600">
+              <div>Range: ₹${r.minPrice} - ₹${r.maxPrice}</div>
+              <div class="text-emerald-700 font-semibold">${r.arrivalsQuantity} Qtl Arrivals</div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Render Price List
+    renderMarketPriceList(records);
+
+    // Initialize events once
+    if (!marketIntelligenceInitialized) {
+      marketIntelligenceInitialized = true;
+
+      document.querySelectorAll('.market-tab-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const tabKey = e.currentTarget.getAttribute('data-markettab');
+          switchMarketTab(tabKey);
+        });
+      });
+
+      const searchInput = document.getElementById('marketPriceSearch');
+      const cropFilter = document.getElementById('marketCommodityFilter');
+      const yardFilter = document.getElementById('marketYardFilter');
+
+      const applyFilters = () => {
+        const q = (searchInput?.value || '').toLowerCase();
+        const c = cropFilter?.value || '';
+        const y = yardFilter?.value || '';
+
+        const filtered = records.filter(r => {
+          if (c && r.commodityId !== c) return false;
+          if (y && r.marketId !== y) return false;
+          if (q) {
+            const str = `${r.commodityName} ${r.marketName} ${r.districtName || ''} ${r.variety || ''}`.toLowerCase();
+            if (!str.includes(q)) return false;
+          }
+          return true;
+        });
+        renderMarketPriceList(filtered);
+      };
+
+      if (searchInput) searchInput.addEventListener('input', applyFilters);
+      if (cropFilter) cropFilter.addEventListener('change', applyFilters);
+      if (yardFilter) yardFilter.addEventListener('change', applyFilters);
+
+      const compareSelect = document.getElementById('marketCompareCropSelect');
+      if (compareSelect) {
+        compareSelect.addEventListener('change', () => updateMarketCompare(compareSelect.value, records));
+        updateMarketCompare(compareSelect.value, records);
+      }
+
+      const sliderTransport = document.getElementById('sliderCalcTransport');
+      const sliderBagging = document.getElementById('sliderCalcBagging');
+      const labelTransport = document.getElementById('labelCalcTransport');
+      const labelBagging = document.getElementById('labelCalcBagging');
+
+      if (sliderTransport && labelTransport) {
+        sliderTransport.addEventListener('input', () => {
+          labelTransport.textContent = `₹${sliderTransport.value}/qtl`;
+        });
+      }
+      if (sliderBagging && labelBagging) {
+        sliderBagging.addEventListener('input', () => {
+          labelBagging.textContent = `₹${sliderBagging.value}/qtl`;
+        });
+      }
+
+      const btnRunCalc = document.getElementById('btnRunNetReturnCalc');
+      if (btnRunCalc) {
+        btnRunCalc.addEventListener('click', () => runNetReturnCalculator(records));
+      }
+
+      const agentInput = document.getElementById('marketAgentInput');
+      const btnAgentSend = document.getElementById('btnMarketAgentSend');
+
+      if (btnAgentSend && agentInput) {
+        btnAgentSend.addEventListener('click', () => sendMarketAgentMessage(agentInput.value));
+        agentInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') sendMarketAgentMessage(agentInput.value);
+        });
+      }
+
+      document.querySelectorAll('.agent-quick-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const q = e.currentTarget.getAttribute('data-q');
+          sendMarketAgentMessage(q);
+        });
+      });
+    }
+
+    if (window.lucide) lucide.createIcons();
+  }
+
+  function renderMarketPriceList(records) {
+    const listContainer = document.getElementById('marketPriceList');
+    if (!listContainer) return;
+
+    if (records.length === 0) {
+      listContainer.innerHTML = `
+        <div class="text-center py-8 text-gray-500 bg-white rounded-xl border border-gray-200">
+          <p class="font-bold text-xs">No price observations matched this filter</p>
+        </div>
+      `;
+      return;
+    }
+
+    listContainer.innerHTML = records.map(r => `
+      <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+        <div>
+          <span class="font-bold text-gray-900 text-xs block">${r.commodityName} (${r.variety || 'FAQ'})</span>
+          <span class="text-[11px] text-gray-500">${r.marketName} &bull; ${r.districtName || 'Telangana'}</span>
+          <span class="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100 inline-block mt-0.5">
+            Observed: ${r.observationDate} &bull; ${r.sourceId}
+          </span>
+        </div>
+        <div class="text-right">
+          <div class="text-base font-extrabold text-emerald-800">
+            ₹${Number(r.modalPrice).toLocaleString('en-IN')} <span class="text-[10px] text-gray-500">/ Qtl</span>
+          </div>
+          <div class="text-[11px] font-semibold text-emerald-600">₹${r.modalPricePerKg}/Kg</div>
+          <div class="text-[10px] text-gray-400">Min: ₹${r.minPrice} | Max: ₹${r.maxPrice}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function updateMarketCompare(commodityId, records) {
+    const container = document.getElementById('marketCompareResultsContainer');
+    if (!container) return;
+
+    const matched = records.filter(r => r.commodityId === commodityId);
+    const unique = Array.from(new Map(matched.map(m => [m.marketId, m])).values()).sort((a, b) => b.modalPrice - a.modalPrice);
+
+    if (unique.length === 0) {
+      container.innerHTML = `<div class="p-4 bg-white rounded-xl text-center text-xs text-gray-500">No comparison data available</div>`;
+      return;
+    }
+
+    const highest = unique[0].modalPrice;
+    const lowest = unique[unique.length - 1].modalPrice;
+    const spread = highest - lowest;
+
+    container.innerHTML = `
+      <div class="bg-gradient-to-br from-emerald-50 to-green-100 p-4 rounded-xl border border-emerald-200 space-y-1.5 text-xs">
+        <div class="flex justify-between items-center font-bold text-emerald-950">
+          <span>Top Benchmark Mandi: ${unique[0].marketName}</span>
+          <span class="text-base text-emerald-700">₹${unique[0].modalPrice}/Qtl</span>
+        </div>
+        <div class="text-gray-600">
+          Inter-mandi Price Spread: <span class="font-bold text-gray-900">₹${spread}/Quintal</span> across Telangana yards.
+        </div>
+        <div class="text-[11px] text-amber-800 bg-amber-50 p-2 rounded-lg border border-amber-200 mt-2">
+          ⚠️ <strong>Logistics Advice:</strong> If hiring a truck to a distant market costs more than ₹${spread}/Qtl, selling at your nearest APMC yard gives higher take-home profit.
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        ${unique.map((m, idx) => `
+          <div class="bg-white p-3 rounded-xl border ${idx === 0 ? 'border-emerald-300 bg-emerald-50/20' : 'border-gray-200'} flex justify-between items-center text-xs">
+            <div>
+              <span class="font-bold text-gray-900">${idx + 1}. ${m.marketName}</span>
+              <span class="text-[11px] text-gray-500 block">${m.districtName || 'Telangana'}</span>
+            </div>
+            <div class="text-right">
+              <span class="text-sm font-bold text-gray-900">₹${m.modalPrice}/Qtl</span>
+              <span class="text-[11px] text-gray-500 block">Range: ₹${m.minPrice}-₹${m.maxPrice}</span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  function runNetReturnCalculator(records) {
+    const crop = document.getElementById('calcCropSelect')?.value || 'PADDY_COMMON';
+    const mandi = document.getElementById('calcMandiSelect')?.value || 'TG_MKT_ENUMAMULA';
+    const qty = parseFloat(document.getElementById('calcQuantityInput')?.value || 50);
+    const transport = parseFloat(document.getElementById('sliderCalcTransport')?.value || 45);
+    const bagging = parseFloat(document.getElementById('sliderCalcBagging')?.value || 25);
+    const resultDisplay = document.getElementById('calcResultDisplay');
+
+    if (!resultDisplay) return;
+
+    const obs = records.find(r => r.commodityId === crop && r.marketId === mandi) ||
+                records.find(r => r.commodityId === crop) ||
+                records[0];
+
+    const gross = Math.round(qty * obs.modalPrice);
+    const totalTransport = Math.round(qty * transport);
+    const totalBagging = Math.round(qty * bagging);
+    const totalCess = Math.round(gross * 0.01);
+    const totalDeductions = totalTransport + totalBagging + totalCess;
+    const netReturn = gross - totalDeductions;
+    const effectiveNetPerQtl = Math.round((netReturn / qty) * 100) / 100;
+
+    resultDisplay.classList.remove('hidden');
+    resultDisplay.innerHTML = `
+      <div class="bg-gradient-to-br from-emerald-900 to-slate-900 text-white p-4 rounded-2xl shadow space-y-2 text-xs">
+        <span class="text-[10px] text-emerald-300 uppercase font-bold tracking-wider block">Estimated Net Realization</span>
+        <div class="text-2xl sm:text-3xl font-extrabold text-white">
+          ₹${netReturn.toLocaleString('en-IN')}
+        </div>
+        <div class="text-xs text-emerald-200">
+          Effective Rate: ₹${effectiveNetPerQtl.toLocaleString('en-IN')}/Quintal (₹${(effectiveNetPerQtl / 100).toFixed(2)}/Kg)
+        </div>
+        <div class="pt-2 border-t border-slate-700 space-y-1 text-[11px] text-slate-300">
+          <div class="flex justify-between"><span>Gross Auction Value:</span> <span>₹${gross.toLocaleString('en-IN')}</span></div>
+          <div class="flex justify-between text-red-300"><span>Transport Haulage:</span> <span>-₹${totalTransport.toLocaleString('en-IN')}</span></div>
+          <div class="flex justify-between text-red-300"><span>Bagging & Labor:</span> <span>-₹${totalBagging.toLocaleString('en-IN')}</span></div>
+          <div class="flex justify-between text-red-300"><span>APMC Cess (1%):</span> <span>-₹${totalCess.toLocaleString('en-IN')}</span></div>
+        </div>
+      </div>
+    `;
+  }
+
+  async function sendMarketAgentMessage(query) {
+    if (!query || !query.trim()) return;
+    const thread = document.getElementById('marketAgentChatThread');
+    const input = document.getElementById('marketAgentInput');
+
+    if (input) input.value = '';
+    if (thread) {
+      thread.innerHTML += `
+        <div class="p-2.5 bg-emerald-600 text-white rounded-xl text-right font-medium">
+          ${query}
+        </div>
+        <div id="agentLoadingMsg" class="p-2.5 bg-white border border-gray-200 rounded-xl text-gray-500 italic flex items-center gap-1.5">
+          <span class="animate-spin text-emerald-600">⏳</span> Verifying official AGMARKNET trade records...
+        </div>
+      `;
+      thread.scrollTop = thread.scrollHeight;
+    }
+
+    try {
+      const res = await fetch('/api/market-agent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: query })
+      });
+      const data = await res.json();
+
+      const loadingMsg = document.getElementById('agentLoadingMsg');
+      if (loadingMsg) loadingMsg.remove();
+
+      if (thread && data.reply) {
+        const formattedReply = data.reply
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*(.*?)\*/g, '<em>$1</em>')
+          .replace(/\n/g, '<br/>');
+
+        thread.innerHTML += `
+          <div class="p-3 bg-white border border-gray-200 rounded-xl text-gray-900 space-y-2">
+            <div>${formattedReply}</div>
+            <div class="pt-2 border-t border-gray-100 flex items-center justify-between text-[10px] text-gray-500">
+              <span class="text-emerald-700 font-semibold">✔ Official Government Evidence</span>
+              <span>AGMARKNET Mandi Bulletin</span>
+            </div>
+          </div>
+        `;
+        thread.scrollTop = thread.scrollHeight;
+      }
+    } catch (err) {
+      const loadingMsg = document.getElementById('agentLoadingMsg');
+      if (loadingMsg) loadingMsg.remove();
+      if (thread) {
+        thread.innerHTML += `
+          <div class="p-2.5 bg-red-50 text-red-800 rounded-xl border border-red-200">
+            ⚠️ Connection error: ${err.message}. Please retry.
+          </div>
+        `;
+      }
+    }
   }
 
   // Initial Bootup Sequence: Correctly routes to Consumer or Farmer portal
