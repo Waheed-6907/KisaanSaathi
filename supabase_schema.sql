@@ -217,7 +217,40 @@ VALUES
 ON CONFLICT DO NOTHING;
 
 -- ----------------------------------------------------------------------------
--- 11. ROW LEVEL SECURITY (RLS) POLICIES - FULL CRUD ENABLED FOR ALL TABLES
+-- 11. KISAAN SAATHI LOGISTICS NETWORK & VERIFIED DIRECTORY
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.logistics_providers (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    provider_id TEXT UNIQUE NOT NULL,
+    business_name TEXT NOT NULL,
+    service_categories TEXT[] NOT NULL DEFAULT '{}',
+    phone TEXT NOT NULL,
+    alternate_phone TEXT,
+    email TEXT,
+    address TEXT NOT NULL,
+    state TEXT NOT NULL,
+    district TEXT NOT NULL,
+    city TEXT,
+    pin_code TEXT,
+    service_areas TEXT NOT NULL,
+    official_website TEXT NOT NULL,
+    tracking_url TEXT,
+    tracking_api_status TEXT DEFAULT 'documented_portal_only',
+    cold_storage_available BOOLEAN DEFAULT false,
+    warehouse_available BOOLEAN DEFAULT false,
+    reefer_available BOOLEAN DEFAULT false,
+    bulk_transport_available BOOLEAN DEFAULT false,
+    small_load_available BOOLEAN DEFAULT false,
+    source_urls TEXT[] NOT NULL DEFAULT '{}',
+    verification_status TEXT NOT NULL,
+    last_verified_at DATE DEFAULT CURRENT_DATE,
+    is_active BOOLEAN DEFAULT true,
+    notes TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ----------------------------------------------------------------------------
+-- 12. ROW LEVEL SECURITY (RLS) POLICIES - FULL CRUD ENABLED FOR ALL TABLES
 -- ----------------------------------------------------------------------------
 ALTER TABLE public.todos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
@@ -229,6 +262,7 @@ ALTER TABLE public.quality_gradings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.grievance_tickets ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_logins ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.godowns_and_warehouses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.logistics_providers ENABLE ROW LEVEL SECURITY;
 
 -- Clean drop legacy policies
 DROP POLICY IF EXISTS "Public Read Todos" ON public.todos;
@@ -245,6 +279,7 @@ DROP POLICY IF EXISTS "Public Read Orders" ON public.orders;
 DROP POLICY IF EXISTS "Public Read Godowns" ON public.godowns_and_warehouses;
 DROP POLICY IF EXISTS "Public Read Logins" ON public.user_logins;
 DROP POLICY IF EXISTS "Public Insert Logins" ON public.user_logins;
+DROP POLICY IF EXISTS "Public Read Logistics" ON public.logistics_providers;
 
 DROP POLICY IF EXISTS "Public All Todos" ON public.todos;
 DROP POLICY IF EXISTS "Public All Profiles" ON public.profiles;
@@ -256,6 +291,7 @@ DROP POLICY IF EXISTS "Public All Quality" ON public.quality_gradings;
 DROP POLICY IF EXISTS "Public All Grievances" ON public.grievance_tickets;
 DROP POLICY IF EXISTS "Public All Logins" ON public.user_logins;
 DROP POLICY IF EXISTS "Public All Godowns" ON public.godowns_and_warehouses;
+DROP POLICY IF EXISTS "Public All Logistics" ON public.logistics_providers;
 
 -- Universal CRUD policies (SELECT, INSERT, UPDATE, DELETE)
 CREATE POLICY "Public All Todos" ON public.todos FOR ALL USING (true) WITH CHECK (true);
@@ -268,7 +304,9 @@ CREATE POLICY "Public All Quality" ON public.quality_gradings FOR ALL USING (tru
 CREATE POLICY "Public All Grievances" ON public.grievance_tickets FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Public All Logins" ON public.user_logins FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Public All Godowns" ON public.godowns_and_warehouses FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Public All Logistics" ON public.logistics_providers FOR ALL USING (true) WITH CHECK (true);
 
 -- ============================================================================
 -- SUCCESS: Schema, Tables, Seed Data, and Full CRUD RLS configured for KisaanSaathi!
 -- ============================================================================
+

@@ -6,7 +6,7 @@
     "start": "node dev-server.js",
     "dev": "node dev-server.js",
     "build": "node build.js",
-    "test": "node build.js && node test/test-whatsapp.js"
+    "test": "node build.js && node test/test-whatsapp.js && node test/test-logistics.js"
   },
   "keywords": [
     "agriculture",

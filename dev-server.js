@@ -115,6 +115,17 @@ function handleRequest(req, res) {
     }
   }
 
+  // API Route: /api/logistics (Kisaan Saathi Logistics Network)
+  if (reqPath === '/api/logistics') {
+    try {
+      const logisticsHandler = require('./api/logistics.js');
+      return logisticsHandler(req, res);
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error: 'Logistics API error', details: err.message }));
+    }
+  }
+
   // Support communication with bound internal service 'web-platform' via WEB_PLATFORM_URL if present
   if (process.env.WEB_PLATFORM_URL && (reqPath.startsWith('/platform') || reqPath.startsWith('/api/platform'))) {
     try {

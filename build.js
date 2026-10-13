@@ -14,7 +14,8 @@ const requiredFiles = [
   'assets/js/app.js',
   'dev-server.js',
   'vercel.json',
-  'assets/data/labs.json'
+  'assets/data/labs.json',
+  'assets/data/logistics.json'
 ];
 
 let hasErrors = false;
@@ -43,7 +44,7 @@ for (const file of requiredFiles) {
 
 // 3. Validate JavaScript syntax
 console.log('\n[3/5] Validating JavaScript syntax...');
-const jsFiles = ['assets/js/app.js', 'assets/js/data.js', 'dev-server.js', 'api/health.js', 'api/labs.js', 'api/whatsapp.js', 'api/kisan-ai.js'];
+const jsFiles = ['assets/js/app.js', 'assets/js/data.js', 'dev-server.js', 'api/health.js', 'api/labs.js', 'api/whatsapp.js', 'api/kisan-ai.js', 'api/logistics.js'];
 for (const jsFile of jsFiles) {
   const fullPath = path.join(__dirname, jsFile);
   if (fs.existsSync(fullPath)) {
@@ -59,7 +60,7 @@ for (const jsFile of jsFiles) {
 
 // 4. Validate JSON configurations
 console.log('\n[4/5] Validating JSON files...');
-const jsonFiles = ['package.json', 'vercel.json', 'assets/data/labs.json'];
+const jsonFiles = ['package.json', 'vercel.json', 'assets/data/labs.json', 'assets/data/logistics.json'];
 for (const jsonFile of jsonFiles) {
   const fullPath = path.join(__dirname, jsonFile);
   if (fs.existsSync(fullPath)) {
