@@ -398,8 +398,8 @@
       <!-- Main Navigation Drawer (Backdrop + Menu Panel) -->
       <div id="drawerBackdrop" class="drawer-backdrop"></div>
       <aside id="navDrawer" class="nav-drawer" aria-label="Sidebar Navigation">
-        <!-- Drawer Header -->
-        <div class="drawer-header relative">
+        <!-- Drawer Header 1: Farmer Profile Mode -->
+        <div id="drawerHeaderFarmer" class="drawer-header relative">
           <button id="btnCloseDrawer" class="absolute top-4 right-4 text-white/80 hover:text-white">
             <i data-lucide="x" class="w-5 h-5"></i>
           </button>
@@ -417,8 +417,33 @@
           </div>
         </div>
 
-        <!-- Drawer Navigation Items -->
-        <nav class="flex-1 overflow-y-auto py-2">
+        <!-- Drawer Header 2: Consumer / Vendor Profile Mode -->
+        <div id="drawerHeaderConsumer" class="drawer-header relative hidden bg-gradient-to-r from-amber-700 via-orange-700 to-amber-800">
+          <button id="btnCloseDrawerConsumer" class="absolute top-4 right-4 text-white/80 hover:text-white">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+          <div class="flex items-center gap-3">
+            <div class="w-14 h-14 rounded-2xl bg-white/20 p-1 border-2 border-white/60 flex items-center justify-center text-white font-bold text-xl shadow-inner">
+              <i data-lucide="building-2" class="w-8 h-8 text-amber-200"></i>
+            </div>
+            <div class="min-w-0 flex-1">
+              <h3 id="drawerConsumerCompanyName" class="font-bold text-base text-white truncate">Bowenpally Bulk Millers</h3>
+              <p id="drawerConsumerPerson" class="text-xs text-amber-200 truncate">Shaik Ateeq • Agro-Buyer Desk</p>
+              <div class="mt-1 flex items-center gap-1 text-[10px] bg-black/25 px-2 py-0.5 rounded-full inline-flex text-amber-200 border border-white/20 max-w-full truncate">
+                <i data-lucide="map-pin" class="w-3 h-3 shrink-0 text-emerald-300"></i> <span id="drawerConsumerDeliveryBadge" class="truncate">Bowenpally Modern Market Yard</span>
+              </div>
+              <div class="mt-1 flex items-center gap-1 text-[10px] bg-emerald-500/30 px-2 py-0.5 rounded-full inline-flex text-emerald-200">
+                <i data-lucide="shield-check" class="w-3 h-3"></i> <span id="drawerConsumerEscrowBadge">Buyer Escrow: ₹1,50,000</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Drawer Navigation 1: Farmer Portal Menu -->
+        <nav id="drawerNavFarmer" class="flex-1 overflow-y-auto py-2">
+          <div class="px-3 py-1 text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+            Farmer Production & Mandi Hub
+          </div>
           <a class="drawer-item active" data-navigate="inventory">
             <i data-lucide="package" class="w-5 h-5 text-purple-600"></i>
             <span data-i18n="nav_inventory">Farmer's Inventory</span>
@@ -478,7 +503,6 @@
             <i data-lucide="bot" class="w-5 h-5 text-fuchsia-600"></i>
             <span data-i18n="nav_chat">AI Kisan Assistant (Chatbot)</span>
           </a>
-          <!-- WhatsApp AI Chatbot Communication Channel Link -->
           <a class="drawer-item text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/60 rounded-xl" id="drawerWhatsAppBtn" href="https://wa.me/14155238886?text=Namaste%20KisanSaathi" target="_blank" rel="noopener noreferrer">
             <svg class="w-5 h-5 fill-[#25D366] flex-shrink-0" viewBox="0 0 24 24">
               <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.592 2.654-.696c1.004.577 1.764.846 2.806.847h.002c3.182 0 5.768-2.587 5.768-5.766.001-3.182-2.585-5.63-5.77-5.63zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.053-1.025-.078-.584-.195-1.378-.583-2.316-1.424-.925-.828-1.523-1.848-1.748-2.235-.226-.388-.024-.597.108-.729.117-.117.26-.301.39-.452.129-.151.172-.258.258-.43.086-.172.043-.323-.021-.452-.065-.129-.582-1.402-.8-1.921-.211-.505-.427-.436-.584-.444-.151-.008-.324-.01-.496-.01-.172 0-.452.065-.689.323-.237.258-.905.884-.905 2.155s.926 2.499 1.055 2.671c.129.172 1.821 2.782 4.412 3.899 2.591 1.117 2.591.744 3.064.698.473-.046 1.527-.624 1.743-1.226.215-.602.215-1.118.151-1.226-.065-.108-.237-.172-.452-.28z"/>
@@ -498,10 +522,90 @@
             <i data-lucide="info" class="w-5 h-5 text-gray-600"></i>
             <span data-i18n="nav_about">About Project & Team</span>
           </a>
+          
+          <div class="p-2 border-t mt-2">
+            <button type="button" id="drawerBtnSwitchToConsumer" class="w-full py-2.5 px-3 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition">
+              <i data-lucide="building-2" class="w-4 h-4 text-amber-700"></i>
+              <span>Switch to Consumer / Vendor Portal</span>
+            </button>
+          </div>
+        </nav>
+
+        <!-- Drawer Navigation 2: Consumer / Vendor Portal Dedicated Menu -->
+        <nav id="drawerNavConsumer" class="flex-1 overflow-y-auto py-2 hidden">
+          <div class="px-3 py-1 text-[10px] uppercase font-bold text-amber-700 tracking-wider">
+            Vendor Direct Procurement Desk
+          </div>
+          <a class="drawer-item active" data-navigate="consumer-farmers">
+            <i data-lucide="users" class="w-5 h-5 text-emerald-600"></i>
+            <span>Verified Farmers Directory</span>
+          </a>
+          <a class="drawer-item" data-navigate="consumer-marketplace">
+            <i data-lucide="shopping-bag" class="w-5 h-5 text-amber-600"></i>
+            <span>Browse Crops & Produce</span>
+            <span class="ml-auto bg-amber-100 text-amber-800 text-[10px] px-2 py-0.5 rounded-full font-bold" id="drawerMarketplaceBadge">11 Live</span>
+          </a>
+          <a class="drawer-item" data-navigate="consumer-offers">
+            <i data-lucide="handshake" class="w-5 h-5 text-indigo-600"></i>
+            <span>My Counter-Offers & Deals</span>
+            <span class="ml-auto bg-indigo-100 text-indigo-800 text-[10px] px-2 py-0.5 rounded-full font-bold" id="drawerOffersBadge">Active</span>
+          </a>
+          <a class="drawer-item" data-navigate="consumer-orders">
+            <i data-lucide="truck" class="w-5 h-5 text-blue-600"></i>
+            <span>Inbound Deliveries & Tracking</span>
+            <span class="ml-auto bg-blue-100 text-blue-800 text-[10px] px-2 py-0.5 rounded-full font-bold">Transit</span>
+          </a>
+          <a class="drawer-item" data-navigate="consumer-wallet">
+            <i data-lucide="wallet" class="w-5 h-5 text-green-600"></i>
+            <span>Buyer Escrow Wallet</span>
+            <span class="ml-auto text-[10px] font-bold text-emerald-700" id="drawerEscrowBalanceText">₹1,50,000</span>
+          </a>
+          <a class="drawer-item" data-navigate="consumer-demands">
+            <i data-lucide="file-plus-2" class="w-5 h-5 text-purple-600"></i>
+            <span>Post Bulk Requirement</span>
+          </a>
+          <a class="drawer-item" data-navigate="godowns">
+            <i data-lucide="warehouse" class="w-5 h-5 text-yellow-600"></i>
+            <span>Godowns & Mandi Storage</span>
+          </a>
+          <a class="drawer-item" data-navigate="logistics">
+            <i data-lucide="navigation" class="w-5 h-5 text-cyan-600"></i>
+            <span>Agri-Freight Logistics</span>
+          </a>
+          <a class="drawer-item" data-navigate="weather">
+            <i data-lucide="cloud-sun" class="w-5 h-5 text-sky-500"></i>
+            <span>Mandi Weather Forecast</span>
+          </a>
+          <a class="drawer-item" data-navigate="chat">
+            <i data-lucide="bot" class="w-5 h-5 text-fuchsia-600"></i>
+            <span>AI Procurement Assistant</span>
+          </a>
+          <a class="drawer-item text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/60 rounded-xl" href="https://wa.me/14155238886?text=Namaste%20Consumer%20Desk" target="_blank" rel="noopener noreferrer">
+            <svg class="w-5 h-5 fill-[#25D366] flex-shrink-0" viewBox="0 0 24 24">
+              <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.592 2.654-.696c1.004.577 1.764.846 2.806.847h.002c3.182 0 5.768-2.587 5.768-5.766.001-3.182-2.585-5.63-5.77-5.63zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.053-1.025-.078-.584-.195-1.378-.583-2.316-1.424-.925-.828-1.523-1.848-1.748-2.235-.226-.388-.024-.597.108-.729.117-.117.26-.301.39-.452.129-.151.172-.258.258-.43.086-.172.043-.323-.021-.452-.065-.129-.582-1.402-.8-1.921-.211-.505-.427-.436-.584-.444-.151-.008-.324-.01-.496-.01-.172 0-.452.065-.689.323-.237.258-.905.884-.905 2.155s.926 2.499 1.055 2.671c.129.172 1.821 2.782 4.412 3.899 2.591 1.117 2.591.744 3.064.698.473-.046 1.527-.624 1.743-1.226.215-.602.215-1.118.151-1.226-.065-.108-.237-.172-.452-.28z"/>
+            </svg>
+            <span class="font-bold text-xs">WhatsApp Procurement (వాట్సాప్)</span>
+            <span class="ml-auto text-[9px] bg-[#25D366] text-white font-extrabold px-1.5 py-0.5 rounded-full uppercase">Live</span>
+          </a>
+          <a class="drawer-item" data-navigate="feedback">
+            <i data-lucide="message-square" class="w-5 h-5 text-slate-600"></i>
+            <span>Contact Mandi Admin</span>
+          </a>
+          <a class="drawer-item" data-navigate="about">
+            <i data-lucide="info" class="w-5 h-5 text-gray-600"></i>
+            <span>About KisanSaathi & Team</span>
+          </a>
+          
+          <div class="p-2 border-t mt-2">
+            <button type="button" id="drawerBtnSwitchToFarmer" class="w-full py-2.5 px-3 bg-purple-50 hover:bg-purple-100 text-purple-900 border border-purple-300 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition">
+              <i data-lucide="sprout" class="w-4 h-4 text-purple-700"></i>
+              <span>Switch to Farmer Portal</span>
+            </button>
+          </div>
         </nav>
 
         <div class="p-3 border-t bg-gray-50 flex items-center justify-between text-xs text-gray-500">
-          <span>KisanSaathi v3.5 (Telangana)</span>
+          <span id="drawerPortalBadgeFooter">KisanSaathi v3.5 (Telangana)</span>
           <button id="btnSignOutDemo" class="text-red-600 font-semibold hover:underline flex items-center gap-1">
             <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Sign Out
           </button>
@@ -1280,42 +1384,50 @@
             </div>
           </div>
 
-          <!-- Quick Consumer Metric Pills -->
-          <div class="grid grid-cols-3 gap-2">
-            <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm text-center cursor-pointer hover:border-amber-300 transition" onclick="switchConsumerTab('farmers')">
-              <span class="text-[11px] text-gray-500 block font-medium">Farmers</span>
-              <span id="consumerStatFarmers" class="text-sm md:text-base font-bold text-emerald-600">5 Verified</span>
+          <!-- Quick Consumer Metric Pills (4 Columns) -->
+          <div class="grid grid-cols-4 gap-2">
+            <div class="bg-white p-2.5 rounded-xl border border-gray-100 shadow-sm text-center cursor-pointer hover:border-amber-300 transition" onclick="switchConsumerTab('farmers')">
+              <span class="text-[10px] text-gray-500 block font-medium">Farmers</span>
+              <span id="consumerStatFarmers" class="text-xs md:text-sm font-bold text-emerald-600">5 Verified</span>
             </div>
-            <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm text-center cursor-pointer hover:border-amber-300 transition" onclick="switchConsumerTab('marketplace')">
-              <span class="text-[11px] text-gray-500 block font-medium">Marketplace</span>
-              <span id="consumerStatCrops" class="text-sm md:text-base font-bold text-amber-600">10 Crops</span>
+            <div class="bg-white p-2.5 rounded-xl border border-gray-100 shadow-sm text-center cursor-pointer hover:border-amber-300 transition" onclick="switchConsumerTab('marketplace')">
+              <span class="text-[10px] text-gray-500 block font-medium">Marketplace</span>
+              <span id="consumerStatCrops" class="text-xs md:text-sm font-bold text-amber-600">11 Crops</span>
             </div>
-            <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm text-center cursor-pointer hover:border-amber-300 transition" onclick="switchConsumerTab('offers')">
-              <span class="text-[11px] text-gray-500 block font-medium">My Deals</span>
-              <span id="consumerStatOffers" class="text-sm md:text-base font-bold text-blue-600">0 Offers</span>
+            <div class="bg-white p-2.5 rounded-xl border border-gray-100 shadow-sm text-center cursor-pointer hover:border-amber-300 transition" onclick="switchConsumerTab('offers')">
+              <span class="text-[10px] text-gray-500 block font-medium">My Deals</span>
+              <span id="consumerStatOffers" class="text-xs md:text-sm font-bold text-blue-600">3 Deals</span>
+            </div>
+            <div class="bg-white p-2.5 rounded-xl border border-gray-100 shadow-sm text-center cursor-pointer hover:border-amber-300 transition" onclick="switchConsumerTab('demands')">
+              <span class="text-[10px] text-gray-500 block font-medium">Demands</span>
+              <span id="consumerStatDemands" class="text-xs md:text-sm font-bold text-purple-600">2 Active</span>
             </div>
           </div>
 
-          <!-- Consumer Sub-Navigation Tabs -->
-          <div class="flex border-b border-gray-200 text-xs font-bold">
-            <button id="tabConsumerFarmers" type="button" class="flex-1 pb-2.5 border-b-2 border-amber-600 text-amber-700 flex items-center justify-center gap-1.5" onclick="switchConsumerTab('farmers')">
+          <!-- Consumer Sub-Navigation Tabs (4 Tabs) -->
+          <div class="flex border-b border-gray-200 text-xs font-bold overflow-x-auto">
+            <button id="tabConsumerFarmers" type="button" class="flex-1 pb-2.5 border-b-2 border-amber-600 text-amber-700 flex items-center justify-center gap-1 shrink-0 px-2" onclick="switchConsumerTab('farmers')">
               <i data-lucide="users" class="w-3.5 h-3.5"></i>
-              <span>Verified Farmers</span>
+              <span>Farmers</span>
             </button>
-            <button id="tabConsumerMarketplace" type="button" class="flex-1 pb-2.5 text-gray-500 hover:text-gray-800 flex items-center justify-center gap-1.5" onclick="switchConsumerTab('marketplace')">
+            <button id="tabConsumerMarketplace" type="button" class="flex-1 pb-2.5 text-gray-500 hover:text-gray-800 flex items-center justify-center gap-1 shrink-0 px-2" onclick="switchConsumerTab('marketplace')">
               <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
               <span>Marketplace</span>
             </button>
-            <button id="tabConsumerOffers" type="button" class="flex-1 pb-2.5 text-gray-500 hover:text-gray-800 flex items-center justify-center gap-1.5" onclick="switchConsumerTab('offers')">
+            <button id="tabConsumerOffers" type="button" class="flex-1 pb-2.5 text-gray-500 hover:text-gray-800 flex items-center justify-center gap-1 shrink-0 px-2" onclick="switchConsumerTab('offers')">
               <i data-lucide="handshake" class="w-3.5 h-3.5"></i>
-              <span>My Placed Offers (<span id="consumerOfferCount">0</span>)</span>
+              <span>My Deals (<span id="consumerOfferCount">0</span>)</span>
+            </button>
+            <button id="tabConsumerDemands" type="button" class="flex-1 pb-2.5 text-gray-500 hover:text-gray-800 flex items-center justify-center gap-1 shrink-0 px-2" onclick="switchConsumerTab('demands')">
+              <i data-lucide="file-plus-2" class="w-3.5 h-3.5"></i>
+              <span>Post Demand</span>
             </button>
           </div>
 
           <!-- SUB-VIEW 1: FARMERS DIRECTORY -->
           <div id="consumerFarmersView" class="space-y-3">
             <div class="flex items-center justify-between text-xs text-gray-600">
-              <span>Select any verified Telangana farmer to view their live produce inventory:</span>
+              <span>Verified Telangana farmers with live crop harvest:</span>
               <span class="text-amber-700 font-semibold" id="farmerDirectoryCount">Loading farmers...</span>
             </div>
             <div id="consumerFarmersList" class="space-y-2.5">
@@ -1325,9 +1437,12 @@
 
           <!-- SUB-VIEW 2: MARKETPLACE & SELECTED FARMER INVENTORY -->
           <div id="consumerMarketplaceView" class="hidden space-y-3">
-            <div id="consumerFilterFarmerBanner" class="hidden bg-purple-50 border border-purple-200 p-2.5 rounded-xl flex items-center justify-between text-xs">
-              <span class="font-semibold text-purple-900" id="consumerFilterFarmerLabel">Showing inventory for: ...</span>
-              <button type="button" class="text-purple-700 font-bold hover:underline" onclick="clearFarmerInventoryFilter()">Show All Farmers &times;</button>
+            <div id="consumerFilterFarmerBanner" class="hidden bg-amber-50 border border-amber-200 p-2.5 rounded-xl flex items-center justify-between text-xs">
+              <div class="flex items-center gap-2">
+                <i data-lucide="filter" class="w-4 h-4 text-amber-700"></i>
+                <span class="font-semibold text-amber-900" id="consumerFilterFarmerLabel">Showing inventory for: ...</span>
+              </div>
+              <button type="button" class="text-amber-800 font-bold hover:underline bg-white px-2.5 py-1 rounded-lg border border-amber-300" onclick="clearFarmerInventoryFilter()">Show All Telangana Produce &times;</button>
             </div>
             <div id="consumerProduceGrid" class="space-y-3">
               <!-- Dynamically populated produce cards with 'Make Offer' buttons -->
@@ -1337,10 +1452,185 @@
           <!-- SUB-VIEW 3: MY OFFERS & NEGOTIATIONS -->
           <div id="consumerOffersView" class="hidden space-y-3">
             <div class="flex items-center justify-between text-xs text-gray-600">
-              <span>Offers submitted by you to farmers. Accepted offers advance to dispatch:</span>
+              <span>Counter-offers submitted by you to farmers. Accepted offers advance to dispatch:</span>
             </div>
             <div id="consumerOffersList" class="space-y-3">
               <!-- Dynamically populated with consumer's offers -->
+            </div>
+          </div>
+
+          <!-- SUB-VIEW 4: POST BULK PROCUREMENT REQUIREMENT -->
+          <div id="consumerDemandsView" class="hidden space-y-4">
+            <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-3">
+              <div class="flex items-center gap-2 text-gray-900 font-bold text-sm">
+                <div class="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
+                  <i data-lucide="megaphone" class="w-4 h-4"></i>
+                </div>
+                <span>Broadcast Procurement Requirement to Farmers</span>
+              </div>
+              <p class="text-xs text-gray-500">Post what produce you need in bulk. Farmers and farmer clusters across Telangana will receive your demand directly.</p>
+
+              <form id="formConsumerDemand" class="space-y-3 text-xs">
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Crop / Commodity *</label>
+                    <select id="inputDemandCropName" class="w-full px-3 py-2 border rounded-xl bg-white font-medium focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                      <option value="Telangana Sona Super Fine Paddy (RNR 15048)">Telangana Sona Paddy (RNR 15048)</option>
+                      <option value="Tandur Organic Red Gram (GI Arhar)">Tandur Red Gram (Arhar Dal)</option>
+                      <option value="Long Staple Telangana White Gold Cotton">Long Staple Cotton</option>
+                      <option value="Warangal Chilly (Teja / Wonder Hot)">Warangal Red Chilli (Teja)</option>
+                      <option value="Fresh Green Bhendi (Okra)">Bhendi (Okra)</option>
+                      <option value="Fresh Hybrid Tomato">Tomato (Warangal Cluster)</option>
+                      <option value="Nizamabad Organic Turmeric (Armoor Curcumin)">Nizamabad Turmeric</option>
+                      <option value="Highland Yellow Maize">Yellow Maize (Corn)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Produce Category</label>
+                    <select id="inputDemandCategory" class="w-full px-3 py-2 border rounded-xl bg-white font-medium focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                      <option value="Paddy / Grains">Paddy / Grains</option>
+                      <option value="Pulses / Dal">Pulses / Dal</option>
+                      <option value="Cash Crop">Cash Crop</option>
+                      <option value="Spices">Spices</option>
+                      <option value="Vegetables">Vegetables</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Quantity Needed (Kg) *</label>
+                    <input type="number" id="inputDemandQuantity" required min="100" placeholder="e.g. 2500" class="w-full px-3 py-2 border rounded-xl font-bold text-gray-800 focus:ring-2 focus:ring-amber-500 focus:outline-none" />
+                  </div>
+                  <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Target Price (₹ / Kg) *</label>
+                    <input type="number" id="inputDemandPrice" required step="0.5" placeholder="e.g. 29" class="w-full px-3 py-2 border rounded-xl font-bold text-amber-700 focus:ring-2 focus:ring-amber-500 focus:outline-none" />
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block font-semibold text-gray-700 mb-1">Decided Delivery Destination *</label>
+                  <input type="text" id="inputDemandDeliveryLocation" required class="w-full px-3 py-2 border rounded-xl bg-gray-50 text-gray-800 font-medium" />
+                </div>
+
+                <button type="submit" class="w-full py-2.5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-bold rounded-xl shadow transition flex items-center justify-center gap-2">
+                  <i data-lucide="send" class="w-4 h-4"></i>
+                  <span>Broadcast Requirement to Telangana Farmers</span>
+                </button>
+              </form>
+            </div>
+
+            <div class="space-y-2">
+              <h4 class="text-xs font-bold text-gray-700">Active Procurement Requirements Broadcasted:</h4>
+              <div id="consumerDemandsList" class="space-y-2.5">
+                <!-- Dynamically loaded from Supabase consumer_demands -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION 19: CONSUMER INBOUND DELIVERIES & FLEET TRACKING -->
+        <section id="sectionConsumerOrders" class="app-section hidden space-y-4">
+          <div class="bg-gradient-to-r from-blue-700 via-indigo-700 to-blue-800 text-white p-4.5 rounded-2xl shadow-md space-y-2.5">
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="text-[11px] bg-white/20 text-blue-100 px-2.5 py-0.5 rounded-full font-semibold inline-flex items-center gap-1">
+                  <i data-lucide="truck" class="w-3 h-3 text-cyan-300"></i> Inbound Fleet Tracking Desk
+                </span>
+                <h2 class="text-lg font-bold mt-1">Inbound Harvest Shipments</h2>
+                <p class="text-xs text-blue-200">Live GPS tracking and escrow settlements from Telangana farm clusters</p>
+              </div>
+              <div class="text-right">
+                <span class="text-xs bg-emerald-500/30 text-emerald-200 border border-emerald-400/40 px-2.5 py-1 rounded-xl font-bold inline-flex items-center gap-1">
+                  <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Escrow Secured
+                </span>
+              </div>
+            </div>
+
+            <!-- Decided Destination Card in Orders -->
+            <div class="bg-black/25 rounded-xl p-3 flex items-center justify-between text-xs border border-white/20">
+              <div class="flex items-center gap-2">
+                <i data-lucide="map-pin" class="w-4 h-4 text-emerald-300 shrink-0"></i>
+                <div>
+                  <span class="text-[10px] text-blue-200 uppercase font-semibold block">All Shipments En Route To:</span>
+                  <span id="consumerOrdersDecidedLocation" class="font-bold text-white">Bowenpally Modern Market Yard, Secunderabad, Telangana</span>
+                </div>
+              </div>
+              <button onclick="openChangeDeliveryModal()" type="button" class="text-[11px] bg-blue-500/40 hover:bg-blue-500/60 text-white px-2.5 py-1 rounded-lg border border-blue-300/40 font-medium transition">
+                Change
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Metrics Ribbon -->
+          <div class="grid grid-cols-3 gap-2">
+            <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm text-center">
+              <span class="text-[11px] text-gray-500 block font-medium">Active Inbound</span>
+              <span id="statConsumerOrdersCount" class="text-sm md:text-base font-bold text-blue-600">3 Shipments</span>
+            </div>
+            <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm text-center">
+              <span class="text-[11px] text-gray-500 block font-medium">En Route Weight</span>
+              <span id="statConsumerOrdersWeight" class="text-sm md:text-base font-bold text-emerald-600">3,150 Kg</span>
+            </div>
+            <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm text-center">
+              <span class="text-[11px] text-gray-500 block font-medium">Escrow Locked</span>
+              <span id="statConsumerOrdersEscrow" class="text-sm md:text-base font-bold text-amber-600">₹89,200</span>
+            </div>
+          </div>
+
+          <div id="consumerOrdersContainer" class="space-y-3">
+            <!-- Dynamically populated with orders dispatched to this buyer -->
+          </div>
+        </section>
+
+        <!-- SECTION 20: CONSUMER ESCROW WALLET -->
+        <section id="sectionConsumerWallet" class="app-section hidden space-y-4">
+          <!-- Buyer Escrow Card -->
+          <div class="bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 text-white p-6 rounded-3xl shadow-lg relative overflow-hidden space-y-4">
+            <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-white/10 rounded-full"></div>
+            <div>
+              <span class="text-xs font-semibold text-white/80 uppercase tracking-wider">Buyer Escrow Vault (Multi-Sig Protected)</span>
+              <div class="text-3xl md:text-4xl font-extrabold mt-1" id="consumerWalletBalance">₹1,50,000</div>
+              <p class="text-xs text-amber-100 mt-1">Funds automatically disbursed to farmer DBT on Mandi biometric verification</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-white/20 text-xs">
+              <div>
+                <span class="text-amber-200 block text-[10px]">Available for Counter-Offers:</span>
+                <span class="font-bold text-white text-sm" id="consumerWalletAvailable">₹1,07,500</span>
+              </div>
+              <div>
+                <span class="text-amber-200 block text-[10px]">Locked in Active Transit:</span>
+                <span class="font-bold text-amber-200 text-sm" id="consumerWalletLocked">₹42,500</span>
+              </div>
+            </div>
+
+            <div class="flex gap-2 pt-1">
+              <button onclick="openConsumerEscrowDepositModal()" class="flex-1 py-2.5 bg-white text-amber-900 font-bold text-xs rounded-xl shadow hover:bg-amber-50 transition flex items-center justify-center gap-1.5">
+                <i data-lucide="plus-circle" class="w-4 h-4 text-emerald-600"></i> Deposit Escrow Funds
+              </button>
+              <button onclick="showToast('Exporting Escrow Statement PDF...')" class="py-2.5 px-3 bg-white/20 text-white font-semibold text-xs rounded-xl hover:bg-white/30 transition flex items-center justify-center gap-1 border border-white/30">
+                <i data-lucide="download" class="w-4 h-4"></i> Audit Statement
+              </button>
+            </div>
+          </div>
+
+          <!-- Blockchain Security Assurance -->
+          <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 flex items-start gap-3 text-xs">
+            <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
+              <i data-lucide="shield-check" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <h4 class="font-bold text-emerald-900 text-xs">100% Escrow Guarantee for Farmers & Vendors</h4>
+              <p class="text-emerald-700 text-[11px] mt-0.5">Your funds remain safely locked until produce is delivered to your decided destination and verified. Farmers are guaranteed instant DBT payout within 24 hours.</p>
+              <span class="text-[10px] font-mono text-emerald-600 block mt-1">Smart Contract: 0x8F94...39B2 (Polygon Mainnet)</span>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <h4 class="text-xs font-bold text-gray-700">Escrow Transaction Ledger:</h4>
+            <div id="consumerEscrowLedgerContainer" class="space-y-2.5">
+              <!-- Dynamically populated escrow ledger -->
             </div>
           </div>
         </section>
@@ -1351,26 +1641,53 @@
       <!-- 4. PHONE BOTTOM NAVIGATION BAR -->
       <!-- ========================================== -->
       <footer id="phoneBottomNav" class="phone-bottom-nav">
-        <button class="nav-item active" data-navigate="inventory">
-          <i data-lucide="home" class="w-5 h-5 mb-0.5"></i>
-          <span data-i18n="title_home">Home</span>
-        </button>
-        <button class="nav-item" data-navigate="info">
-          <i data-lucide="info" class="w-5 h-5 mb-0.5"></i>
-          <span data-i18n="title_info">Info</span>
-        </button>
-        <button class="nav-item" data-navigate="quality">
-          <i data-lucide="scan-line" class="w-5 h-5 mb-0.5"></i>
-          <span data-i18n="title_quality">Quality</span>
-        </button>
-        <button class="nav-item" data-navigate="chat">
-          <i data-lucide="message-circle" class="w-5 h-5 mb-0.5"></i>
-          <span data-i18n="title_chat">Chat</span>
-        </button>
-        <button class="nav-item" data-navigate="profile">
-          <i data-lucide="user" class="w-5 h-5 mb-0.5"></i>
-          <span data-i18n="title_profile">Profile</span>
-        </button>
+        <!-- Bottom Nav 1: Farmer Navigation -->
+        <div id="bottomNavFarmer" class="flex items-center justify-around w-full">
+          <button class="nav-item active" data-navigate="inventory">
+            <i data-lucide="home" class="w-5 h-5 mb-0.5"></i>
+            <span data-i18n="title_home">Home</span>
+          </button>
+          <button class="nav-item" data-navigate="info">
+            <i data-lucide="info" class="w-5 h-5 mb-0.5"></i>
+            <span data-i18n="title_info">Info</span>
+          </button>
+          <button class="nav-item" data-navigate="quality">
+            <i data-lucide="scan-line" class="w-5 h-5 mb-0.5"></i>
+            <span data-i18n="title_quality">Quality</span>
+          </button>
+          <button class="nav-item" data-navigate="chat">
+            <i data-lucide="message-circle" class="w-5 h-5 mb-0.5"></i>
+            <span data-i18n="title_chat">Chat</span>
+          </button>
+          <button class="nav-item" data-navigate="profile">
+            <i data-lucide="user" class="w-5 h-5 mb-0.5"></i>
+            <span data-i18n="title_profile">Profile</span>
+          </button>
+        </div>
+
+        <!-- Bottom Nav 2: Consumer / Vendor Navigation -->
+        <div id="bottomNavConsumer" class="flex items-center justify-around w-full hidden">
+          <button class="nav-item active" data-navigate="consumer-farmers">
+            <i data-lucide="users" class="w-5 h-5 mb-0.5"></i>
+            <span>Farmers</span>
+          </button>
+          <button class="nav-item" data-navigate="consumer-marketplace">
+            <i data-lucide="shopping-bag" class="w-5 h-5 mb-0.5"></i>
+            <span>Produce</span>
+          </button>
+          <button class="nav-item" data-navigate="consumer-offers">
+            <i data-lucide="handshake" class="w-5 h-5 mb-0.5"></i>
+            <span>Deals</span>
+          </button>
+          <button class="nav-item" data-navigate="consumer-orders">
+            <i data-lucide="truck" class="w-5 h-5 mb-0.5"></i>
+            <span>Inbound</span>
+          </button>
+          <button class="nav-item" data-navigate="consumer-wallet">
+            <i data-lucide="wallet" class="w-5 h-5 mb-0.5"></i>
+            <span>Wallet</span>
+          </button>
+        </div>
       </footer>
 
     </div>
@@ -1692,6 +2009,106 @@
         <button type="submit" id="btnSubmitOfferToFarmer" class="w-full py-3 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-bold rounded-xl shadow-md transition flex items-center justify-center gap-2 text-xs">
           <i data-lucide="send" class="w-4 h-4"></i>
           <span>Send Offer to Farmer's Negotiation Desk</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal H: Change Decided Delivery Destination (Decided by Consumer) -->
+  <div id="modalChangeConsumerDelivery" class="modal-overlay">
+    <div class="modal-content max-w-md p-5 space-y-4">
+      <div class="flex items-center justify-between border-b pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold">
+            <i data-lucide="map-pin" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-gray-900">Change Delivery Destination</h3>
+            <p class="text-xs text-gray-500">Decided location for farmer harvest dispatches</p>
+          </div>
+        </div>
+        <button id="btnCloseChangeDeliveryModal" type="button" class="text-gray-400 hover:text-gray-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="formUpdateDeliveryDestination" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-gray-700 mb-1">Select Telangana Mandi / Hub</label>
+          <select id="selectChangeDeliveryLocation" class="w-full px-3 py-2 border rounded-xl bg-white font-medium focus:ring-2 focus:ring-amber-500 focus:outline-none">
+            <option value="Bowenpally Modern Market Yard, Secunderabad, Telangana">Bowenpally Modern Market Yard, Secunderabad</option>
+            <option value="Gudimalkapur Wholesale Vegetable Mandi, Hyderabad">Gudimalkapur Wholesale Mandi, Hyderabad</option>
+            <option value="Enumamula Agriculture Market, Warangal">Enumamula Agriculture Market, Warangal</option>
+            <option value="Kandlakoi Agro Processing Terminal, Medchal">Kandlakoi Agro Terminal, Medchal</option>
+            <option value="Shradhanand Gunj Mandi, Nizamabad">Shradhanand Gunj Mandi, Nizamabad</option>
+            <option value="custom">Other / Custom Processing Godown</option>
+          </select>
+        </div>
+
+        <div id="wrapperCustomDeliveryLocation" class="hidden">
+          <label class="block font-semibold text-gray-700 mb-1">Custom Delivery Address / Warehouse</label>
+          <input type="text" id="inputCustomDeliveryLocation" placeholder="Enter complete address, landmark, PIN code..." class="w-full px-3 py-2 border rounded-xl font-medium focus:ring-2 focus:ring-amber-500 focus:outline-none" />
+        </div>
+
+        <div class="bg-amber-50 p-3 rounded-xl border border-amber-200 text-xs text-amber-800 space-y-1">
+          <span class="font-bold flex items-center gap-1"><i data-lucide="info" class="w-3.5 h-3.5"></i> Auto-synced to Farmer Dashboard</span>
+          <p class="text-[11px] text-amber-700">When you place offers or accept deals, this destination is automatically sent to the farmer and pinned to the logistics route.</p>
+        </div>
+
+        <button type="submit" class="w-full py-2.5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-bold rounded-xl shadow transition flex items-center justify-center gap-2">
+          <i data-lucide="check" class="w-4 h-4"></i>
+          <span>Save Decided Delivery Destination</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal I: Buyer Escrow Deposit (Top-up Escrow Vault) -->
+  <div id="modalConsumerEscrowDeposit" class="modal-overlay">
+    <div class="modal-content max-w-md p-5 space-y-4">
+      <div class="flex items-center justify-between border-b pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+            <i data-lucide="wallet" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-gray-900">Deposit Escrow Funds</h3>
+            <p class="text-xs text-gray-500">Instant Multi-Sig Smart Contract Deposit</p>
+          </div>
+        </div>
+        <button id="btnCloseEscrowDepositModal" type="button" class="text-gray-400 hover:text-gray-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="formEscrowDeposit" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-gray-700 mb-1">Deposit Amount (₹) *</label>
+          <input type="number" id="inputEscrowDepositAmount" required min="1000" step="500" placeholder="e.g. 50000" class="w-full px-3 py-2 border rounded-xl font-bold text-emerald-700 text-base focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+          <div class="flex gap-2 mt-1.5">
+            <button type="button" onclick="setDepositAmount(25000)" class="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 rounded-lg font-bold text-[10px] text-gray-700">+₹25,000</button>
+            <button type="button" onclick="setDepositAmount(50000)" class="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 rounded-lg font-bold text-[10px] text-gray-700">+₹50,000</button>
+            <button type="button" onclick="setDepositAmount(100000)" class="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 rounded-lg font-bold text-[10px] text-gray-700">+₹1,00,000</button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-gray-700 mb-1">Payment Method</label>
+          <select id="selectDepositMethod" class="w-full px-3 py-2 border rounded-xl bg-white font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+            <option value="upi">Instant UPI (Google Pay / PhonePe / Paytm)</option>
+            <option value="imps">Corporate NetBanking / IMPS / RTGS (HDFC / SBI / ICICI)</option>
+            <option value="polygon">Web3 Polygon USDT / INR Stablecoin (Polygon Mainnet)</option>
+          </select>
+        </div>
+
+        <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-200 text-xs text-emerald-800">
+          <span class="font-bold block">100% Secure & Irrevocable Smart Vault</span>
+          <p class="text-[11px] text-emerald-700 mt-0.5">Funds are held in secure Telangana Agro-Trust escrow until you confirm delivery of produce at your destination mandi.</p>
+        </div>
+
+        <button type="submit" class="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold rounded-xl shadow transition flex items-center justify-center gap-2">
+          <i data-lucide="shield-check" class="w-4 h-4"></i>
+          <span>Confirm & Lock Escrow Funds</span>
         </button>
       </form>
     </div>
