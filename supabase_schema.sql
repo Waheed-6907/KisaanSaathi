@@ -55,13 +55,21 @@ ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS agri_credit_score INT DEFAU
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS pre_approved_loan NUMERIC DEFAULT 250000.00;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS wallet_balance NUMERIC DEFAULT 25000.00;
 
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS company_name TEXT;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS delivery_address TEXT;
+
 -- Seed Default Demo Farmer
-INSERT INTO public.profiles (farmer_id, full_name, phone, village, district, state, password_pin, agri_credit_score, pre_approved_loan, wallet_balance)
-VALUES ('FARMER-TG-7721', 'K. Ramarao Reddy', '9848022334', 'Geesugonda', 'Warangal Rural', 'Telangana', '1234', 785, 300000, 45200)
+INSERT INTO public.profiles (farmer_id, full_name, phone, village, district, state, password_pin, agri_credit_score, pre_approved_loan, wallet_balance, role)
+VALUES ('FARMER-TG-7721', 'K. Ramarao Reddy', '9848022334', 'Geesugonda', 'Warangal Rural', 'Telangana', '1234', 785, 300000, 45200, 'farmer')
 ON CONFLICT (farmer_id) DO UPDATE SET
     full_name = EXCLUDED.full_name,
     phone = EXCLUDED.phone,
     password_pin = EXCLUDED.password_pin;
+
+-- Seed Default Demo Consumer / Vendor
+INSERT INTO public.profiles (farmer_id, full_name, phone, village, district, state, password_pin, role, company_name, delivery_address, wallet_balance)
+VALUES ('CONSUMER-TG-5001', 'Bowenpally Bulk Millers', '9440188234', 'Secunderabad', 'Hyderabad', 'Telangana', '1234', 'consumer', 'Deccan Grain Corporation Ltd', 'Bowenpally Modern Market Yard, Secunderabad, Telangana', 150000)
+ON CONFLICT (farmer_id) DO NOTHING;
 
 -- ----------------------------------------------------------------------------
 -- 3. CROPS & INVENTORY TABLE (Produce Listings, Pricing & Computer Vision Grades)
@@ -95,14 +103,16 @@ ALTER TABLE public.crops ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'listed';
 ALTER TABLE public.crops ADD COLUMN IF NOT EXISTS image_url TEXT DEFAULT 'assets/raw/paddy.png';
 
 -- ----------------------------------------------------------------------------
--- 4. NEGOTIATIONS & COUNTER-OFFER DESK
+-- 4. NEGOTIATIONS & COUNTER-OFFER DESK (Connects Consumer Offers to Farmer)
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.negotiations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     farmer_id TEXT NOT NULL DEFAULT 'FARMER-TG-7721',
+    consumer_id TEXT,
     crop_name TEXT NOT NULL,
     buyer_name TEXT NOT NULL,
     buyer_company TEXT,
+    buyer_phone TEXT,
     mandi_location TEXT DEFAULT 'Bowenpally Modern Market Yard',
     offer_price_per_kg NUMERIC NOT NULL,
     offered_quantity_kg NUMERIC NOT NULL,
@@ -112,15 +122,23 @@ CREATE TABLE IF NOT EXISTS public.negotiations (
 );
 
 ALTER TABLE public.negotiations ADD COLUMN IF NOT EXISTS farmer_id TEXT DEFAULT 'FARMER-TG-7721';
+ALTER TABLE public.negotiations ADD COLUMN IF NOT EXISTS consumer_id TEXT;
+ALTER TABLE public.negotiations ADD COLUMN IF NOT EXISTS buyer_phone TEXT;
+ALTER TABLE public.negotiations ADD COLUMN IF NOT EXISTS buyer_company TEXT;
+ALTER TABLE public.negotiations ADD COLUMN IF NOT EXISTS mandi_location TEXT DEFAULT 'Bowenpally Modern Market Yard';
 
 -- ----------------------------------------------------------------------------
--- 5. ORDERS & BLOCKCHAIN ESCROW SETTLEMENTS
+-- 5. ORDERS & BLOCKCHAIN ESCROW SETTLEMENTS (Delivery Location decided by Consumer)
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.orders (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     farmer_id TEXT NOT NULL DEFAULT 'FARMER-TG-7721',
+    consumer_id TEXT,
     crop_name TEXT NOT NULL,
     buyer_name TEXT NOT NULL,
+    buyer_phone TEXT,
+    delivery_location TEXT DEFAULT 'Bowenpally Modern Market Yard, Secunderabad',
+    delivery_status TEXT DEFAULT 'Processing', -- 'Processing', 'In Transit', 'Delivered'
     quantity_kg NUMERIC NOT NULL,
     total_amount NUMERIC NOT NULL,
     price_per_kg NUMERIC,
@@ -132,6 +150,10 @@ CREATE TABLE IF NOT EXISTS public.orders (
 );
 
 ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS farmer_id TEXT DEFAULT 'FARMER-TG-7721';
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS consumer_id TEXT;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS buyer_phone TEXT;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS delivery_location TEXT DEFAULT 'Bowenpally Modern Market Yard, Secunderabad';
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS delivery_status TEXT DEFAULT 'Processing';
 ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS price_per_kg NUMERIC;
 
 -- ----------------------------------------------------------------------------

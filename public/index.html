@@ -83,96 +83,215 @@
       <!-- Login Body -->
       <div class="p-6 space-y-4">
         
-        <!-- Tab Selector: Registered Farmer Login vs New Registration -->
-        <div class="flex border-b text-xs font-bold text-gray-500">
-          <button id="tabBtnLogin" class="flex-1 pb-2.5 border-b-2 border-purple-700 text-purple-700 font-bold" onclick="switchLoginTab('login')">
-            Farmer Login
+        <!-- Role Selector: Farmer Portal vs Consumer/Vendor Portal -->
+        <div class="flex p-1 bg-gray-100 rounded-2xl text-xs font-bold gap-1 mb-2">
+          <button id="btnRolePortalFarmer" type="button" class="flex-1 py-2 rounded-xl bg-purple-700 text-white shadow transition flex items-center justify-center gap-1.5" onclick="switchPortalRole('farmer')">
+            <i data-lucide="sprout" class="w-3.5 h-3.5"></i>
+            <span>Farmer Portal</span>
           </button>
-          <button id="tabBtnRegister" class="flex-1 pb-2.5 text-gray-500 hover:text-gray-800" onclick="switchLoginTab('register')">
-            New Registration
+          <button id="btnRolePortalConsumer" type="button" class="flex-1 py-2 rounded-xl text-gray-600 hover:text-gray-900 transition flex items-center justify-center gap-1.5" onclick="switchPortalRole('consumer')">
+            <i data-lucide="building-2" class="w-3.5 h-3.5"></i>
+            <span>Consumer / Vendor</span>
           </button>
         </div>
 
-        <!-- TAB 1: Registered Farmer Login Form -->
-        <div id="loginFormSection" class="space-y-3.5">
-          <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Registered Mobile Number</label>
-            <div class="flex gap-2">
-              <span class="inline-flex items-center px-3 border border-r-0 border-gray-300 rounded-l-xl bg-gray-50 text-gray-500 text-xs font-bold">+91</span>
-              <input type="tel" id="loginPhoneNumber" maxlength="10" placeholder="e.g. 9848022334" class="flex-1 px-3 py-2 border rounded-r-xl text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none font-medium" />
-            </div>
-            <span class="text-[10px] text-gray-500 mt-0.5 block">Enter your 10-digit mobile number registered with KisanSaathi</span>
-          </div>
-
-          <div class="space-y-1">
-            <label class="block text-xs font-semibold text-gray-600">Farmer PIN / Password</label>
-            <input type="password" id="loginPinCode" maxlength="8" placeholder="Enter PIN (e.g. 1234)" value="1234" class="w-full px-3 py-2 border rounded-xl text-center text-sm font-mono tracking-widest focus:ring-2 focus:ring-purple-500 focus:outline-none" />
-          </div>
-
-          <button id="btnSubmitLogin" class="w-full py-3 bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white font-bold rounded-xl shadow-md transition flex items-center justify-center gap-2 text-sm">
-            <i data-lucide="log-in" class="w-4 h-4"></i>
-            <span>Login with Mobile Number</span>
-          </button>
-
-          <div class="text-center pt-1">
-            <button type="button" onclick="switchLoginTab('register')" class="text-xs text-purple-700 font-semibold hover:underline">
-              Don't have an account? Register as New Farmer &rarr;
+        <!-- ============================================== -->
+        <!-- PORTAL A: FARMER AUTHENTICATION (LOGIN / REGISTER) -->
+        <!-- ============================================== -->
+        <div id="portalFarmerSection" class="space-y-4">
+          <!-- Tab Selector: Registered Farmer Login vs New Registration -->
+          <div class="flex border-b text-xs font-bold text-gray-500">
+            <button id="tabBtnLogin" class="flex-1 pb-2.5 border-b-2 border-purple-700 text-purple-700 font-bold" onclick="switchLoginTab('login')">
+              Farmer Login
+            </button>
+            <button id="tabBtnRegister" class="flex-1 pb-2.5 text-gray-500 hover:text-gray-800" onclick="switchLoginTab('register')">
+              New Registration
             </button>
           </div>
-        </div>
 
-        <!-- TAB 2: New Farmer Registration Form -->
-        <div id="registerFormSection" class="hidden space-y-3">
-          <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Farmer Full Name</label>
-            <input type="text" id="regFullName" placeholder="e.g. Gulam Waheed" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none font-medium" />
-          </div>
+          <!-- TAB 1: Registered Farmer Login Form -->
+          <div id="loginFormSection" class="space-y-3.5">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Registered Mobile Number</label>
+              <div class="flex gap-2">
+                <span class="inline-flex items-center px-3 border border-r-0 border-gray-300 rounded-l-xl bg-gray-50 text-gray-500 text-xs font-bold">+91</span>
+                <input type="tel" id="loginPhoneNumber" maxlength="10" placeholder="e.g. 9848022334" class="flex-1 px-3 py-2 border rounded-r-xl text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none font-medium" />
+              </div>
+              <span class="text-[10px] text-gray-500 mt-0.5 block">Enter your 10-digit mobile number registered with KisanSaathi</span>
+            </div>
 
-          <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Mobile Number (Login ID)</label>
-            <div class="flex gap-2">
-              <span class="inline-flex items-center px-3 border border-r-0 border-gray-300 rounded-l-xl bg-gray-50 text-gray-500 text-xs font-bold">+91</span>
-              <input type="tel" id="regPhoneNumber" maxlength="10" placeholder="10-digit mobile" class="flex-1 px-3 py-2 border rounded-r-xl text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none font-medium" />
+            <div class="space-y-1">
+              <label class="block text-xs font-semibold text-gray-600">Farmer PIN / Password</label>
+              <input type="password" id="loginPinCode" maxlength="8" placeholder="Enter PIN (e.g. 1234)" value="1234" class="w-full px-3 py-2 border rounded-xl text-center text-sm font-mono tracking-widest focus:ring-2 focus:ring-purple-500 focus:outline-none" />
+            </div>
+
+            <button id="btnSubmitLogin" class="w-full py-3 bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white font-bold rounded-xl shadow-md transition flex items-center justify-center gap-2 text-sm">
+              <i data-lucide="log-in" class="w-4 h-4"></i>
+              <span>Login as Farmer</span>
+            </button>
+
+            <!-- Quick Demo Farmer Login -->
+            <button id="btnQuickDemoFarmerLogin" type="button" class="w-full py-2 bg-purple-50 hover:bg-purple-100 text-purple-800 text-xs font-semibold rounded-xl border border-purple-200 transition flex items-center justify-center gap-1.5">
+              <span>🌾 Quick Demo Farmer Login (K. Ramarao Reddy)</span>
+            </button>
+
+            <div class="text-center pt-1">
+              <button type="button" onclick="switchLoginTab('register')" class="text-xs text-purple-700 font-semibold hover:underline">
+                Don't have an account? Register as New Farmer &rarr;
+              </button>
             </div>
           </div>
 
-          <div class="grid grid-cols-2 gap-2">
+          <!-- TAB 2: New Farmer Registration Form -->
+          <div id="registerFormSection" class="hidden space-y-3">
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">District</label>
-              <select id="regDistrict" class="w-full px-2.5 py-2 border rounded-xl text-xs focus:ring-2 focus:ring-purple-500 focus:outline-none bg-white font-medium">
-                <option value="Warangal Rural">Warangal Rural</option>
-                <option value="Warangal Urban">Warangal Urban</option>
-                <option value="Karimnagar">Karimnagar</option>
-                <option value="Nizamabad">Nizamabad</option>
-                <option value="Nalgonda">Nalgonda</option>
-                <option value="Khammam">Khammam</option>
-                <option value="Medchal-Malkajgiri">Medchal</option>
-                <option value="Hyderabad">Hyderabad</option>
-                <option value="Rangareddy">Rangareddy</option>
-                <option value="Sangareddy">Sangareddy</option>
-                <option value="Mahabubnagar">Mahabubnagar</option>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Farmer Full Name</label>
+              <input type="text" id="regFullName" placeholder="e.g. Gulam Waheed" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none font-medium" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Mobile Number (Login ID)</label>
+              <div class="flex gap-2">
+                <span class="inline-flex items-center px-3 border border-r-0 border-gray-300 rounded-l-xl bg-gray-50 text-gray-500 text-xs font-bold">+91</span>
+                <input type="tel" id="regPhoneNumber" maxlength="10" placeholder="10-digit mobile" class="flex-1 px-3 py-2 border rounded-r-xl text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none font-medium" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">District</label>
+                <select id="regDistrict" class="w-full px-2.5 py-2 border rounded-xl text-xs focus:ring-2 focus:ring-purple-500 focus:outline-none bg-white font-medium">
+                  <option value="Warangal Rural">Warangal Rural</option>
+                  <option value="Warangal Urban">Warangal Urban</option>
+                  <option value="Karimnagar">Karimnagar</option>
+                  <option value="Nizamabad">Nizamabad</option>
+                  <option value="Nalgonda">Nalgonda</option>
+                  <option value="Khammam">Khammam</option>
+                  <option value="Medchal-Malkajgiri">Medchal</option>
+                  <option value="Hyderabad">Hyderabad</option>
+                  <option value="Rangareddy">Rangareddy</option>
+                  <option value="Sangareddy">Sangareddy</option>
+                  <option value="Mahabubnagar">Mahabubnagar</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Village / Mandal</label>
+                <input type="text" id="regVillage" placeholder="e.g. Geesugonda" value="Geesugonda" class="w-full px-2.5 py-2 border rounded-xl text-xs focus:ring-2 focus:ring-purple-500 focus:outline-none font-medium" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Create 4-Digit Security PIN</label>
+              <input type="password" id="regPinCode" maxlength="6" placeholder="Set PIN (e.g. 1234)" value="1234" class="w-full px-3 py-2 border rounded-xl text-center text-sm font-mono tracking-widest focus:ring-2 focus:ring-purple-500 focus:outline-none" />
+            </div>
+
+            <button id="btnSubmitRegister" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition flex items-center justify-center gap-2 text-sm">
+              <i data-lucide="user-plus" class="w-4 h-4"></i>
+              <span>Register as Verified Farmer</span>
+            </button>
+
+            <div class="text-center pt-1">
+              <button type="button" onclick="switchLoginTab('login')" class="text-xs text-purple-700 font-semibold hover:underline">
+                Already registered? Login here &rarr;
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================================================== -->
+        <!-- PORTAL B: CONSUMER / VENDOR AUTHENTICATION -->
+        <!-- ==================================================== -->
+        <div id="portalConsumerSection" class="hidden space-y-4">
+          <!-- Consumer Tab Selector: Login vs Register -->
+          <div class="flex border-b text-xs font-bold text-gray-500">
+            <button id="tabBtnConsumerLogin" class="flex-1 pb-2.5 border-b-2 border-amber-600 text-amber-700 font-bold" onclick="switchConsumerLoginTab('login')">
+              Consumer / Vendor Login
+            </button>
+            <button id="tabBtnConsumerRegister" class="flex-1 pb-2.5 text-gray-500 hover:text-gray-800" onclick="switchConsumerLoginTab('register')">
+              New Vendor Registration
+            </button>
+          </div>
+
+          <!-- TAB 1: Consumer Login Form -->
+          <div id="consumerLoginFormSection" class="space-y-3.5">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Vendor / Buyer Mobile Number</label>
+              <div class="flex gap-2">
+                <span class="inline-flex items-center px-3 border border-r-0 border-gray-300 rounded-l-xl bg-gray-50 text-gray-500 text-xs font-bold">+91</span>
+                <input type="tel" id="consumerLoginPhone" maxlength="10" placeholder="e.g. 9440188234" value="9440188234" class="flex-1 px-3 py-2 border rounded-r-xl text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none font-medium" />
+              </div>
+            </div>
+
+            <div class="space-y-1">
+              <label class="block text-xs font-semibold text-gray-600">Consumer Security PIN</label>
+              <input type="password" id="consumerLoginPin" maxlength="8" placeholder="Enter PIN (e.g. 1234)" value="1234" class="w-full px-3 py-2 border rounded-xl text-center text-sm font-mono tracking-widest focus:ring-2 focus:ring-amber-500 focus:outline-none" />
+            </div>
+
+            <button id="btnSubmitConsumerLogin" class="w-full py-3 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-bold rounded-xl shadow-md transition flex items-center justify-center gap-2 text-sm">
+              <i data-lucide="building-2" class="w-4 h-4"></i>
+              <span>Login as Consumer / Vendor</span>
+            </button>
+
+            <!-- Quick Demo Consumer Button -->
+            <button id="btnQuickDemoConsumerLogin" type="button" class="w-full py-2 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-semibold rounded-xl border border-amber-200 transition flex items-center justify-center gap-1.5">
+              <span>🏢 Quick Demo Vendor Login (Bowenpally Bulk Millers)</span>
+            </button>
+
+            <div class="text-center pt-1">
+              <button type="button" onclick="switchConsumerLoginTab('register')" class="text-xs text-amber-700 font-semibold hover:underline">
+                New buyer or mill? Register as Consumer &rarr;
+              </button>
+            </div>
+          </div>
+
+          <!-- TAB 2: Consumer Registration Form -->
+          <div id="consumerRegisterFormSection" class="hidden space-y-3">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Company / Store / Firm Name</label>
+              <input type="text" id="consumerRegCompany" placeholder="e.g. Deccan Grain Corporation Ltd" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none font-medium" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Contact Person Name</label>
+              <input type="text" id="consumerRegName" placeholder="e.g. Bowenpally Bulk Millers" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none font-medium" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Mobile Number (Buyer Login ID)</label>
+              <div class="flex gap-2">
+                <span class="inline-flex items-center px-3 border border-r-0 border-gray-300 rounded-l-xl bg-gray-50 text-gray-500 text-xs font-bold">+91</span>
+                <input type="tel" id="consumerRegPhone" maxlength="10" placeholder="10-digit mobile" class="flex-1 px-3 py-2 border rounded-r-xl text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none font-medium" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Decided Delivery Destination</label>
+              <select id="consumerRegDeliverySelect" class="w-full px-3 py-2 border rounded-xl text-xs bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none font-medium">
+                <option value="Bowenpally Modern Market Yard, Secunderabad, Telangana">Bowenpally Modern Market Yard, Secunderabad</option>
+                <option value="Gudimalkapur Wholesale Vegetable Mandi, Hyderabad">Gudimalkapur Wholesale Mandi, Hyderabad</option>
+                <option value="Enumamula Agriculture Market, Warangal">Enumamula Agriculture Market, Warangal</option>
+                <option value="Kandlakoi Agro Processing Terminal, Medchal">Kandlakoi Agro Terminal, Medchal</option>
+                <option value="Shradhanand Gunj Mandi, Nizamabad">Shradhanand Gunj Mandi, Nizamabad</option>
+                <option value="custom">Other Specific Delivery Address (Type Below)</option>
               </select>
+              <input type="text" id="consumerRegCustomAddress" placeholder="e.g. Unit 4, Uppal Industrial Area, Hyderabad" class="w-full mt-1.5 px-3 py-2 border rounded-xl text-xs hidden focus:ring-2 focus:ring-amber-500 focus:outline-none font-medium" />
             </div>
+
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Village / Mandal</label>
-              <input type="text" id="regVillage" placeholder="e.g. Geesugonda" value="Geesugonda" class="w-full px-2.5 py-2 border rounded-xl text-xs focus:ring-2 focus:ring-purple-500 focus:outline-none font-medium" />
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Create 4-Digit Security PIN</label>
+              <input type="password" id="consumerRegPin" maxlength="6" placeholder="Set PIN (e.g. 1234)" value="1234" class="w-full px-3 py-2 border rounded-xl text-center text-sm font-mono tracking-widest focus:ring-2 focus:ring-amber-500 focus:outline-none" />
             </div>
-          </div>
 
-          <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Create 4-Digit Security PIN</label>
-            <input type="password" id="regPinCode" maxlength="6" placeholder="Set PIN (e.g. 1234)" value="1234" class="w-full px-3 py-2 border rounded-xl text-center text-sm font-mono tracking-widest focus:ring-2 focus:ring-purple-500 focus:outline-none" />
-          </div>
-
-          <button id="btnSubmitRegister" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition flex items-center justify-center gap-2 text-sm">
-            <i data-lucide="user-plus" class="w-4 h-4"></i>
-            <span>Register as Verified Farmer</span>
-          </button>
-
-          <div class="text-center pt-1">
-            <button type="button" onclick="switchLoginTab('login')" class="text-xs text-purple-700 font-semibold hover:underline">
-              Already registered? Login here &rarr;
+            <button id="btnSubmitConsumerRegister" class="w-full py-3 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-bold rounded-xl shadow-md transition flex items-center justify-center gap-2 text-sm">
+              <i data-lucide="user-check" class="w-4 h-4"></i>
+              <span>Register as Verified Buyer / Consumer</span>
             </button>
+
+            <div class="text-center pt-1">
+              <button type="button" onclick="switchConsumerLoginTab('login')" class="text-xs text-amber-700 font-semibold hover:underline">
+                Already registered? Consumer Login &rarr;
+              </button>
+            </div>
           </div>
         </div>
 
@@ -237,6 +356,12 @@
       <button id="btnLangToggle" class="flex items-center gap-1.5 px-3 py-1 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-lg border border-gray-600 transition">
         <i data-lucide="globe" class="w-4 h-4 text-cyan-400"></i>
         <span id="currentLangLabel" class="font-semibold">हिंदी (Hindi)</span>
+      </button>
+
+      <!-- Switch Portal Role (Farmer vs Consumer) -->
+      <button id="btnSwitchActivePortal" class="flex items-center gap-1.5 px-3 py-1 bg-amber-600 hover:bg-amber-500 text-white font-medium rounded-lg shadow-sm transition">
+        <i data-lucide="building-2" class="w-4 h-4 text-amber-200"></i>
+        <span id="portalSwitchLabel">🏢 Consumer Portal</span>
       </button>
 
       <!-- View Mode Switcher: Mobile App Frame vs Desktop Portal -->
@@ -315,6 +440,11 @@
             <i data-lucide="truck" class="w-5 h-5 text-blue-600"></i>
             <span data-i18n="nav_orders">Orders & Deliveries</span>
             <span class="ml-auto bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full font-bold">3</span>
+          </a>
+          <a class="drawer-item" data-navigate="consumer" id="drawerItemConsumer">
+            <i data-lucide="building-2" class="w-5 h-5 text-amber-600"></i>
+            <span>Consumer / Vendor Portal</span>
+            <span class="ml-auto bg-amber-100 text-amber-800 text-[10px] px-2 py-0.5 rounded-full font-bold">Buyer Desk</span>
           </a>
           <a class="drawer-item" data-navigate="wallet">
             <i data-lucide="wallet" class="w-5 h-5 text-green-600"></i>
@@ -1115,6 +1245,103 @@
                 Submit Grievance Ticket
               </button>
             </form>
+        <!-- SECTION 18: CONSUMER / VENDOR DASHBOARD -->
+        <section id="sectionConsumerDashboard" class="app-section hidden space-y-4">
+          <!-- Top Welcome & Decided Delivery Banner -->
+          <div class="bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 text-white p-4.5 rounded-2xl shadow-md space-y-2.5">
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="text-[11px] bg-black/20 text-amber-200 px-2.5 py-0.5 rounded-full font-semibold inline-flex items-center gap-1">
+                  <i data-lucide="building-2" class="w-3 h-3"></i> Verified Agro-Vendor & Consumer Desk
+                </span>
+                <h2 id="consumerDashboardTitle" class="text-lg font-bold mt-1">Bowenpally Bulk Millers</h2>
+                <p class="text-xs text-amber-100" id="consumerCompanySubtitle">Deccan Grain Corporation Ltd</p>
+              </div>
+              <div class="text-right">
+                <button id="btnSwitchToFarmerView" type="button" class="text-xs bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-xl border border-white/40 font-semibold backdrop-blur-sm transition flex items-center gap-1">
+                  <i data-lucide="sprout" class="w-3.5 h-3.5 text-emerald-300"></i>
+                  <span>Farmer View &rarr;</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Consumer Decided Delivery Location Highlight -->
+            <div class="bg-black/25 rounded-xl p-3 flex items-center justify-between text-xs border border-white/20">
+              <div class="flex items-center gap-2">
+                <i data-lucide="map-pin" class="w-4 h-4 text-emerald-300 shrink-0"></i>
+                <div>
+                  <span class="text-[10px] text-amber-200 uppercase font-semibold block">Your Decided Delivery Destination:</span>
+                  <span id="consumerDecidedDeliveryLocation" class="font-bold text-white">Bowenpally Modern Market Yard, Secunderabad, Telangana</span>
+                </div>
+              </div>
+              <button id="btnEditConsumerDeliveryLocation" type="button" class="text-[11px] bg-amber-500/40 hover:bg-amber-500/60 text-white px-2.5 py-1 rounded-lg border border-amber-300/40 font-medium transition">
+                Change
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Consumer Metric Pills -->
+          <div class="grid grid-cols-3 gap-2">
+            <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm text-center cursor-pointer hover:border-amber-300 transition" onclick="switchConsumerTab('farmers')">
+              <span class="text-[11px] text-gray-500 block font-medium">Farmers</span>
+              <span id="consumerStatFarmers" class="text-sm md:text-base font-bold text-emerald-600">5 Verified</span>
+            </div>
+            <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm text-center cursor-pointer hover:border-amber-300 transition" onclick="switchConsumerTab('marketplace')">
+              <span class="text-[11px] text-gray-500 block font-medium">Marketplace</span>
+              <span id="consumerStatCrops" class="text-sm md:text-base font-bold text-amber-600">10 Crops</span>
+            </div>
+            <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm text-center cursor-pointer hover:border-amber-300 transition" onclick="switchConsumerTab('offers')">
+              <span class="text-[11px] text-gray-500 block font-medium">My Deals</span>
+              <span id="consumerStatOffers" class="text-sm md:text-base font-bold text-blue-600">0 Offers</span>
+            </div>
+          </div>
+
+          <!-- Consumer Sub-Navigation Tabs -->
+          <div class="flex border-b border-gray-200 text-xs font-bold">
+            <button id="tabConsumerFarmers" type="button" class="flex-1 pb-2.5 border-b-2 border-amber-600 text-amber-700 flex items-center justify-center gap-1.5" onclick="switchConsumerTab('farmers')">
+              <i data-lucide="users" class="w-3.5 h-3.5"></i>
+              <span>Verified Farmers</span>
+            </button>
+            <button id="tabConsumerMarketplace" type="button" class="flex-1 pb-2.5 text-gray-500 hover:text-gray-800 flex items-center justify-center gap-1.5" onclick="switchConsumerTab('marketplace')">
+              <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
+              <span>Marketplace</span>
+            </button>
+            <button id="tabConsumerOffers" type="button" class="flex-1 pb-2.5 text-gray-500 hover:text-gray-800 flex items-center justify-center gap-1.5" onclick="switchConsumerTab('offers')">
+              <i data-lucide="handshake" class="w-3.5 h-3.5"></i>
+              <span>My Placed Offers (<span id="consumerOfferCount">0</span>)</span>
+            </button>
+          </div>
+
+          <!-- SUB-VIEW 1: FARMERS DIRECTORY -->
+          <div id="consumerFarmersView" class="space-y-3">
+            <div class="flex items-center justify-between text-xs text-gray-600">
+              <span>Select any verified Telangana farmer to view their live produce inventory:</span>
+              <span class="text-amber-700 font-semibold" id="farmerDirectoryCount">Loading farmers...</span>
+            </div>
+            <div id="consumerFarmersList" class="space-y-2.5">
+              <!-- Dynamically populated from Supabase profiles where role = 'farmer' -->
+            </div>
+          </div>
+
+          <!-- SUB-VIEW 2: MARKETPLACE & SELECTED FARMER INVENTORY -->
+          <div id="consumerMarketplaceView" class="hidden space-y-3">
+            <div id="consumerFilterFarmerBanner" class="hidden bg-purple-50 border border-purple-200 p-2.5 rounded-xl flex items-center justify-between text-xs">
+              <span class="font-semibold text-purple-900" id="consumerFilterFarmerLabel">Showing inventory for: ...</span>
+              <button type="button" class="text-purple-700 font-bold hover:underline" onclick="clearFarmerInventoryFilter()">Show All Farmers &times;</button>
+            </div>
+            <div id="consumerProduceGrid" class="space-y-3">
+              <!-- Dynamically populated produce cards with 'Make Offer' buttons -->
+            </div>
+          </div>
+
+          <!-- SUB-VIEW 3: MY OFFERS & NEGOTIATIONS -->
+          <div id="consumerOffersView" class="hidden space-y-3">
+            <div class="flex items-center justify-between text-xs text-gray-600">
+              <span>Offers submitted by you to farmers. Accepted offers advance to dispatch:</span>
+            </div>
+            <div id="consumerOffersList" class="space-y-3">
+              <!-- Dynamically populated with consumer's offers -->
+            </div>
           </div>
         </section>
 
@@ -1387,6 +1614,88 @@
       <span class="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
     </span>
   </a>
+
+  <!-- Modal G: Consumer Make Offer to Farmer (Synced to Negotiations Desk) -->
+  <div id="modalConsumerOffer" class="modal-overlay">
+    <div class="modal-content max-w-md p-5 space-y-4">
+      <div class="flex items-center justify-between border-b pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold">
+            <i data-lucide="handshake" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-gray-900">Make Price Offer to Farmer</h3>
+            <p class="text-xs text-gray-500" id="offerModalFarmerInfo">Direct Negotiation with Farmer</p>
+          </div>
+        </div>
+        <button id="btnCloseConsumerOfferModal" type="button" class="text-gray-400 hover:text-gray-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Produce Summary Card -->
+      <div class="bg-gray-50 p-3 rounded-xl border border-gray-100 flex gap-3 items-center">
+        <img id="offerModalCropImg" src="assets/raw/paddy.png" class="w-14 h-14 rounded-xl object-cover border" alt="Produce" onerror="this.src='assets/raw/paddy.png'" />
+        <div class="flex-1">
+          <h4 id="offerModalCropName" class="font-bold text-sm text-gray-900">Crop Name</h4>
+          <div class="flex items-center gap-3 text-xs text-gray-600 mt-1">
+            <span>Asking: <strong id="offerModalAskingPrice" class="text-purple-700">₹0 / Kg</strong></span>
+            <span>Available: <strong id="offerModalStockQty" class="text-gray-800">0 Kg</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <form id="formConsumerOffer" class="space-y-3 text-xs">
+        <input type="hidden" id="offerCropId" />
+        <input type="hidden" id="offerFarmerId" />
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-gray-700 mb-1">Your Offer Price (₹ / Kg) *</label>
+            <input type="number" id="inputOfferPrice" step="0.5" required placeholder="e.g. 52" class="w-full px-3 py-2 border rounded-xl text-sm font-bold text-amber-700 focus:ring-2 focus:ring-amber-500 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block font-semibold text-gray-700 mb-1">Quantity Needed (Kg) *</label>
+            <input type="number" id="inputOfferQuantity" required min="1" placeholder="e.g. 250" class="w-full px-3 py-2 border rounded-xl text-sm font-bold text-gray-800 focus:ring-2 focus:ring-amber-500 focus:outline-none" />
+          </div>
+        </div>
+
+        <!-- Decided Delivery Location (Decided by Consumer) -->
+        <div>
+          <label class="block font-semibold text-gray-700 mb-1">Decided Delivery Destination *</label>
+          <select id="selectOfferDeliveryLocation" class="w-full px-3 py-2 border rounded-xl text-xs bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none font-medium">
+            <option value="Bowenpally Modern Market Yard, Secunderabad, Telangana">Bowenpally Modern Market Yard, Secunderabad</option>
+            <option value="Gudimalkapur Wholesale Vegetable Mandi, Hyderabad">Gudimalkapur Wholesale Mandi, Hyderabad</option>
+            <option value="Enumamula Agriculture Market, Warangal">Enumamula Agriculture Market, Warangal</option>
+            <option value="Kandlakoi Agro Processing Terminal, Medchal">Kandlakoi Agro Terminal, Medchal</option>
+            <option value="Shradhanand Gunj Mandi, Nizamabad">Shradhanand Gunj Mandi, Nizamabad</option>
+            <option value="custom">Other / Custom Warehouse Address (Type Below)</option>
+          </select>
+          <input type="text" id="inputOfferCustomLocation" placeholder="Enter specific delivery address / warehouse..." class="w-full mt-1.5 px-3 py-2 border rounded-xl text-xs hidden focus:ring-2 focus:ring-amber-500 focus:outline-none font-medium" />
+          <span class="text-[10px] text-gray-500 mt-0.5 block">This delivery destination will be sent to the farmer and pinned on the dispatch transit route.</span>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-gray-700 mb-1">Notes / Terms (Optional)</label>
+          <textarea id="inputOfferNote" rows="2" placeholder="e.g. Payment via Escrow within 24 hours of delivery. Need dispatch by Friday." class="w-full px-3 py-2 border rounded-xl text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none"></textarea>
+        </div>
+
+        <!-- Total Calculated Offer -->
+        <div class="bg-amber-50 p-3 rounded-xl border border-amber-200 flex justify-between items-center text-xs">
+          <div>
+            <span class="text-amber-800 font-semibold block">Total Estimated Deal:</span>
+            <span class="text-[10px] text-amber-600">Escrow Locked upon Farmer Acceptance</span>
+          </div>
+          <span id="offerModalTotalCalculated" class="text-base font-extrabold text-amber-900">₹0</span>
+        </div>
+
+        <button type="submit" id="btnSubmitOfferToFarmer" class="w-full py-3 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-bold rounded-xl shadow-md transition flex items-center justify-center gap-2 text-xs">
+          <i data-lucide="send" class="w-4 h-4"></i>
+          <span>Send Offer to Farmer's Negotiation Desk</span>
+        </button>
+      </form>
+    </div>
+  </div>
 
   <!-- Notification Toast -->
   <div id="toastNotification" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white px-4 py-2.5 rounded-full text-xs font-semibold shadow-xl opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-2">
