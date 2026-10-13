@@ -32,6 +32,7 @@ function initKisanSaathi() {
       tagline: "Direct Farm-to-Buyer with Value Addition & Packaging",
       nav_inventory: "Farmer's Inventory",
       nav_upload: "Add Crop to Sell",
+      nav_market_dashboard: "Daily Market Prices",
       nav_quality: "Crop Quality Prediction (AI)",
       nav_negotiate: "Price Negotiations",
       nav_orders: "Orders & Deliveries",
@@ -98,6 +99,7 @@ function initKisanSaathi() {
       tagline: "मूल्य संवर्धन एवं पैकेजिंग के साथ किसान से सीधे खरीदार तक",
       nav_inventory: "किसान इन्वेंटरी",
       nav_upload: "फसल बिक्री हेतु जोड़ें",
+      nav_market_dashboard: "दैनिक बाजार भाव",
       nav_quality: "फसल गुणवत्ता परीक्षण (AI)",
       nav_negotiate: "मूल्य बातचीत (सौदा)",
       nav_orders: "ऑर्डर एवं आपूर्ति",
@@ -164,6 +166,7 @@ function initKisanSaathi() {
       tagline: "రైతు నుండి నేరుగా కొనుగోలుదారునికి విలువ జోడింపుతో",
       nav_inventory: "రైతు పంట నిల్వలు",
       nav_upload: "పంట అమ్మకానికి జోడించండి",
+      nav_market_dashboard: "రోజువారీ మార్కెట్ ధరలు",
       nav_quality: "పంట నాణ్యత AI పరీక్ష",
       nav_negotiate: "ధర సంప్రదింపులు",
       nav_orders: "ఆర్డర్లు & రవాణా",
@@ -1659,6 +1662,7 @@ function initKisanSaathi() {
     const sectionMap = {
       inventory: 'sectionInventory',
       upload: 'sectionUpload',
+      'market-dashboard': 'sectionMarketDashboard',
       quality: 'sectionQuality',
       negotiate: 'sectionNegotiations',
       orders: 'sectionOrders',
@@ -1799,6 +1803,9 @@ function initKisanSaathi() {
         break;
       case 'screenshots':
         renderScreenshots();
+        break;
+      case 'market-dashboard':
+        loadDailyMarketDashboard();
         break;
       default:
         break;
@@ -2051,6 +2058,9 @@ function initKisanSaathi() {
     if (priceEl) priceEl.value = '';
     if (predictedPriceHint) predictedPriceHint.textContent = '';
     if (aiMandiPriceCard) aiMandiPriceCard.innerHTML = '';
+    const mktPanel = document.getElementById('dailyMarketComparisonPanel');
+    if (mktPanel) mktPanel.classList.add('hidden');
+    activeMarketComparisonData = null;
   }
 
   uploadDropArea.addEventListener('click', () => inputCropImage.click());
@@ -2164,6 +2174,9 @@ function initKisanSaathi() {
         document.getElementById('inputItemName').value = '';
         document.getElementById('inputItemPrice').value = '';
         if (predictedPriceHint) predictedPriceHint.textContent = '';
+        const mktPanel = document.getElementById('dailyMarketComparisonPanel');
+        if (mktPanel) mktPanel.classList.add('hidden');
+        activeMarketComparisonData = null;
 
         if (result.is_ambiguous) {
           // Low quality, blurry or ambiguous image
@@ -2218,25 +2231,8 @@ function initKisanSaathi() {
         }
       }
 
-      // Authentic Agmarknet Mandi Price
-      if (result.market_price && result.market_price.available && result.market_price.modalPricePerKg) {
-        const mp = result.market_price;
-        document.getElementById('inputItemPrice').value = mp.modalPricePerKg;
-        const priceLabel = `✓ Agmarknet Modal Rate: ₹${mp.modalPricePerKg} / Kg (${mp.mandiName} • ${mp.observationDate})`;
-        if (predictedPriceHint) predictedPriceHint.textContent = priceLabel;
-        if (aiMandiPriceCard) {
-          aiMandiPriceCard.innerHTML = `<span class="text-emerald-700 font-bold">Verified Agmarknet Mandi Price:</span> ₹${mp.modalPricePerKg} / Kg <span class="text-[11px] text-gray-500 font-normal">(${mp.mandiName}, ${mp.district} • ${mp.source} ${mp.observationDate})</span>`;
-        }
-        showToast(`Produce Verified: ${result.crop_name}! Agmarknet price auto-filled.`);
-      } else {
-        document.getElementById('inputItemPrice').value = '';
-        const unavailableMsg = 'Market price unavailable — enter your expected price manually.';
-        if (predictedPriceHint) predictedPriceHint.textContent = unavailableMsg;
-        if (aiMandiPriceCard) {
-          aiMandiPriceCard.innerHTML = `<span class="text-amber-700 font-medium">${unavailableMsg}</span>`;
-        }
-        showToast(`Produce Verified: ${result.crop_name}. Please set your price.`);
-      }
+      // Fetch authentic daily market prices and comparison benchmark
+      await fetchDailyMarketComparison(result.crop_name);
 
     } catch (err) {
       if (thisRequestId !== currentUploadRequestId) return;
@@ -2371,6 +2367,518 @@ function initKisanSaathi() {
       pendingCropToSave = null;
     }
   });
+
+  // =========================================================================
+  // SECTION 2B: DAILY MARKET PRICES DASHBOARD & PRICE COMPARISON ENGINE
+  // =========================================================================
+  let cachedMarketPrices = [];
+  let activeMarketCategory = 'all';
+  let marketSearchQuery = '';
+  let activeMarketComparisonData = null;
+
+  async function fetchDailyMarketComparison(cropName) {
+    const mktPanel = document.getElementById('dailyMarketComparisonPanel');
+    const unavailableMsg = document.getElementById('marketPanelUnavailableMsg');
+    const metricsGrid = document.getElementById('marketPanelMetricsGrid');
+    const liveComparison = document.getElementById('marketPanelLiveComparison');
+    const priceInput = document.getElementById('inputItemPrice');
+
+    if (!cropName) return;
+
+    try {
+      const res = await fetch(`/api/daily-market-prices?crop=${encodeURIComponent(cropName)}`);
+      const data = await res.json();
+
+      if (data && data.found && data.pricing) {
+        activeMarketComparisonData = data.pricing;
+        if (mktPanel) mktPanel.classList.remove('hidden');
+        if (unavailableMsg) unavailableMsg.classList.add('hidden');
+        if (metricsGrid) metricsGrid.classList.remove('hidden');
+        if (liveComparison) liveComparison.classList.remove('hidden');
+
+        const p = data.pricing;
+        const todayWholesaleEl = document.getElementById('marketPanelTodayWholesale');
+        const prevWholesaleEl = document.getElementById('marketPanelPrevWholesale');
+        const dodChangeEl = document.getElementById('marketPanelDoDChange');
+        const retailRangeEl = document.getElementById('marketPanelRetailRange');
+        const wholesaleUnitEl = document.getElementById('marketPanelWholesaleUnit');
+        const sourceInfoEl = document.getElementById('marketPanelSourceInfo');
+        const trendBadgeEl = document.getElementById('marketPanelTrendBadge');
+
+        if (todayWholesaleEl) todayWholesaleEl.textContent = `₹${p.todayWholesalePrice}`;
+        if (wholesaleUnitEl) wholesaleUnitEl.textContent = `per ${p.unit || 'Kg'}`;
+        if (prevWholesaleEl) prevWholesaleEl.textContent = `₹${p.prevWholesalePrice}`;
+        if (retailRangeEl) retailRangeEl.textContent = p.todayRetailPrice;
+
+        if (dodChangeEl) {
+          const sign = p.priceChange > 0 ? '+' : '';
+          const arrow = p.priceChange > 0 ? '▲' : (p.priceChange < 0 ? '▼' : '●');
+          const colorClass = p.priceChange > 0 ? 'text-emerald-600' : (p.priceChange < 0 ? 'text-rose-600' : 'text-gray-600');
+          dodChangeEl.className = `text-[9px] font-bold ${colorClass}`;
+          dodChangeEl.textContent = `${arrow} ${sign}₹${Math.abs(p.priceChange)} (${sign}${p.percentChange}%)`;
+        }
+
+        if (trendBadgeEl) {
+          if (p.trend === 'up') {
+            trendBadgeEl.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200';
+            trendBadgeEl.textContent = '▲ Up Today';
+          } else if (p.trend === 'down') {
+            trendBadgeEl.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200';
+            trendBadgeEl.textContent = '▼ Down Today';
+          } else {
+            trendBadgeEl.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-800 border border-gray-200';
+            trendBadgeEl.textContent = '● Steady Rate';
+          }
+        }
+
+        if (sourceInfoEl) {
+          sourceInfoEl.textContent = `${p.market} • ${p.sourceName} (${p.observationDate})`;
+        }
+
+        // Set proposed price input default to today's wholesale benchmark
+        if (priceInput) {
+          priceInput.value = p.todayWholesalePrice;
+          updateLiveMarketComparison(p.todayWholesalePrice);
+        }
+
+        if (predictedPriceHint) {
+          predictedPriceHint.textContent = `✓ Daily Mandi Benchmark: ₹${p.todayWholesalePrice} / ${p.unit || 'Kg'} (${p.market} • ${p.observationDate})`;
+        }
+        if (aiMandiPriceCard) {
+          aiMandiPriceCard.innerHTML = `<span class="text-purple-800 font-bold">Daily Wholesale Benchmark:</span> ₹${p.todayWholesalePrice} / ${p.unit || 'Kg'} <span class="text-[11px] text-gray-500 font-normal">(${p.market} • Retail: ${p.todayRetailPrice})</span>`;
+        }
+        showToast(`Produce Verified: ${cropName}! Daily mandi price benchmark loaded.`);
+      } else {
+        // Unlisted or unavailable price
+        activeMarketComparisonData = null;
+        if (mktPanel) mktPanel.classList.remove('hidden');
+        if (unavailableMsg) {
+          unavailableMsg.classList.remove('hidden');
+          unavailableMsg.textContent = (data && data.message) ? data.message : "Price currently unavailable — enter your expected price manually.";
+        }
+        if (metricsGrid) metricsGrid.classList.add('hidden');
+        if (liveComparison) liveComparison.classList.add('hidden');
+        if (priceInput) priceInput.value = '';
+        if (predictedPriceHint) predictedPriceHint.textContent = "Price currently unavailable — enter your expected price manually.";
+        if (aiMandiPriceCard) {
+          aiMandiPriceCard.innerHTML = `<span class="text-amber-700 font-medium">Price currently unavailable — enter your expected price manually.</span>`;
+        }
+        showToast(`Produce Verified: ${cropName}. Please enter your selling price.`);
+      }
+    } catch (err) {
+      console.warn('Daily market prices query error:', err);
+      activeMarketComparisonData = null;
+      if (mktPanel) mktPanel.classList.add('hidden');
+      if (priceInput) priceInput.value = '';
+      if (predictedPriceHint) predictedPriceHint.textContent = "Price currently unavailable — enter your expected price manually.";
+    }
+
+    if (window.lucide) window.lucide.createIcons();
+  }
+
+  function updateLiveMarketComparison(proposedPrice) {
+    if (!activeMarketComparisonData || !activeMarketComparisonData.todayWholesalePrice) return;
+    const diffBadge = document.getElementById('marketPanelDiffBadge');
+    const outcomeText = document.getElementById('panelComparisonOutcomeText');
+    const wholesale = activeMarketComparisonData.todayWholesalePrice;
+
+    const val = parseFloat(proposedPrice);
+    if (isNaN(val) || val <= 0) {
+      if (diffBadge) diffBadge.textContent = 'Enter price';
+      if (outcomeText) outcomeText.textContent = "Enter your desired selling price in ₹ / Kg below to compare with today's mandi benchmark.";
+      return;
+    }
+
+    const diff = Math.round((val - wholesale) * 100) / 100;
+    const pct = wholesale > 0 ? Math.round(((diff / wholesale) * 100) * 100) / 100 : 0;
+
+    if (diff > 0) {
+      if (diffBadge) {
+        diffBadge.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800';
+        diffBadge.textContent = `+₹${diff}/Kg (+${pct}%)`;
+      }
+      if (outcomeText) {
+        outcomeText.innerHTML = `<strong>₹${diff}/Kg above wholesale benchmark (+${pct}% premium).</strong> Recommended for graded, clean, farm-packed produce. Buyers pay less than retail (which is ${activeMarketComparisonData.todayRetailPrice}).`;
+      }
+    } else if (diff < 0) {
+      if (diffBadge) {
+        diffBadge.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800';
+        diffBadge.textContent = `-₹${Math.abs(diff)}/Kg (${pct}%)`;
+      }
+      if (outcomeText) {
+        outcomeText.innerHTML = `<strong>₹${Math.abs(diff)}/Kg below wholesale benchmark (${Math.abs(pct)}% discount).</strong> Highly competitive pricing for instant bulk vendor procurement and rapid truck clearance.`;
+      }
+    } else {
+      if (diffBadge) {
+        diffBadge.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800';
+        diffBadge.textContent = `Matches Mandi Rate`;
+      }
+      if (outcomeText) {
+        outcomeText.textContent = `Your price matches today's terminal wholesale auction benchmark (₹${wholesale}/Kg).`;
+      }
+    }
+  }
+
+  // Live input listener for proposed price
+  const inputItemPriceEl = document.getElementById('inputItemPrice');
+  if (inputItemPriceEl) {
+    inputItemPriceEl.addEventListener('input', (e) => {
+      updateLiveMarketComparison(e.target.value);
+    });
+  }
+
+  // DAILY MARKET PRICES DASHBOARD CONTROLLER
+  async function loadDailyMarketDashboard(filterCat = 'all', searchQuery = '', forceRefresh = false) {
+    activeMarketCategory = filterCat;
+    marketSearchQuery = searchQuery;
+
+    const gridEl = document.getElementById('marketProduceGrid');
+    const lastUpdatedEl = document.getElementById('mktDashboardLastUpdated');
+    const statTotalEl = document.getElementById('mktStatTotal');
+    const statUpEl = document.getElementById('mktStatUp');
+    const statDownEl = document.getElementById('mktStatDown');
+    const statStableEl = document.getElementById('mktStatStable');
+    const staleBanner = document.getElementById('marketStaleBanner');
+    const staleMessage = document.getElementById('marketStaleMessage');
+
+    try {
+      let url = '/api/daily-market-prices';
+      const params = [];
+      if (forceRefresh) params.push('refresh=true');
+      if (params.length) url += '?' + params.join('&');
+
+      const res = await fetch(url);
+      const data = await res.json();
+
+      if (!data || !Array.isArray(data.items)) {
+        if (gridEl) gridEl.innerHTML = '<div class="p-6 text-center text-rose-600 text-xs">Failed to load market prices feed.</div>';
+        return;
+      }
+
+      cachedMarketPrices = data.items;
+
+      if (lastUpdatedEl) {
+        lastUpdatedEl.textContent = `Updated: ${data.observationDate || 'Today'}`;
+      }
+
+      const upCount = cachedMarketPrices.filter(i => i.trend === 'up').length;
+      const downCount = cachedMarketPrices.filter(i => i.trend === 'down').length;
+      const stableCount = cachedMarketPrices.filter(i => i.trend === 'stable').length;
+
+      if (statTotalEl) statTotalEl.textContent = cachedMarketPrices.length;
+      if (statUpEl) statUpEl.textContent = `▲ ${upCount}`;
+      if (statDownEl) statDownEl.textContent = `▼ ${downCount}`;
+      if (statStableEl) statStableEl.textContent = `● ${stableCount}`;
+
+      if (staleBanner) {
+        if (data.isStale) {
+          staleBanner.classList.remove('hidden');
+          if (staleMessage && data.staleWarning) staleMessage.textContent = data.staleWarning;
+        } else {
+          staleBanner.classList.add('hidden');
+        }
+      }
+
+      renderMarketDashboardGrid();
+
+    } catch (err) {
+      console.error('Error loading market dashboard:', err);
+      if (gridEl) {
+        gridEl.innerHTML = `
+          <div class="p-6 text-center text-gray-500 text-xs space-y-2">
+            <p class="font-bold text-rose-700">Unable to reach market prices service.</p>
+            <p>Please check network connection or click Refresh.</p>
+          </div>
+        `;
+      }
+    }
+  }
+
+  function renderMarketDashboardGrid() {
+    const gridEl = document.getElementById('marketProduceGrid');
+    if (!gridEl) return;
+
+    let items = [...cachedMarketPrices];
+
+    if (activeMarketCategory !== 'all') {
+      items = items.filter(i => i.category === activeMarketCategory);
+    }
+
+    if (marketSearchQuery.trim()) {
+      const q = marketSearchQuery.trim().toLowerCase();
+      items = items.filter(i => 
+        (i.name && i.name.toLowerCase().includes(q)) ||
+        (i.teluguName && i.teluguName.includes(q)) ||
+        (i.variety && i.variety.toLowerCase().includes(q)) ||
+        (i.category && i.category.toLowerCase().includes(q))
+      );
+    }
+
+    if (items.length === 0) {
+      gridEl.innerHTML = `
+        <div class="p-8 text-center bg-white rounded-2xl border border-gray-100 text-xs text-gray-500 space-y-1">
+          <p class="font-bold text-gray-700">No produce matches your search filter.</p>
+          <p>Try searching for a different crop name (e.g. Tomato, Onion, Paddy, Arhar).</p>
+        </div>
+      `;
+      return;
+    }
+
+    gridEl.innerHTML = items.map(item => {
+      const isUp = item.trend === 'up';
+      const isDown = item.trend === 'down';
+      const changeSign = item.priceChange > 0 ? '+' : '';
+      const changeClass = isUp ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : (isDown ? 'bg-rose-50 text-rose-800 border-rose-200' : 'bg-gray-50 text-gray-700 border-gray-200');
+      const changeArrow = isUp ? '▲' : (isDown ? '▼' : '●');
+
+      const catBadges = {
+        vegetable: '<span class="text-[9px] px-1.5 py-0.5 rounded-md font-semibold bg-green-100 text-green-800">Vegetable</span>',
+        fruit: '<span class="text-[9px] px-1.5 py-0.5 rounded-md font-semibold bg-red-100 text-red-800">Fruit</span>',
+        grain: '<span class="text-[9px] px-1.5 py-0.5 rounded-md font-semibold bg-amber-100 text-amber-800">Grain / Cereal</span>',
+        pulse: '<span class="text-[9px] px-1.5 py-0.5 rounded-md font-semibold bg-yellow-100 text-yellow-800">Pulse</span>',
+        commercial: '<span class="text-[9px] px-1.5 py-0.5 rounded-md font-semibold bg-purple-100 text-purple-800">Commercial</span>',
+        spice: '<span class="text-[9px] px-1.5 py-0.5 rounded-md font-semibold bg-orange-100 text-orange-800">Spice</span>'
+      };
+
+      const catBadge = catBadges[item.category] || '<span class="text-[9px] px-1.5 py-0.5 rounded-md font-semibold bg-gray-100 text-gray-800">Produce</span>';
+
+      return `
+        <div class="bg-white p-3.5 rounded-2xl border border-gray-100 hover:border-purple-200 shadow-xs hover:shadow-sm transition-all duration-150 space-y-2.5">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <h4 class="text-sm font-bold text-gray-900">${item.name}</h4>
+                ${catBadge}
+              </div>
+              ${item.teluguName ? `<p class="text-[11px] text-gray-500 font-medium">${item.teluguName}</p>` : ''}
+              ${item.variety ? `<p class="text-[10px] text-purple-700 font-medium">Variety: ${item.variety}</p>` : ''}
+            </div>
+
+            <div class="text-right shrink-0">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${changeClass}">
+                <span>${changeArrow}</span>
+                <span>${changeSign}₹${Math.abs(item.priceChange)}</span>
+                <span>(${changeSign}${item.percentChange}%)</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 p-2.5 rounded-xl bg-purple-50/40 border border-purple-100/60 text-xs">
+            <div>
+              <span class="text-[10px] text-purple-900 font-bold uppercase tracking-wider block">Wholesale (Mandi)</span>
+              <div class="text-base font-extrabold text-purple-950 mt-0.5">
+                ₹${item.wholesalePrice} <span class="text-[10px] font-normal text-purple-800">/ ${item.units || '1kg'}</span>
+              </div>
+              <span class="text-[10px] text-gray-500">Yesterday: ₹${item.prevWholesalePrice}</span>
+            </div>
+            <div>
+              <span class="text-[10px] text-amber-900 font-bold uppercase tracking-wider block">Retail Range</span>
+              <div class="text-sm font-bold text-amber-950 mt-0.5">
+                ${item.retailPrice}
+              </div>
+              <span class="text-[10px] text-amber-700">Rythu Bazar / Stores</span>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between text-[11px] text-gray-500 pt-0.5">
+            <div class="flex items-center gap-1 truncate max-w-[65%]">
+              <i data-lucide="map-pin" class="w-3 h-3 text-gray-400 shrink-0"></i>
+              <span class="truncate">${item.market || 'Telangana'} • ${item.observationDate}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <a href="${item.portalUrl}" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-purple-600 transition" title="View Source Portal">
+                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+              </a>
+              <button type="button" onclick="showCropHistoryChart('${item.id}', '${item.name.replace(/'/g, "\\'")}')" class="px-2.5 py-1 bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold text-[11px] rounded-lg transition inline-flex items-center gap-1">
+                <i data-lucide="line-chart" class="w-3 h-3"></i> 14D Trend
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    if (window.lucide) window.lucide.createIcons();
+  }
+
+  // Historical SVG Chart Handler
+  window.showCropHistoryChart = async function(cropId, cropName) {
+    const modal = document.getElementById('modalCropHistory');
+    const titleEl = document.getElementById('histModalCropTitle');
+    const subtitleEl = document.getElementById('histModalSubTitle');
+    const chartSvg = document.getElementById('histSvgChart');
+    const tooltipEl = document.getElementById('histChartTooltip');
+    const tableBody = document.getElementById('histModalTableBody');
+    const statLatest = document.getElementById('histStatLatest');
+    const statMin = document.getElementById('histStatMin');
+    const statMax = document.getElementById('histStatMax');
+
+    if (titleEl) titleEl.textContent = `${cropName || cropId} 14-Day Price Trend`;
+    if (subtitleEl) subtitleEl.textContent = 'Authentic Wholesale Mandi Modal Rates (₹ / Kg)';
+    if (modal) modal.classList.remove('hidden');
+
+    try {
+      const res = await fetch(`/api/daily-market-prices?action=history&crop=${encodeURIComponent(cropId)}&days=14`);
+      const hist = await res.json();
+
+      if (!hist || !Array.isArray(hist.dates) || hist.dates.length === 0) {
+        if (tooltipEl) tooltipEl.textContent = 'Historical trend observations unavailable for this item.';
+        return;
+      }
+
+      const dates = hist.dates;
+      const prices = hist.prices;
+      const retailPrices = hist.retailPrices || [];
+
+      const minVal = Math.min(...prices);
+      const maxVal = Math.max(...prices);
+      const latestVal = prices[prices.length - 1];
+
+      if (statLatest) statLatest.textContent = `₹${latestVal}`;
+      if (statMin) statMin.textContent = `₹${minVal}`;
+      if (statMax) statMax.textContent = `₹${maxVal}`;
+
+      const width = 440;
+      const height = 140;
+      const padLeft = 35;
+      const padRight = 20;
+      const padTop = 20;
+      const padBottom = 25;
+
+      const chartW = width - padLeft - padRight;
+      const chartH = height - padTop - padBottom;
+      const valRange = (maxVal - minVal) || 1;
+
+      const points = prices.map((val, idx) => {
+        const x = padLeft + (idx / (prices.length - 1)) * chartW;
+        const y = padTop + chartH - ((val - minVal) / valRange) * chartH;
+        return { x, y, val, date: dates[idx], retail: retailPrices[idx] || '' };
+      });
+
+      const polylinePoints = points.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+      const firstX = points[0].x;
+      const lastX = points[points.length - 1].x;
+      const bottomY = padTop + chartH;
+      const areaPoints = `${firstX},${bottomY} ${polylinePoints} ${lastX},${bottomY}`;
+
+      chartSvg.innerHTML = `
+        <defs>
+          <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#9333ea" stop-opacity="0.35"/>
+            <stop offset="100%" stop-color="#9333ea" stop-opacity="0.0"/>
+          </linearGradient>
+        </defs>
+
+        <line x1="${padLeft}" y1="${padTop}" x2="${padLeft + chartW}" y2="${padTop}" stroke="#e5e7eb" stroke-dasharray="3,3" />
+        <line x1="${padLeft}" y1="${padTop + chartH / 2}" x2="${padLeft + chartW}" y2="${padTop + chartH / 2}" stroke="#e5e7eb" stroke-dasharray="3,3" />
+        <line x1="${padLeft}" y1="${bottomY}" x2="${padLeft + chartW}" y2="${bottomY}" stroke="#d1d5db" />
+
+        <text x="${padLeft - 6}" y="${padTop + 4}" font-size="9" fill="#6b7280" text-anchor="end">₹${maxVal}</text>
+        <text x="${padLeft - 6}" y="${padTop + chartH / 2 + 3}" font-size="9" fill="#6b7280" text-anchor="end">₹${Math.round((maxVal + minVal) / 2)}</text>
+        <text x="${padLeft - 6}" y="${bottomY + 3}" font-size="9" fill="#6b7280" text-anchor="end">₹${minVal}</text>
+
+        <polygon points="${areaPoints}" fill="url(#chartGrad)" />
+        <polyline points="${polylinePoints}" fill="none" stroke="#7e22ce" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+
+        ${points.map((p) => `
+          <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4" fill="#ffffff" stroke="#7e22ce" stroke-width="2" class="cursor-pointer hover:r-6" onclick="showChartPointTooltip('${p.date}', ${p.val}, '${p.retail}')" />
+        `).join('')}
+
+        <text x="${firstX}" y="${bottomY + 16}" font-size="9" fill="#6b7280" text-anchor="start">${dates[0]}</text>
+        <text x="${lastX}" y="${bottomY + 16}" font-size="9" fill="#6b7280" text-anchor="end">${dates[dates.length - 1]}</text>
+      `;
+
+      if (tooltipEl) {
+        tooltipEl.textContent = `Latest rate on ${dates[dates.length - 1]}: ₹${latestVal} / ${hist.unit || 'Kg'}`;
+      }
+
+      if (tableBody) {
+        tableBody.innerHTML = dates.slice().reverse().map((d, revIdx) => {
+          const originalIdx = dates.length - 1 - revIdx;
+          const p = prices[originalIdx];
+          const ret = retailPrices[originalIdx] || '--';
+          return `
+            <tr class="hover:bg-purple-50/50">
+              <td class="p-2 font-medium text-gray-700">${d}</td>
+              <td class="p-2 text-right font-bold text-purple-900">₹${p} / ${hist.unit || 'Kg'}</td>
+              <td class="p-2 text-right text-gray-600">${ret}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+    } catch (e) {
+      console.warn('Error fetching crop history chart:', e);
+      if (tooltipEl) tooltipEl.textContent = 'Error retrieving historical data.';
+    }
+  };
+
+  window.showChartPointTooltip = function(date, price, retail) {
+    const tooltipEl = document.getElementById('histChartTooltip');
+    if (tooltipEl) {
+      tooltipEl.innerHTML = `<strong>${date}:</strong> Wholesale ₹${price}/Kg ${retail ? `&bull; Retail ${retail}` : ''}`;
+    }
+  };
+
+  // Close modal buttons
+  const btnCloseHistModal = document.getElementById('btnCloseHistModal');
+  const btnCloseHistModalBtn = document.getElementById('btnCloseHistModalBtn');
+  const modalCropHistory = document.getElementById('modalCropHistory');
+  if (btnCloseHistModal && modalCropHistory) {
+    btnCloseHistModal.addEventListener('click', () => modalCropHistory.classList.add('hidden'));
+  }
+  if (btnCloseHistModalBtn && modalCropHistory) {
+    btnCloseHistModalBtn.addEventListener('click', () => modalCropHistory.classList.add('hidden'));
+  }
+
+  // Category filter pills
+  document.querySelectorAll('.mkt-cat-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.mkt-cat-pill').forEach(b => {
+        b.classList.remove('active', 'bg-purple-700', 'text-white');
+        b.classList.add('bg-gray-100', 'text-gray-700');
+      });
+      btn.classList.add('active', 'bg-purple-700', 'text-white');
+      btn.classList.remove('bg-gray-100', 'text-gray-700');
+      const cat = btn.getAttribute('data-cat') || 'all';
+      activeMarketCategory = cat;
+      renderMarketDashboardGrid();
+    });
+  });
+
+  // Search input
+  const inputMarketSearch = document.getElementById('inputMarketSearch');
+  const btnClearMarketSearch = document.getElementById('btnClearMarketSearch');
+  if (inputMarketSearch) {
+    inputMarketSearch.addEventListener('input', (e) => {
+      marketSearchQuery = e.target.value;
+      if (btnClearMarketSearch) {
+        if (marketSearchQuery.length > 0) btnClearMarketSearch.classList.remove('hidden');
+        else btnClearMarketSearch.classList.add('hidden');
+      }
+      renderMarketDashboardGrid();
+    });
+  }
+  if (btnClearMarketSearch) {
+    btnClearMarketSearch.addEventListener('click', () => {
+      if (inputMarketSearch) inputMarketSearch.value = '';
+      marketSearchQuery = '';
+      btnClearMarketSearch.classList.add('hidden');
+      renderMarketDashboardGrid();
+    });
+  }
+
+  // Refresh button
+  const btnRefreshMarketDashboard = document.getElementById('btnRefreshMarketDashboard');
+  if (btnRefreshMarketDashboard) {
+    btnRefreshMarketDashboard.addEventListener('click', async () => {
+      const icon = btnRefreshMarketDashboard.querySelector('svg');
+      if (icon) icon.classList.add('animate-spin');
+      await loadDailyMarketDashboard(activeMarketCategory, marketSearchQuery, true);
+      showToast('Daily market rates refreshed from source feed!');
+      if (icon) icon.classList.remove('animate-spin');
+    });
+  }
 
   // =========================================================================
   // SECTION 3: CROP QUALITY PREDICTION (QualityTesting & QualityTestResultActivity)
@@ -7269,6 +7777,7 @@ function initKisanSaathi() {
   const featuresList = [
     { title: "Inventory Crops", icon: "package", target: "inventory" },
     { title: "Add Crop to Sell", icon: "plus-circle", target: "upload" },
+    { title: "Daily Market Prices (Mandi Rates)", icon: "trending-up", target: "market-dashboard" },
     { title: "Quality Check (AI)", icon: "scan-line", target: "quality" },
     { title: "Price Negotiations", icon: "handshake", target: "negotiate" },
     { title: "View Your Orders", icon: "truck", target: "orders" },

@@ -58,6 +58,7 @@ const jsFiles = [
   'api/market-prices.js',
   'api/credit-assessment.js',
   'api/crop-vision.js',
+  'api/daily-market-prices.js',
   'api/textbee-service.js',
   'api/textbee-webhook.js',
   'api/textbee-poll.js',

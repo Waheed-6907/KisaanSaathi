@@ -215,6 +215,17 @@ function handleRequest(req, res) {
     }
   }
 
+  // API Route: /api/daily-market-prices (Live Daily Market Prices & DoD Comparison API)
+  if (reqPath === '/api/daily-market-prices') {
+    try {
+      const dailyPricesHandler = require('./api/daily-market-prices.js');
+      return dailyPricesHandler(req, res);
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error: 'Daily Market Prices error', details: err.message }));
+    }
+  }
+
   // Support communication with bound internal service 'web-platform' via WEB_PLATFORM_URL if present
   if (process.env.WEB_PLATFORM_URL && (reqPath.startsWith('/platform') || reqPath.startsWith('/api/platform'))) {
     try {

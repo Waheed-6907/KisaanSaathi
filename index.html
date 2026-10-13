@@ -459,6 +459,11 @@
             <i data-lucide="plus-circle" class="w-5 h-5 text-emerald-600"></i>
             <span data-i18n="nav_upload">Add Crop to Sell</span>
           </a>
+          <a class="drawer-item" data-navigate="market-dashboard">
+            <i data-lucide="trending-up" class="w-5 h-5 text-emerald-600"></i>
+            <span data-i18n="nav_market_dashboard">Daily Market Prices</span>
+            <span class="ml-auto text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded-full">Live</span>
+          </a>
           <a class="drawer-item" data-navigate="quality">
             <i data-lucide="scan-line" class="w-5 h-5 text-indigo-600"></i>
             <span data-i18n="nav_quality">Crop Quality Prediction (AI)</span>
@@ -535,6 +540,11 @@
             <i data-lucide="shopping-bag" class="w-5 h-5 text-amber-600"></i>
             <span>Browse Crops & Produce</span>
             <span class="ml-auto bg-amber-100 text-amber-800 text-[10px] px-2 py-0.5 rounded-full font-bold" id="drawerMarketplaceBadge">11 Live</span>
+          </a>
+          <a class="drawer-item" data-navigate="market-dashboard">
+            <i data-lucide="trending-up" class="w-5 h-5 text-emerald-600"></i>
+            <span>Daily Mandi Benchmark</span>
+            <span class="ml-auto text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded-full">Live</span>
           </a>
           <a class="drawer-item" data-navigate="consumer-offers">
             <i data-lucide="handshake" class="w-5 h-5 text-indigo-600"></i>
@@ -1056,6 +1066,70 @@
                 </div>
               </div>
 
+              <!-- Dedicated Daily Market Price Comparison Panel -->
+              <div id="dailyMarketComparisonPanel" class="hidden rounded-2xl border border-purple-200 bg-gradient-to-br from-purple-50/60 to-white p-3.5 space-y-3 transition-all duration-200 shadow-xs">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded-lg bg-purple-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                      <i data-lucide="trending-up" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                      <h4 class="text-xs font-bold text-gray-900 flex items-center gap-1.5">
+                        <span>Daily Mandi Benchmark Comparison</span>
+                        <span id="marketPanelTrendBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">Stable</span>
+                      </h4>
+                      <p id="marketPanelSourceInfo" class="text-[10px] text-gray-500 font-medium"></p>
+                    </div>
+                  </div>
+                  <a href="javascript:void(0)" onclick="navigateTo('market-dashboard')" class="text-[11px] text-purple-700 font-bold hover:underline flex items-center gap-0.5">
+                    View Live Feed &rarr;
+                  </a>
+                </div>
+
+                <!-- Unavailable State Notice -->
+                <div id="marketPanelUnavailableMsg" class="hidden p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs">
+                  Price currently unavailable — enter your expected price manually.
+                </div>
+
+                <!-- 3 Key Metric Cards -->
+                <div id="marketPanelMetricsGrid" class="grid grid-cols-3 gap-2 text-center">
+                  <div class="bg-purple-100/70 border border-purple-200 rounded-xl p-2">
+                    <div class="text-[10px] text-purple-800 font-bold uppercase tracking-wider">Today Wholesale</div>
+                    <div class="text-base font-extrabold text-purple-950 mt-0.5" id="marketPanelTodayWholesale">--</div>
+                    <div class="text-[9px] text-purple-700 font-medium" id="marketPanelWholesaleUnit">per Kg</div>
+                  </div>
+                  <div class="bg-white border border-gray-200 rounded-xl p-2 shadow-xs">
+                    <div class="text-[10px] text-gray-600 font-bold uppercase tracking-wider">Yesterday Rate</div>
+                    <div class="text-base font-extrabold text-gray-800 mt-0.5" id="marketPanelPrevWholesale">--</div>
+                    <div class="text-[9px] font-bold" id="marketPanelDoDChange">0 (0%)</div>
+                  </div>
+                  <div class="bg-amber-50 border border-amber-200 rounded-xl p-2">
+                    <div class="text-[10px] text-amber-800 font-bold uppercase tracking-wider">Retail Range</div>
+                    <div class="text-xs font-extrabold text-amber-950 mt-1" id="marketPanelRetailRange">--</div>
+                    <div class="text-[9px] text-amber-700 font-medium">Consumer market</div>
+                  </div>
+                </div>
+
+                <!-- Live Proposed Price Comparison Box -->
+                <div id="marketPanelLiveComparison" class="p-2.5 rounded-xl bg-white border border-purple-100 text-xs space-y-1 shadow-xs">
+                  <div class="flex items-center justify-between text-gray-800 font-bold">
+                    <span>Proposed Price vs. Wholesale Benchmark:</span>
+                    <span id="marketPanelDiffBadge" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800">Auto-matched</span>
+                  </div>
+                  <p id="panelComparisonOutcomeText" class="text-[11px] text-gray-600 leading-snug">
+                    Price matches today's reference wholesale mandi rate.
+                  </p>
+                </div>
+
+                <!-- Fair-Price Context Note -->
+                <div class="text-[10px] text-gray-500 bg-white/80 p-2 rounded-lg border border-purple-100 flex items-start gap-1.5">
+                  <i data-lucide="info" class="w-3.5 h-3.5 text-purple-600 shrink-0 mt-0.5"></i>
+                  <p class="leading-normal">
+                    <strong>Wholesale vs. Retail:</strong> Wholesale rates represent bulk terminal auction prices at Bowenpally/Telangana APMC mandis. Net farm-gate realization depends on transport, grade sorting, and mandi fees (approx. 4-7%).
+                  </p>
+                </div>
+              </div>
+
               <div class="grid grid-cols-2 gap-3">
                 <div>
                   <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="quantity_available_in_stock">Quantity (Kg)</label>
@@ -1080,6 +1154,185 @@
               <span data-i18n="submit_crop">Publish to Telangana Marketplace</span>
             </button>
           </form>
+        </section>
+
+        <!-- SECTION 2B: DAILY MARKET PRICES DASHBOARD -->
+        <section id="sectionMarketDashboard" class="app-section hidden space-y-4">
+          <!-- Top Hero Banner with Live Badge and Refresh -->
+          <div class="bg-gradient-to-r from-purple-800 via-indigo-800 to-purple-900 text-white p-5 rounded-2xl shadow-md space-y-3">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="p-1.5 bg-white/10 rounded-xl text-cyan-300">
+                    <i data-lucide="trending-up" class="w-5 h-5"></i>
+                  </span>
+                  <h2 class="text-lg font-bold">Telangana Daily Market Prices</h2>
+                </div>
+                <p class="text-xs text-purple-200 mt-1">
+                  రోజువారీ మార్కెట్ ధరలు • Real-time Wholesale Mandi Benchmarks & Retail Trends
+                </p>
+              </div>
+              <div class="flex items-center gap-2 self-start sm:self-auto">
+                <span id="mktDashboardLastUpdated" class="text-[10px] bg-white/15 text-white/90 px-2.5 py-1 rounded-lg backdrop-blur-xs font-mono">
+                  Updated: Today
+                </span>
+                <button type="button" id="btnRefreshMarketDashboard" class="px-3 py-1.5 bg-cyan-500 hover:bg-cyan-600 active:scale-95 text-white text-xs font-bold rounded-xl shadow transition flex items-center gap-1.5">
+                  <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                  <span>Refresh</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Market Yard & Region Selector Bar -->
+            <div class="pt-2 border-t border-white/15 flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div class="flex items-center gap-2">
+                <span class="text-purple-200 text-[11px] font-medium">Selected Region:</span>
+                <select id="selectMarketRegion" class="bg-white/20 hover:bg-white/30 text-white font-semibold text-xs px-2.5 py-1 rounded-lg border border-white/20 focus:outline-none focus:ring-1 focus:ring-cyan-300 cursor-pointer">
+                  <option value="telangana" class="text-gray-900" selected>Telangana (Bowenpally / Hyderabad Hub)</option>
+                  <option value="warangal" class="text-gray-900">Warangal (Enumamula APMC Mandi)</option>
+                  <option value="nizamabad" class="text-gray-900">Nizamabad (APMC Yard)</option>
+                  <option value="khammam" class="text-gray-900">Khammam (Chilli & Grain Mandi)</option>
+                </select>
+              </div>
+              <div class="flex items-center gap-3 text-[11px] text-purple-200">
+                <span>Sources: <strong class="text-white">VegetableMarketPrice.com</strong> & <strong class="text-white">Agmarknet (GoI)</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Market Summary Bar (Up, Down, Total) -->
+          <div class="grid grid-cols-4 gap-2 text-center text-xs">
+            <div class="bg-white p-2.5 rounded-xl border border-gray-100 shadow-xs">
+              <span class="text-[10px] text-gray-500 font-medium block">Total Crops</span>
+              <span id="mktStatTotal" class="text-base font-extrabold text-purple-700">63</span>
+            </div>
+            <div class="bg-white p-2.5 rounded-xl border border-gray-100 shadow-xs">
+              <span class="text-[10px] text-emerald-600 font-medium block">Prices Up (DoD)</span>
+              <span id="mktStatUp" class="text-base font-extrabold text-emerald-600">--</span>
+            </div>
+            <div class="bg-white p-2.5 rounded-xl border border-gray-100 shadow-xs">
+              <span class="text-[10px] text-rose-600 font-medium block">Prices Down (DoD)</span>
+              <span id="mktStatDown" class="text-base font-extrabold text-rose-600">--</span>
+            </div>
+            <div class="bg-white p-2.5 rounded-xl border border-gray-100 shadow-xs">
+              <span class="text-[10px] text-gray-500 font-medium block">Stable Rate</span>
+              <span id="mktStatStable" class="text-base font-extrabold text-gray-700">--</span>
+            </div>
+          </div>
+
+          <!-- Search & Category Filters -->
+          <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-xs space-y-3">
+            <div class="relative">
+              <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-3"></i>
+              <input type="text" id="inputMarketSearch" placeholder="Search produce (e.g. Tomato, Onion, Paddy, Arhar, Mango)..." class="w-full pl-9 pr-8 py-2 border rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none" />
+              <button type="button" id="btnClearMarketSearch" class="hidden absolute right-3 top-2.5 text-xs text-gray-400 hover:text-gray-600 font-bold">✕</button>
+            </div>
+
+            <!-- Filter Pills -->
+            <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 text-xs" id="marketCategoryPills">
+              <button type="button" class="mkt-cat-pill active px-3 py-1.5 rounded-xl font-bold bg-purple-700 text-white shadow-xs shrink-0" data-cat="all">All Produce</button>
+              <button type="button" class="mkt-cat-pill px-3 py-1.5 rounded-xl font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 shrink-0" data-cat="vegetable">🥦 Vegetables</button>
+              <button type="button" class="mkt-cat-pill px-3 py-1.5 rounded-xl font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 shrink-0" data-cat="fruit">🍎 Fruits</button>
+              <button type="button" class="mkt-cat-pill px-3 py-1.5 rounded-xl font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 shrink-0" data-cat="grain">🌾 Grains & Cereals</button>
+              <button type="button" class="mkt-cat-pill px-3 py-1.5 rounded-xl font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 shrink-0" data-cat="pulse">🥣 Pulses & Legumes</button>
+              <button type="button" class="mkt-cat-pill px-3 py-1.5 rounded-xl font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 shrink-0" data-cat="commercial">🌿 Commercial / Spices</button>
+            </div>
+          </div>
+
+          <!-- Stale Warning Banner (if offline or cached) -->
+          <div id="marketStaleBanner" class="hidden p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs flex items-start gap-2">
+            <i data-lucide="alert-circle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+            <span id="marketStaleMessage">Displaying verified cached rates. Live connection to mandi feed is refreshing.</span>
+          </div>
+
+          <!-- Produce Market Table / Card Grid -->
+          <div id="marketProduceGrid" class="space-y-2.5">
+            <!-- Populated dynamically via JS -->
+            <div class="p-8 text-center text-gray-400">
+              <i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto text-purple-600 mb-2"></i>
+              <p class="text-xs">Loading authentic Telangana daily market prices...</p>
+            </div>
+          </div>
+
+          <!-- 14-Day Historical Trend Modal -->
+          <div id="modalCropHistory" class="modal-overlay hidden">
+            <div class="modal-container max-w-lg w-full bg-white rounded-2xl shadow-xl overflow-hidden p-5 space-y-4">
+              <div class="flex items-center justify-between border-b pb-3">
+                <div>
+                  <h3 class="font-bold text-base text-gray-900" id="histModalCropTitle">Crop 14-Day Price Trend</h3>
+                  <p class="text-xs text-gray-500" id="histModalSubTitle">Daily Wholesale Mandi Modal Rates (₹ / Kg)</p>
+                </div>
+                <button type="button" id="btnCloseHistModal" class="p-1 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100">
+                  <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+              </div>
+
+              <!-- Key Price Stats Grid -->
+              <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                <div class="p-2 bg-purple-50 rounded-xl border border-purple-100">
+                  <span class="text-[10px] text-purple-700 font-semibold block">Latest Rate</span>
+                  <span id="histStatLatest" class="text-sm font-extrabold text-purple-900">--</span>
+                </div>
+                <div class="p-2 bg-emerald-50 rounded-xl border border-emerald-100">
+                  <span class="text-[10px] text-emerald-700 font-semibold block">14-Day Low</span>
+                  <span id="histStatMin" class="text-sm font-extrabold text-emerald-900">--</span>
+                </div>
+                <div class="p-2 bg-rose-50 rounded-xl border border-rose-100">
+                  <span class="text-[10px] text-rose-700 font-semibold block">14-Day High</span>
+                  <span id="histStatMax" class="text-sm font-extrabold text-rose-900">--</span>
+                </div>
+              </div>
+
+              <!-- Interactive SVG Line Chart -->
+              <div id="histSvgChartContainer" class="bg-gray-50 rounded-xl p-3 border border-gray-200">
+                <svg id="histSvgChart" class="w-full h-44 overflow-visible" viewBox="0 0 460 160">
+                  <!-- Rendered dynamically -->
+                </svg>
+                <div id="histChartTooltip" class="text-[11px] text-center text-purple-900 font-semibold mt-1">
+                  Hover or tap data points to view daily mandi rates
+                </div>
+              </div>
+
+              <!-- Historical Table Excerpt -->
+              <div class="max-h-40 overflow-y-auto rounded-xl border border-gray-100 text-xs">
+                <table class="w-full text-left">
+                  <thead class="bg-gray-100 text-gray-600 font-bold text-[10px] sticky top-0">
+                    <tr>
+                      <th class="p-2">Date</th>
+                      <th class="p-2 text-right">Wholesale Rate</th>
+                      <th class="p-2 text-right">Retail Range</th>
+                    </tr>
+                  </thead>
+                  <tbody id="histModalTableBody" class="divide-y divide-gray-100">
+                    <!-- Rows dynamically generated -->
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="flex justify-end pt-2">
+                <button type="button" id="btnCloseHistModalBtn" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-xl transition">
+                  Close Chart
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Educational Fair-Price Guidance Box -->
+          <div class="bg-gradient-to-br from-indigo-50 to-purple-50 p-4 rounded-2xl border border-indigo-200 space-y-2 text-xs">
+            <div class="flex items-center gap-2 text-indigo-900 font-bold">
+              <i data-lucide="scale" class="w-4 h-4 text-indigo-700 shrink-0"></i>
+              <span>Understanding Wholesale Mandi Benchmarks vs. Retail Margins</span>
+            </div>
+            <p class="text-gray-700 leading-relaxed">
+              <strong>Wholesale / Mandi Rate:</strong> The auction clearing price at primary APMC yards (e.g. Bowenpally, Enumamula). These are bulk prices traded between commission agents and wholesale traders.
+            </p>
+            <p class="text-gray-700 leading-relaxed">
+              <strong>Retail Price Range:</strong> The end-consumer price at Rythu Bazars, local vegetable stalls, and retail stores. The 25%–50% margin covers grading loss, spoilage, last-mile freight, and vendor retail markup.
+            </p>
+            <p class="text-gray-700 leading-relaxed">
+              <strong>Net Farmer Realization:</strong> When selling at APMCs, farmers incur loading, transport (₹1.5–₹3/kg), and mandi deductions. By selling directly on <strong>KisanSaathi</strong>, farmers eliminate commission middlemen and can capture rates 10%–18% above wholesale mandi benchmarks while offering buyers lower-than-retail procurement prices.
+            </p>
+          </div>
         </section>
 
         <!-- SECTION 3: CROP QUALITY PREDICTION (QualityTesting & QualityTestResultActivity) -->
