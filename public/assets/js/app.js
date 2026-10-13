@@ -7,6 +7,8 @@ function initKisanSaathi() {
   let currentViewMode = localStorage.getItem('kisan_view_mode') || 'mobile'; // 'mobile' or 'desktop'
   let activeSection = 'inventory';
   let activeLeafletMap = null;
+  let currentFarmerId = null;
+  let currentFarmerName = null;
 
   // Local state clone of KISAN_DATA
   let inventory = JSON.parse(localStorage.getItem('kisan_inventory')) || [...KISAN_DATA.inventory];
@@ -734,7 +736,7 @@ function initKisanSaathi() {
   }
 
   // Switch between Login and Registration tabs
-  window.switchLoginTab = function(tab) {
+  function switchLoginTab(tab) {
     const loginSec = document.getElementById('loginFormSection');
     const regSec = document.getElementById('registerFormSection');
     const btnLogin = document.getElementById('tabBtnLogin');
@@ -751,9 +753,10 @@ function initKisanSaathi() {
       if (btnLogin) btnLogin.className = 'flex-1 pb-2.5 text-gray-500 hover:text-gray-800 font-medium';
       if (btnReg) btnReg.className = 'flex-1 pb-2.5 border-b-2 border-purple-700 text-purple-700 font-bold';
     }
-  };
+  }
+  window.switchLoginTab = switchLoginTab;
 
-  window.handleSignOut = async function() {
+  async function handleSignOut() {
     if (window.supabaseClient) {
       try {
         await window.supabaseClient.auth.signOut();
@@ -762,10 +765,16 @@ function initKisanSaathi() {
       }
     }
     localStorage.removeItem('kisan_auth');
+    localStorage.removeItem('kisan_inventory');
+    localStorage.removeItem('kisan_orders');
+    localStorage.removeItem('kisan_negotiations');
+    localStorage.removeItem('kisan_wallet');
     currentFarmerId = null;
+    currentFarmerName = null;
     showLoginScreen();
     showToast(currentLanguage === 'hi' ? 'सफलतापूर्वक लॉगआउट किया गया' : 'Logged out successfully');
-  };
+  }
+  window.handleSignOut = handleSignOut;
 
   // Bind Registration Form Button
   const btnSubmitRegister = document.getElementById('btnSubmitRegister');
@@ -1061,7 +1070,7 @@ function initKisanSaathi() {
   }
 
   // Navigation Controller
-  window.navigateTo = function(sectionId) {
+  function navigateTo(sectionId) {
     activeSection = sectionId;
 
     // Hide all sections
@@ -1120,7 +1129,8 @@ function initKisanSaathi() {
 
     // Scroll to top
     document.getElementById('mainContent').scrollTop = 0;
-  };
+  }
+  window.navigateTo = navigateTo;
 
   // Drawer Controls
   const navDrawer = document.getElementById('navDrawer');
@@ -2134,9 +2144,10 @@ function initKisanSaathi() {
   }
 
   // Credit Score Modal
-  window.showCreditScoreModal = function() {
+  function showCreditScoreModal() {
     document.getElementById('modalCreditScore').classList.add('open');
-  };
+  }
+  window.showCreditScoreModal = showCreditScoreModal;
   document.getElementById('btnCloseCreditModal').addEventListener('click', () => {
     document.getElementById('modalCreditScore').classList.remove('open');
   });
@@ -2528,7 +2539,7 @@ function initKisanSaathi() {
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
-  window.initOrUpdateChat = function(lang) {
+  function initOrUpdateChat(lang) {
     if (!chatQuickPromptsContainer) return;
     const prompts = quickPromptsByLang[lang] || quickPromptsByLang.en;
     chatQuickPromptsContainer.innerHTML = prompts.map(p => `
@@ -2567,12 +2578,14 @@ function initKisanSaathi() {
     if (chatMessages && (chatMessages.children.length === 0 || chatMessages.dataset.activeLang !== lang)) {
       chatMessages.innerHTML = '';
       chatMessages.dataset.activeLang = lang;
+      const farmerGreetingName = currentFarmerName || 'Farmer';
       const welcomeMsg = lang === 'hi'
-        ? 'नमस्ते रामाराव जी! मैं तेलंगाना का आपका किसान साथी (KisanSaathi) AI सहायक हूँ। मुझसे एनाममुला व बोवेनपल्ली मंडी के ताजा भाव, जैविक कीटनाशक, रायथू बंधु, या वारंगल व अन्य जिलों में मृदा परीक्षण के बारे में पूछें।'
-        : 'Namaste Ramarao! I am your KisanSaathi AI Assistant for Telangana. Ask me about mandi rates (Enumamula, Bowenpally), organic fertilizers, PMFBY crop insurance, or soil health testing in Warangal and surrounding districts.';
+        ? `नमस्ते ${farmerGreetingName} जी! मैं तेलंगाना का आपका किसान साथी (KisanSaathi) AI सहायक हूँ। मुझसे एनाममुला व बोवेनपल्ली मंडी के ताजा भाव, जैविक कीटनाशक, रायथू बंधु, या वारंगल व अन्य जिलों में मृदा परीक्षण के बारे में पूछें।`
+        : `Namaste ${farmerGreetingName}! I am your KisanSaathi AI Assistant for Telangana. Ask me about mandi rates (Enumamula, Bowenpally), organic fertilizers, PMFBY crop insurance, or soil health testing in Warangal and surrounding districts.`;
       appendChatMessage('bot', welcomeMsg);
     }
-  };
+  }
+  window.initOrUpdateChat = initOrUpdateChat;
 
   if (chatForm) {
     chatForm.addEventListener('submit', (e) => {
