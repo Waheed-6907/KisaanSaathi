@@ -44,7 +44,7 @@ for (const file of requiredFiles) {
 
 // 3. Validate JavaScript syntax
 console.log('\n[3/5] Validating JavaScript syntax...');
-const jsFiles = ['assets/js/app.js', 'assets/js/data.js', 'dev-server.js', 'api/health.js', 'api/labs.js', 'api/whatsapp.js', 'api/kisan-ai.js', 'api/logistics.js'];
+const jsFiles = ['assets/js/app.js', 'assets/js/data.js', 'dev-server.js', 'api/health.js', 'api/labs.js', 'api/whatsapp.js', 'api/kisan-ai.js', 'api/logistics.js', 'api/voice-saathi.js'];
 for (const jsFile of jsFiles) {
   const fullPath = path.join(__dirname, jsFile);
   if (fs.existsSync(fullPath)) {

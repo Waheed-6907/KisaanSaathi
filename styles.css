@@ -379,3 +379,83 @@ body {
   background: rgba(138, 43, 226, 0.95);
   backdrop-filter: blur(10px);
 }
+
+/* ========================================================= */
+/* KISSANSATHI VOICE SAATHI (AI VOICE ASSISTANT STYLES) */
+/* ========================================================= */
+
+/* Large Pulsing Recording Ring */
+@keyframes voiceRipple {
+  0% {
+    transform: scale(0.96);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.65), 0 0 0 0 rgba(5, 150, 105, 0.4);
+  }
+  50% {
+    transform: scale(1.06);
+    box-shadow: 0 0 0 18px rgba(16, 185, 129, 0), 0 0 0 32px rgba(5, 150, 105, 0);
+  }
+  100% {
+    transform: scale(0.96);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0), 0 0 0 0 rgba(5, 150, 105, 0);
+  }
+}
+
+.voice-ripple-listening {
+  animation: voiceRipple 1.6s infinite cubic-bezier(0.4, 0, 0.6, 1);
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+}
+
+/* Speaking Wave Animation */
+@keyframes audioWaveBar {
+  0%, 100% { height: 6px; }
+  50% { height: 24px; }
+}
+
+.voice-wave-bar {
+  display: inline-block;
+  width: 4px;
+  background-color: #10b981;
+  border-radius: 9999px;
+  animation: audioWaveBar 1.2s infinite ease-in-out;
+}
+.voice-wave-bar:nth-child(2) { animation-delay: 0.15s; }
+.voice-wave-bar:nth-child(3) { animation-delay: 0.3s; }
+.voice-wave-bar:nth-child(4) { animation-delay: 0.45s; }
+.voice-wave-bar:nth-child(5) { animation-delay: 0.6s; }
+
+/* Tactile Language Selector Pills */
+.voice-lang-btn {
+  transition: all 0.2s ease-in-out;
+}
+.voice-lang-btn:active {
+  transform: scale(0.96);
+}
+.voice-lang-btn.active {
+  background-color: #ffffff !important;
+  color: #065f46 !important;
+  font-weight: 800 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  border-color: #10b981 !important;
+}
+
+/* Floating Voice Saathi Action Button */
+.floating-voice-saathi-btn {
+  position: fixed;
+  bottom: 80px;
+  left: 16px;
+  z-index: 45;
+  box-shadow: 0 10px 25px -3px rgba(16, 185, 129, 0.5), 0 4px 6px -2px rgba(16, 185, 129, 0.25);
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@media (min-width: 768px) {
+  .floating-voice-saathi-btn {
+    bottom: 24px;
+    left: 24px;
+  }
+}
+.floating-voice-saathi-btn:hover {
+  transform: translateY(-2px) scale(1.05);
+}
+.floating-voice-saathi-btn:active {
+  transform: translateY(1px) scale(0.95);
+}

@@ -1575,22 +1575,26 @@
           </div>
         </section>
 
-        <!-- SECTION 13: AI KISAN ASSISTANT CHATBOT (ChatFragment) -->
+        <!-- SECTION 13: AI KISAN ASSISTANT & VOICE SAATHI (ChatFragment) -->
         <section id="sectionChat" class="app-section hidden space-y-4">
+          <!-- Voice Saathi Header Banner -->
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
-              <div class="w-8 h-8 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
-                <i data-lucide="bot" class="w-5 h-5"></i>
+              <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center font-bold shadow-sm">
+                <i data-lucide="mic" class="w-5 h-5"></i>
               </div>
               <div>
-                <h3 class="font-bold text-sm text-gray-900" data-i18n="kisan_mitra_title">Kisan Mitra AI Assistant</h3>
-                <span class="text-[10px] text-emerald-600 font-semibold" id="chatStatusText">● Online | English & Hindi Voice Supported</span>
+                <h3 class="font-bold text-sm text-gray-900 flex items-center gap-1.5">
+                  <span>Voice Saathi</span>
+                  <span class="text-[10px] bg-emerald-100 text-emerald-800 font-extrabold px-1.5 py-0.5 rounded-md">వాయిస్ సాథి</span>
+                </h3>
+                <span class="text-[10px] text-emerald-600 font-semibold" id="chatStatusText">● Voice AI | English, हिन्दी & తెలుగు</span>
               </div>
             </div>
             <div class="flex items-center gap-1.5">
               <button id="btnOpenGeminiModal" type="button" class="px-2.5 py-1 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-[10px] font-bold shadow-xs transition flex items-center gap-1" title="Configure Gemini API Key">
                 <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-300"></i>
-                <span id="geminiConnectionStatusLabel">Gemini AI</span>
+                <span id="geminiConnectionStatusLabel">Gemini Active</span>
               </button>
               <button id="btnVoiceToggle" class="p-2 rounded-xl bg-purple-50 text-purple-700 hover:bg-purple-100 transition" title="Speak Response">
                 <i data-lucide="volume-2" class="w-4 h-4"></i>
@@ -1598,63 +1602,201 @@
             </div>
           </div>
 
-          <!-- WHATSAPP AI ASSISTANT COMMUNICATION CHANNEL (Bilingual Indian Languages) -->
-          <div class="p-4 rounded-3xl bg-gradient-to-br from-emerald-600 via-teal-700 to-green-800 text-white shadow-md relative overflow-hidden border border-emerald-400/30 space-y-3">
-            <div class="flex items-start justify-between gap-3">
-              <div class="space-y-1">
-                <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-extrabold uppercase tracking-wide backdrop-blur-sm">
-                  <span class="w-2 h-2 rounded-full bg-emerald-300 animate-pulse"></span>
-                  WhatsApp Communication Channel
+          <!-- ASSISTANT MODE SELECTOR: Voice Saathi vs Text Chat -->
+          <div class="bg-gray-100 p-1 rounded-2xl flex text-xs font-bold border border-gray-200">
+            <button id="tabBtnVoiceSaathi" type="button" onclick="switchAssistantMode('voice')" class="flex-1 py-2 rounded-xl bg-white text-emerald-800 shadow-sm transition flex items-center justify-center gap-1.5">
+              <i data-lucide="mic" class="w-4 h-4 text-emerald-600"></i>
+              <span>Voice Saathi (వాయిస్ సాథి)</span>
+            </button>
+            <button id="tabBtnTextChat" type="button" onclick="switchAssistantMode('text')" class="flex-1 py-2 rounded-xl text-gray-600 hover:text-gray-900 transition flex items-center justify-center gap-1.5">
+              <i data-lucide="message-square" class="w-4 h-4 text-purple-600"></i>
+              <span>Text Chat (రాతపూర్వక చాట్)</span>
+            </button>
+          </div>
+
+          <!-- ============================================== -->
+          <!-- MODE 1: VOICE SAATHI (LOW-LITERACY SPEECH HUB) -->
+          <!-- ============================================== -->
+          <div id="modeVoiceSaathi" class="space-y-4">
+            <!-- 1. Dedicated 3-Language Selector (English, हिन्दी, తెలుగు Only) -->
+            <div class="bg-white p-3.5 rounded-2xl border border-gray-100 shadow-xs space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-gray-700 flex items-center gap-1.5">
+                  <i data-lucide="languages" class="w-4 h-4 text-emerald-600"></i>
+                  <span>Select Spoken Language (భాష / भाषा):</span>
+                </span>
+                <span id="voiceActiveLangBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                  తెలుగు (Telugu)
+                </span>
+              </div>
+              <div class="grid grid-cols-3 gap-2" id="voiceLanguageSelector">
+                <button type="button" onclick="setVoiceLanguage('en')" class="voice-lang-btn py-2.5 px-3 rounded-xl border border-gray-200 text-center font-bold text-xs hover:border-emerald-500 transition" data-lang="en">
+                  <span class="block text-sm">English</span>
+                  <span class="text-[10px] text-gray-500 font-normal">Indian Voice</span>
+                </button>
+                <button type="button" onclick="setVoiceLanguage('hi')" class="voice-lang-btn py-2.5 px-3 rounded-xl border border-gray-200 text-center font-bold text-xs hover:border-emerald-500 transition" data-lang="hi">
+                  <span class="block text-sm">हिन्दी</span>
+                  <span class="text-[10px] text-gray-500 font-normal">हिंदी आवाज</span>
+                </button>
+                <button type="button" onclick="setVoiceLanguage('te')" class="voice-lang-btn active py-2.5 px-3 rounded-xl border border-emerald-500 text-center font-bold text-xs bg-emerald-50 text-emerald-900 transition" data-lang="te">
+                  <span class="block text-sm">తెలుగు</span>
+                  <span class="text-[10px] text-emerald-700 font-normal">తెలుగు వాయిస్</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 2. Giant Interactive Microphone & Status Card -->
+            <div class="bg-gradient-to-b from-emerald-800 via-teal-800 to-emerald-900 text-white p-6 rounded-3xl shadow-lg relative overflow-hidden text-center space-y-4">
+              <!-- Status Badge -->
+              <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold shadow-sm" id="voiceStatusBadge">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400" id="voiceStatusDot"></span>
+                <span id="voiceStatusLabel">Ready to Speak / మాట్లాడటానికి సిద్ధం</span>
+              </div>
+
+              <!-- Big Tactile Microphone Button -->
+              <div class="py-2 flex justify-center items-center">
+                <button id="btnVoiceRecord" type="button" onclick="handleVoiceRecordClick()" class="w-28 h-28 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-white flex flex-col items-center justify-center shadow-2xl transition transform active:scale-95 focus:outline-none relative">
+                  <i data-lucide="mic" id="voiceMicIcon" class="w-12 h-12 mb-0.5"></i>
+                  <span id="voiceMicButtonSubtext" class="text-[10px] font-extrabold uppercase tracking-wider">TAP TO SPEAK</span>
+                </button>
+              </div>
+
+              <!-- Helper Label -->
+              <p id="voiceInstructionText" class="text-xs text-emerald-100 font-medium max-w-xs mx-auto">
+                Tap the microphone to speak your question naturally.
+              </p>
+
+              <!-- Live Speech Transcript Display (When user speaks) -->
+              <div id="voiceTranscriptCard" class="hidden bg-black/35 backdrop-blur-sm p-3.5 rounded-2xl border border-white/20 text-left space-y-1">
+                <div class="flex items-center justify-between text-[11px] text-emerald-300 font-bold">
+                  <span class="flex items-center gap-1">
+                    <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+                    <span id="voiceTranscriptHeader">You asked (మీరు అడిగారు):</span>
+                  </span>
+                  <span class="text-[10px] text-white/70" id="voiceTranscriptStatus">Transcribing...</span>
                 </div>
-                <h4 class="text-base font-extrabold flex items-center gap-1.5">
-                  <svg class="w-5 h-5 fill-current text-white flex-shrink-0" viewBox="0 0 24 24">
-                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.592 2.654-.696c1.004.577 1.764.846 2.806.847h.002c3.182 0 5.768-2.587 5.768-5.766.001-3.182-2.585-5.63-5.77-5.63zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.053-1.025-.078-.584-.195-1.378-.583-2.316-1.424-.925-.828-1.523-1.848-1.748-2.235-.226-.388-.024-.597.108-.729.117-.117.26-.301.39-.452.129-.151.172-.258.258-.43.086-.172.043-.323-.021-.452-.065-.129-.582-1.402-.8-1.921-.211-.505-.427-.436-.584-.444-.151-.008-.324-.01-.496-.01-.172 0-.452.065-.689.323-.237.258-.905.884-.905 2.155s.926 2.499 1.055 2.671c.129.172 1.821 2.782 4.412 3.899 2.591 1.117 2.591.744 3.064.698.473-.046 1.527-.624 1.743-1.226.215-.602.215-1.118.151-1.226-.065-.108-.237-.172-.452-.28z"/>
-                  </svg>
-                  <span>WhatsApp AI Kisan Mitra</span>
-                </h4>
-                <p class="text-xs text-emerald-100 leading-snug">
-                  Connect 24/7 on WhatsApp! Get real-time Mandi rates, organic spray recipes &amp; crop loans in <strong class="text-white">English, हिंदी (Hindi), and తెలుగు (Telugu)</strong>.
+                <p id="voiceTranscriptContent" class="text-sm font-semibold text-white leading-relaxed">
+                  <!-- Realtime transcribed text -->
                 </p>
               </div>
-              <a id="btnBannerWhatsApp" href="https://wa.me/14155238886?text=Namaste%20KisanSaathi" target="_blank" rel="noopener noreferrer" class="flex-shrink-0 px-3.5 py-2.5 bg-white text-emerald-900 hover:bg-emerald-50 font-extrabold text-xs rounded-2xl shadow-lg transition flex items-center gap-1.5 active:scale-95">
-                <i data-lucide="send" class="w-4 h-4 text-[#25D366]"></i>
-                <span>Open WhatsApp</span>
-              </a>
+
+              <!-- Soundwave Graphic (Active during Listening / Speaking) -->
+              <div id="voiceSoundWaves" class="hidden flex items-center justify-center gap-1.5 h-8">
+                <span class="voice-wave-bar"></span>
+                <span class="voice-wave-bar"></span>
+                <span class="voice-wave-bar"></span>
+                <span class="voice-wave-bar"></span>
+                <span class="voice-wave-bar"></span>
+              </div>
             </div>
 
-            <!-- 1-Click WhatsApp Quick Chips (Bilingual Indian Languages) -->
-            <div class="pt-2 border-t border-white/20">
-              <div class="flex items-center justify-between text-[11px] font-semibold text-emerald-200 mb-1.5">
-                <span>1-Tap WhatsApp Queries:</span>
-                <div class="flex gap-1 text-[10px]" id="waLangTabs">
-                  <button type="button" class="wa-lang-tab px-2 py-0.5 rounded-full bg-white text-emerald-900 font-extrabold transition" data-walang="en">English</button>
-                  <button type="button" class="wa-lang-tab px-2 py-0.5 rounded-full bg-emerald-800/80 hover:bg-emerald-800 text-white font-extrabold transition" data-walang="hi">हिंदी</button>
-                  <button type="button" class="wa-lang-tab px-2 py-0.5 rounded-full bg-emerald-800/80 hover:bg-emerald-800 text-white font-extrabold transition" data-walang="te">తెలుగు</button>
+            <!-- 3. AI Spoken Answer & Audio Controls Card -->
+            <div id="voiceAnswerCard" class="bg-white p-4.5 rounded-2xl border border-gray-100 shadow-sm space-y-3">
+              <div class="flex items-center justify-between border-b pb-2.5">
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs shadow-xs">
+                    🌾
+                  </div>
+                  <div>
+                    <h4 class="font-bold text-xs text-gray-900" id="voiceAnswerTitle">Voice Saathi Answer</h4>
+                    <span class="text-[10px] text-emerald-600 font-semibold" id="voiceAnswerProvider">Spoken Audio Ready</span>
+                  </div>
+                </div>
+                <!-- Audio Controls -->
+                <div class="flex items-center gap-1.5" id="voiceAudioControls">
+                  <button type="button" id="btnVoiceReplay" onclick="replayVoiceAnswer()" class="p-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs transition flex items-center gap-1 shadow-xs" title="Replay Spoken Audio">
+                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                    <span class="text-[11px] hidden sm:inline">Replay</span>
+                  </button>
+                  <button type="button" id="btnVoicePauseResume" onclick="togglePauseVoiceAnswer()" class="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 transition" title="Pause or Resume Audio">
+                    <i data-lucide="pause" id="iconPauseResume" class="w-4 h-4"></i>
+                  </button>
+                  <button type="button" id="btnVoiceStop" onclick="stopVoiceAnswer()" class="p-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 transition" title="Stop Audio">
+                    <i data-lucide="square" class="w-4 h-4"></i>
+                  </button>
                 </div>
               </div>
-              <div id="waQuickChipsContainer" class="flex gap-1.5 overflow-x-auto pb-1 text-[11px]">
-                <!-- Populated dynamically by app.js based on selected language tab -->
+
+              <!-- Answer Spoken Text -->
+              <div class="bg-emerald-50/50 p-4 rounded-xl border border-emerald-100/70 text-gray-800 text-xs sm:text-sm leading-relaxed" id="voiceAnswerContent">
+                నమస్కారం రైతు మిత్రమా! నేను కిసాన్ సాథి వాయిస్ సహాయకుడిని. పైనున్న మైక్ బటన్ నొక్కి మీ వ్యవసాయ ప్రశ్న అడగండి.
+              </div>
+            </div>
+
+            <!-- 4. Quick 1-Tap Spoken Voice Questions (Minimal Reading Required) -->
+            <div class="space-y-2">
+              <span class="text-xs font-bold text-gray-700 block flex items-center gap-1.5">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-500"></i>
+                <span id="voiceQuickPromptTitle">1-Tap Voice Questions (నొక్కండి - సమాధానం వినండి):</span>
+              </span>
+              <div id="voiceQuickPromptChips" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                <!-- Dynamically populated based on selected language (Telugu, Hindi, English) -->
               </div>
             </div>
           </div>
 
-          <!-- Chat Messages Area -->
-          <div id="chatMessages" class="h-96 overflow-y-auto space-y-3 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
-            <!-- Dynamically populated according to active language -->
-          </div>
+          <!-- ============================================== -->
+          <!-- MODE 2: TEXT CHAT (ORIGINAL CHATBOT PRESERVED) -->
+          <!-- ============================================== -->
+          <div id="modeTextChat" class="hidden space-y-4">
+            <!-- WHATSAPP AI ASSISTANT COMMUNICATION CHANNEL (Bilingual Indian Languages) -->
+            <div class="p-4 rounded-3xl bg-gradient-to-br from-emerald-600 via-teal-700 to-green-800 text-white shadow-md relative overflow-hidden border border-emerald-400/30 space-y-3">
+              <div class="flex items-start justify-between gap-3">
+                <div class="space-y-1">
+                  <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-extrabold uppercase tracking-wide backdrop-blur-sm">
+                    <span class="w-2 h-2 rounded-full bg-emerald-300 animate-pulse"></span>
+                    WhatsApp Communication Channel
+                  </div>
+                  <h4 class="text-base font-extrabold flex items-center gap-1.5">
+                    <svg class="w-5 h-5 fill-current text-white flex-shrink-0" viewBox="0 0 24 24">
+                      <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.592 2.654-.696c1.004.577 1.764.846 2.806.847h.002c3.182 0 5.768-2.587 5.768-5.766.001-3.182-2.585-5.63-5.77-5.63zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.053-1.025-.078-.584-.195-1.378-.583-2.316-1.424-.925-.828-1.523-1.848-1.748-2.235-.226-.388-.024-.597.108-.729.117-.117.26-.301.39-.452.129-.151.172-.258.258-.43.086-.172.043-.323-.021-.452-.065-.129-.582-1.402-.8-1.921-.211-.505-.427-.436-.584-.444-.151-.008-.324-.01-.496-.01-.172 0-.452.065-.689.323-.237.258-.905.884-.905 2.155s.926 2.499 1.055 2.671c.129.172 1.821 2.782 4.412 3.899 2.591 1.117 2.591.744 3.064.698.473-.046 1.527-.624 1.743-1.226.215-.602.215-1.118.151-1.226-.065-.108-.237-.172-.452-.28z"/>
+                    </svg>
+                    <span>WhatsApp AI Kisan Mitra</span>
+                  </h4>
+                  <p class="text-xs text-emerald-100 leading-snug">
+                    Connect 24/7 on WhatsApp! Get real-time Mandi rates, organic spray recipes &amp; crop loans in <strong class="text-white">English, हिंदी (Hindi), and తెలుగు (Telugu)</strong>.
+                  </p>
+                </div>
+                <a id="btnBannerWhatsApp" href="https://wa.me/14155238886?text=Namaste%20KisanSaathi" target="_blank" rel="noopener noreferrer" class="flex-shrink-0 px-3.5 py-2.5 bg-white text-emerald-900 hover:bg-emerald-50 font-extrabold text-xs rounded-2xl shadow-lg transition flex items-center gap-1.5 active:scale-95">
+                  <i data-lucide="send" class="w-4 h-4 text-[#25D366]"></i>
+                  <span>Open WhatsApp</span>
+                </a>
+              </div>
 
-          <!-- Suggested Quick Prompts (Language dynamic) -->
-          <div id="chatQuickPromptsContainer" class="flex gap-1.5 overflow-x-auto pb-1 text-[11px]">
-            <!-- Dynamically populated according to active language -->
-          </div>
+              <!-- 1-Click WhatsApp Quick Chips (Bilingual Indian Languages) -->
+              <div class="pt-2 border-t border-white/20">
+                <div class="flex items-center justify-between text-[11px] font-semibold text-emerald-200 mb-1.5">
+                  <span>1-Tap WhatsApp Queries:</span>
+                  <div class="flex gap-1 text-[10px]" id="waLangTabs">
+                    <button type="button" class="wa-lang-tab px-2 py-0.5 rounded-full bg-white text-emerald-900 font-extrabold transition" data-walang="en">English</button>
+                    <button type="button" class="wa-lang-tab px-2 py-0.5 rounded-full bg-emerald-800/80 hover:bg-emerald-800 text-white font-extrabold transition" data-walang="hi">हिंदी</button>
+                    <button type="button" class="wa-lang-tab px-2 py-0.5 rounded-full bg-emerald-800/80 hover:bg-emerald-800 text-white font-extrabold transition" data-walang="te">తెలుగు</button>
+                  </div>
+                </div>
+                <div id="waQuickChipsContainer" class="flex gap-1.5 overflow-x-auto pb-1 text-[11px]">
+                  <!-- Populated dynamically by app.js based on selected language tab -->
+                </div>
+              </div>
+            </div>
 
-          <!-- Chat Input Bar -->
-          <form id="chatForm" class="flex gap-2">
-            <input type="text" id="chatInput" placeholder="Type your farming query here..." class="flex-1 px-4 py-2.5 border rounded-2xl text-xs focus:ring-2 focus:ring-purple-500 focus:outline-none" />
-            <button type="submit" class="px-4 py-2.5 bg-purple-700 hover:bg-purple-800 text-white rounded-2xl font-bold transition flex items-center justify-center">
-              <i data-lucide="send" class="w-4 h-4"></i>
-            </button>
-          </form>
+            <!-- Chat Messages Area -->
+            <div id="chatMessages" class="h-96 overflow-y-auto space-y-3 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+              <!-- Dynamically populated according to active language -->
+            </div>
+
+            <!-- Suggested Quick Prompts (Language dynamic) -->
+            <div id="chatQuickPromptsContainer" class="flex gap-1.5 overflow-x-auto pb-1 text-[11px]">
+              <!-- Dynamically populated according to active language -->
+            </div>
+
+            <!-- Chat Input Bar -->
+            <form id="chatForm" class="flex gap-2">
+              <input type="text" id="chatInput" placeholder="Type your farming query here..." class="flex-1 px-4 py-2.5 border rounded-2xl text-xs focus:ring-2 focus:ring-purple-500 focus:outline-none" />
+              <button type="submit" class="px-4 py-2.5 bg-purple-700 hover:bg-purple-800 text-white rounded-2xl font-bold transition flex items-center justify-center">
+                <i data-lucide="send" class="w-4 h-4"></i>
+              </button>
+            </form>
+          </div>
         </section>
 
         <!-- SECTION 14: FARMER PROFILE (ProfileFragment) -->
@@ -2372,6 +2514,20 @@
       <span class="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
     </span>
   </a>
+
+  <!-- FLOATING VOICE SAATHI AI ASSISTANT BUTTON (One-Tap Voice for Farmers) -->
+  <button id="btnFloatingVoiceSaathi" 
+          type="button" 
+          onclick="openVoiceSaathiDirectly()" 
+          class="floating-voice-saathi-btn bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-600 text-white p-3 md:px-4 md:py-3 rounded-full shadow-2xl flex items-center gap-2 border-2 border-white/60 font-extrabold text-xs cursor-pointer group"
+          title="Speak with KisanSaathi Voice Saathi (English, हिन्दी, తెలుగు)">
+    <span class="relative flex h-3.5 w-3.5">
+      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-80"></span>
+      <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-200"></span>
+    </span>
+    <i data-lucide="mic" class="w-5 h-5 text-white animate-pulse"></i>
+    <span class="hidden md:inline font-bold text-xs tracking-wide">Voice Saathi (వాయిస్ సాథి)</span>
+  </button>
 
   <!-- Modal G: Consumer Make Offer to Farmer (Synced to Negotiations Desk) -->
   <div id="modalConsumerOffer" class="modal-overlay">

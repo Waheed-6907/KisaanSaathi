@@ -4641,6 +4641,615 @@ function initKisanSaathi() {
   }
 
   // =========================================================================
+  // SECTION 12B: KISSANSATHI VOICE SAATHI (English, Hindi & Telugu Only)
+  // Low-Literacy AI Spoken Agriculture Assistant
+  // =========================================================================
+  let activeVoiceLang = localStorage.getItem('kisan_voice_lang') || 'te'; // 'te' (default for Telangana/AP farmers), 'hi', or 'en'
+  let isRecording = false;
+  let isSpeaking = false;
+  let isVoicePaused = false;
+  let isProcessingVoiceQuery = false;
+  let voiceRecognitionInstance = null;
+  let activeUtterance = null;
+  let lastSpokenText = '';
+  let lastRecognizedTranscript = '';
+
+  const VOICE_LANG_CONFIG = {
+    te: {
+      code: 'te-IN',
+      name: 'Telugu',
+      label: 'తెలుగు',
+      badge: 'తెలుగు (Telugu Voice)',
+      transcriptHeader: 'మీరు అడిగారు (Voice Input):',
+      statusReady: 'మాట్లాడటానికి సిద్ధం / మైక్ నొక్కండి',
+      statusListening: 'వింటున్నాను... మీ వ్యవసాయ ప్రశ్న మాట్లాడండి',
+      statusProcessing: 'వ్యవసాయ సలహా సిద్ధం చేస్తోంది...',
+      statusSpeaking: 'సమాధానం వినిపిస్తోంది...',
+      statusPaused: 'వాయిస్ ఆగింది (పాజ్ అయింది)',
+      instruction: 'మైక్ బటన్ నొక్కి మీ ప్రశ్నను స్పష్టంగా తెలుగులో మాట్లాడండి.',
+      defaultGreeting: 'నమస్కారం రైతు మిత్రమా! నేను కిసాన్ సాథి వాయిస్ సహాయకుడిని. పైనున్న మైక్ బటన్ నొక్కి పంటల సంరక్షణ, మండి ధరలు, ఎరువులు లేదా తెగుళ్ల నివారణ గురించి మాట్లాడండి, నేను సమాధానం వినిపిస్తాను.',
+      unsupportedBrowser: 'ఈ బ్రౌజర్‌లో వాయిస్ రికగ్నిషన్ సపోర్ట్ లేదు. దయచేసి Chrome, Edge లేదా కింద ఉన్న 1-ట్యాప్ ప్రశ్నలను ఉపయోగించండి.',
+      micDenied: 'మైక్రోఫోన్ అనుమతి నిరాకరించబడింది. దయచేసి బ్రౌజర్ సెట్టింగ్స్‌లో మైక్రోఫోన్ అనుమతించండి.',
+      noSpeech: 'ఏ శబ్దమూ వినపడలేదు. దయచేసి మళ్లీ మైక్ బటన్ నొక్కి మాట్లాడండి.',
+      quickPromptTitle: '1-ట్యాప్ ప్రశ్నలు (నొక్కండి - సమాధానం వినండి):',
+      quickPrompts: [
+        { label: '🌾 వరంగల్ మార్కెట్ ధరలు', query: 'వరంగల్ మార్కెట్లో ఈరోజు వరి మరియు పత్తి ధరలు ఎంత?' },
+        { label: '🌿 సేంద్రీయ నీమాస్త్రం స్ప్రే', query: 'పంట తెగుళ్ల నివారణకు సేంద్రీయ నీమాస్త్రం తయారీ విధానం తెలపండి' },
+        { label: '📋 PMFBY పంట బీమా క్లెయిమ్', query: 'వర్షాల పంట నష్టానికి PMFBY పంట బీమా క్లెయిమ్ ఎలా చేయాలి?' },
+        { label: '🧪 ఉచిత నేల పరీక్ష కేంద్రాలు', query: 'వరంగల్ మరియు తెలంగాణలో ప్రభుత్వ నేల పరీక్ష కేంద్రాలు ఎక్కడ ఉన్నాయి?' },
+        { label: '🌱 తెలంగాణ సోనా రకం వివరాలు', query: 'తెలంగాణ సోనా RNR 15048 వరి విత్తన రకం దిగుబడి మరియు ప్రయోజనాలు ఏమిటి?' },
+        { label: '💧 వరి ఆరుతడి నీటి యాజమాన్యం', query: 'వరి సాగులో నీటి ఆదా కొరకు ఆరుతడి పద్ధతి ఎలా పాటించాలి?' }
+      ]
+    },
+    hi: {
+      code: 'hi-IN',
+      name: 'Hindi',
+      label: 'हिन्दी',
+      badge: 'हिन्दी (Hindi Voice)',
+      transcriptHeader: 'आपने पूछा (वॉयस इनपुट):',
+      statusReady: 'बोलने के लिए तैयार / माइक दबाएं',
+      statusListening: 'सुन रहा हूँ... अपना कृषि सवाल बोलें',
+      statusProcessing: 'कृषि समाधान तैयार कर रहा हूँ...',
+      statusSpeaking: 'उत्तर बोलकर सुना रहा हूँ...',
+      statusPaused: 'आवाज रोक दी गई है (पॉज़)',
+      instruction: 'माइक बटन दबाकर अपना सवाल सीधे हिंदी में बोलें।',
+      defaultGreeting: 'नमस्ते किसान साथी! मैं आपका कृषि वॉयस सहायक हूँ। ऊपर माइक बटन दबाकर फसलों, मंडी भाव, खाद, या कीट नियंत्रण के बारे में पूछें और आवाज में जवाब सुनें।',
+      unsupportedBrowser: 'इस ब्राउज़र में वॉयस इनपुट समर्थित नहीं है। कृपया Chrome, Edge या नीचे दिए गए 1-टैप सवालों का उपयोग करें।',
+      micDenied: 'माइक्रोफ़ोन की अनुमति अस्वीकृत है। कृपया ब्राउज़र सेटिंग्स में माइक्रोफ़ोन की अनुमति दें।',
+      noSpeech: 'कोई आवाज़ सुनाई नहीं दी। कृपया माइक दबाकर दोबारा बोलें।',
+      quickPromptTitle: '1-टैप सवाल (दबाएं और आवाज में जवाब सुनें):',
+      quickPrompts: [
+        { label: '🌾 वारंगल मंडी भाव', query: 'वारंगल मंडी में आज धान और कपास के ताजा भाव क्या हैं?' },
+        { label: '🌿 जैविक नीमास्त्र कीटनाशक', query: 'फसलों में रस चूसक कीड़ों के लिए जैविक नीमास्त्र कैसे तैयार करें?' },
+        { label: '📋 PMFBY फसल बीमा क्लेम', query: 'फसल नुकसान होने पर PMFBY बीमा क्लेम दर्ज करने की प्रक्रिया क्या है?' },
+        { label: '🧪 सरकारी मिट्टी जांच केंद्र', query: 'नजदीकी सरकारी मृदा परीक्षण प्रयोगशाला कहाँ है और प्रक्रिया क्या है?' },
+        { label: '🌱 तेलंगाना सोना RNR 15048', query: 'कम शुगर वाली तेलंगाना सोना धान की पैदावार और विशेषताएं बताएं' },
+        { label: '💧 ड्रिप व बूंद-बूंद सिंचाई', query: 'कपास और सब्जियों में ड्रिप सिंचाई से पानी की बचत कैसे करें?' }
+      ]
+    },
+    en: {
+      code: 'en-IN',
+      name: 'English',
+      label: 'English',
+      badge: 'English (Indian Voice)',
+      transcriptHeader: 'You asked (Voice Input):',
+      statusReady: 'Ready to Speak / Tap Mic to Start',
+      statusListening: 'Listening... Speak your farming question now',
+      statusProcessing: 'Formulating agricultural advice...',
+      statusSpeaking: 'Speaking Answer aloud...',
+      statusPaused: 'Voice paused',
+      instruction: 'Tap the microphone to speak your question naturally.',
+      defaultGreeting: 'Namaste farmer friend! I am your KisanSaathi Voice Assistant. Tap the microphone above to ask about crop care, mandi prices, fertilizers, or pest control, and I will speak the answer to you.',
+      unsupportedBrowser: 'Speech recognition is not supported in this browser. Please use Chrome, Edge, or Android Browser, or tap a quick question below.',
+      micDenied: 'Microphone permission was denied. Please allow microphone access in your browser settings to speak.',
+      noSpeech: 'No speech was detected. Please tap the microphone and speak again.',
+      quickPromptTitle: '1-Tap Voice Questions (Tap to Listen):',
+      quickPrompts: [
+        { label: '🌾 Mandi Rates (Warangal)', query: "What are today's mandi prices for paddy and cotton in Warangal?" },
+        { label: '🌿 Organic Neemastra Spray', query: "How to prepare organic neemastra pesticide for crop pest control?" },
+        { label: '📋 PMFBY Crop Insurance', query: "How to claim compensation under PMFBY for crop damage?" },
+        { label: '🧪 Free Soil Testing Labs', query: "Where are the authorized government soil testing centers located?" },
+        { label: '🌱 Telangana Sona Seeds', query: "What are the yield benefits of Telangana Sona RNR 15048 paddy?" },
+        { label: '💧 Micro-Irrigation Schedule', query: "What is the best irrigation schedule for paddy and cotton crops?" }
+      ]
+    }
+  };
+
+  // Helper to safely strip formatting for clean speech synthesis
+  function cleanSpeechAudioText(text) {
+    if (!text) return '';
+    return String(text)
+      .replace(/[*#_`~>•]/g, ' ')
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+      .replace(/https?:\/\/\S+/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  // Visual State Controller
+  function setVoiceSaathiState(state) {
+    const dot = document.getElementById('voiceStatusDot');
+    const label = document.getElementById('voiceStatusLabel');
+    const micBtn = document.getElementById('btnVoiceRecord');
+    const micSubtext = document.getElementById('voiceMicButtonSubtext');
+    const soundWaves = document.getElementById('voiceSoundWaves');
+    const iconPauseResume = document.getElementById('iconPauseResume');
+    const cfg = VOICE_LANG_CONFIG[activeVoiceLang] || VOICE_LANG_CONFIG.te;
+
+    if (dot) {
+      dot.className = 'w-2.5 h-2.5 rounded-full';
+      if (state === 'LISTENING') dot.classList.add('bg-red-400', 'animate-ping');
+      else if (state === 'PROCESSING') dot.classList.add('bg-amber-400', 'animate-pulse');
+      else if (state === 'SPEAKING') dot.classList.add('bg-emerald-300', 'animate-pulse');
+      else if (state === 'PAUSED') dot.classList.add('bg-yellow-400');
+      else dot.classList.add('bg-emerald-400');
+    }
+
+    if (label) {
+      if (state === 'LISTENING') label.textContent = cfg.statusListening;
+      else if (state === 'PROCESSING') label.textContent = cfg.statusProcessing;
+      else if (state === 'SPEAKING') label.textContent = cfg.statusSpeaking;
+      else if (state === 'PAUSED') label.textContent = cfg.statusPaused;
+      else label.textContent = cfg.statusReady;
+    }
+
+    if (micBtn && micSubtext) {
+      if (state === 'LISTENING') {
+        micBtn.classList.add('voice-ripple-listening');
+        micSubtext.textContent = activeVoiceLang === 'te' ? 'ఆపడానికి నొక్కండి' : (activeVoiceLang === 'hi' ? 'रोकने के लिए दबाएं' : 'TAP TO STOP');
+      } else if (state === 'SPEAKING') {
+        micBtn.classList.remove('voice-ripple-listening');
+        micSubtext.textContent = activeVoiceLang === 'te' ? 'కొత్త ప్రశ్న అడగండి' : (activeVoiceLang === 'hi' ? 'नया सवाल पूछें' : 'INTERRUPT & ASK');
+      } else if (state === 'PROCESSING') {
+        micBtn.classList.remove('voice-ripple-listening');
+        micSubtext.textContent = activeVoiceLang === 'te' ? 'ఆలోచిస్తోంది...' : (activeVoiceLang === 'hi' ? 'सोच रहा है...' : 'PROCESSING...');
+      } else {
+        micBtn.classList.remove('voice-ripple-listening');
+        micSubtext.textContent = activeVoiceLang === 'te' ? 'మాట్లాడండి' : (activeVoiceLang === 'hi' ? 'बोलने के लिए दबाएं' : 'TAP TO SPEAK');
+      }
+    }
+
+    if (soundWaves) {
+      if (state === 'LISTENING' || state === 'SPEAKING') {
+        soundWaves.classList.remove('hidden');
+      } else {
+        soundWaves.classList.add('hidden');
+      }
+    }
+
+    if (iconPauseResume) {
+      if (state === 'PAUSED') {
+        iconPauseResume.setAttribute('data-lucide', 'play');
+      } else {
+        iconPauseResume.setAttribute('data-lucide', 'pause');
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+  }
+
+  // Switch between Voice Saathi mode and Text Chat mode
+  function switchAssistantMode(mode) {
+    const tabVoice = document.getElementById('tabBtnVoiceSaathi');
+    const tabText = document.getElementById('tabBtnTextChat');
+    const modeVoice = document.getElementById('modeVoiceSaathi');
+    const modeText = document.getElementById('modeTextChat');
+
+    if (mode === 'text') {
+      if (tabVoice) tabVoice.className = 'flex-1 py-2 rounded-xl text-gray-600 hover:text-gray-900 transition flex items-center justify-center gap-1.5';
+      if (tabText) tabText.className = 'flex-1 py-2 rounded-xl bg-white text-purple-800 shadow-sm transition flex items-center justify-center gap-1.5';
+      if (modeVoice) modeVoice.classList.add('hidden');
+      if (modeText) modeText.classList.remove('hidden');
+      stopVoiceAnswer();
+    } else {
+      if (tabVoice) tabVoice.className = 'flex-1 py-2 rounded-xl bg-white text-emerald-800 shadow-sm transition flex items-center justify-center gap-1.5';
+      if (tabText) tabText.className = 'flex-1 py-2 rounded-xl text-gray-600 hover:text-gray-900 transition flex items-center justify-center gap-1.5';
+      if (modeVoice) modeVoice.classList.remove('hidden');
+      if (modeText) modeText.classList.add('hidden');
+    }
+    if (window.lucide) lucide.createIcons();
+  }
+  window.switchAssistantMode = switchAssistantMode;
+
+  // Render 1-Tap Quick Questions for Low-Literacy Farmers
+  function renderVoiceQuickPrompts(lang) {
+    const container = document.getElementById('voiceQuickPromptChips');
+    if (!container) return;
+    const cfg = VOICE_LANG_CONFIG[lang] || VOICE_LANG_CONFIG.te;
+
+    container.innerHTML = cfg.quickPrompts.map(p => `
+      <button type="button" 
+              onclick="askVoiceQuickPrompt('${p.query.replace(/'/g, "\\'")}')" 
+              class="w-full text-left p-3 rounded-2xl bg-white hover:bg-emerald-50 border border-gray-200 hover:border-emerald-400 shadow-xs hover:shadow-sm transition-all flex items-center justify-between group active:scale-[0.98]">
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-600 group-hover:text-white transition">
+            <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+          </div>
+          <span class="font-bold text-xs text-gray-800 group-hover:text-emerald-950">${p.label}</span>
+        </div>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 group-hover:text-emerald-600 transition flex-shrink-0"></i>
+      </button>
+    `).join('');
+
+    if (window.lucide) lucide.createIcons();
+  }
+
+  // Set Language (English, Hindi, Telugu Only)
+  function setVoiceLanguage(lang) {
+    if (!['en', 'hi', 'te'].includes(lang)) lang = 'te';
+    activeVoiceLang = lang;
+    localStorage.setItem('kisan_voice_lang', lang);
+
+    // Update Language Buttons UI
+    document.querySelectorAll('#voiceLanguageSelector .voice-lang-btn').forEach(btn => {
+      const btnLang = btn.getAttribute('data-lang');
+      if (btnLang === lang) {
+        btn.className = 'voice-lang-btn active py-2.5 px-3 rounded-xl border border-emerald-500 text-center font-bold text-xs bg-emerald-50 text-emerald-900 transition';
+      } else {
+        btn.className = 'voice-lang-btn py-2.5 px-3 rounded-xl border border-gray-200 text-center font-bold text-xs hover:border-emerald-500 text-gray-700 transition';
+      }
+    });
+
+    const cfg = VOICE_LANG_CONFIG[lang];
+    const badge = document.getElementById('voiceActiveLangBadge');
+    if (badge) badge.textContent = cfg.badge;
+
+    const instr = document.getElementById('voiceInstructionText');
+    if (instr) instr.textContent = cfg.instruction;
+
+    const transcriptHeader = document.getElementById('voiceTranscriptHeader');
+    if (transcriptHeader) transcriptHeader.textContent = cfg.transcriptHeader;
+
+    const qTitle = document.getElementById('voiceQuickPromptTitle');
+    if (qTitle) qTitle.textContent = cfg.quickPromptTitle;
+
+    renderVoiceQuickPrompts(lang);
+
+    // If not currently answering a query, reset to welcoming greeting in the chosen language
+    if (!isSpeaking && !isProcessingVoiceQuery && !isRecording) {
+      const answerContent = document.getElementById('voiceAnswerContent');
+      if (answerContent) answerContent.textContent = cfg.defaultGreeting;
+      lastSpokenText = cfg.defaultGreeting;
+      setVoiceSaathiState('READY');
+    }
+  }
+  window.setVoiceLanguage = setVoiceLanguage;
+
+  // Speech Recognition Handler
+  function handleVoiceRecordClick() {
+    // 1. If currently speaking, interrupt audio immediately and start recording
+    if (isSpeaking) {
+      stopVoiceAnswer();
+    }
+
+    // 2. If already recording, stop and let it finalize
+    if (isRecording) {
+      if (voiceRecognitionInstance) {
+        try { voiceRecognitionInstance.stop(); } catch (_e) {}
+      }
+      isRecording = false;
+      setVoiceSaathiState('PROCESSING');
+      return;
+    }
+
+    // 3. Check browser support for Speech Recognition
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const cfg = VOICE_LANG_CONFIG[activeVoiceLang] || VOICE_LANG_CONFIG.te;
+
+    if (!SpeechRecognition) {
+      alert(cfg.unsupportedBrowser);
+      showToast('Voice STT not supported in browser');
+      return;
+    }
+
+    try {
+      voiceRecognitionInstance = new SpeechRecognition();
+      voiceRecognitionInstance.lang = cfg.code;
+      voiceRecognitionInstance.continuous = false;
+      voiceRecognitionInstance.interimResults = true;
+      voiceRecognitionInstance.maxAlternatives = 1;
+
+      const transcriptCard = document.getElementById('voiceTranscriptCard');
+      const transcriptContent = document.getElementById('voiceTranscriptContent');
+      const transcriptStatus = document.getElementById('voiceTranscriptStatus');
+
+      let accumulatedFinal = '';
+
+      voiceRecognitionInstance.onstart = function() {
+        isRecording = true;
+        setVoiceSaathiState('LISTENING');
+        if (transcriptCard) transcriptCard.classList.remove('hidden');
+        if (transcriptStatus) transcriptStatus.textContent = activeVoiceLang === 'te' ? 'వింటున్నాను...' : (activeVoiceLang === 'hi' ? 'सुन रहा हूँ...' : 'Listening...');
+        if (transcriptContent) transcriptContent.textContent = '...';
+      };
+
+      voiceRecognitionInstance.onresult = function(event) {
+        let interim = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          const item = event.results[i];
+          if (item.isFinal) {
+            accumulatedFinal += item[0].transcript + ' ';
+          } else {
+            interim += item[0].transcript;
+          }
+        }
+        const liveText = (accumulatedFinal + interim).trim();
+        if (transcriptContent && liveText) {
+          transcriptContent.textContent = liveText;
+        }
+      };
+
+      voiceRecognitionInstance.onerror = function(event) {
+        isRecording = false;
+        console.warn('[VoiceSaathi] STT Error:', event.error);
+        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+          alert(cfg.micDenied);
+          showToast('Microphone permission denied');
+        } else if (event.error === 'no-speech') {
+          showToast(cfg.noSpeech);
+        } else if (event.error === 'network') {
+          showToast('Voice network timeout');
+        }
+        setVoiceSaathiState('READY');
+      };
+
+      voiceRecognitionInstance.onend = function() {
+        isRecording = false;
+        const finalText = (accumulatedFinal || (transcriptContent ? transcriptContent.textContent : '')).trim();
+        if (finalText && finalText !== '...') {
+          if (transcriptStatus) transcriptStatus.textContent = activeVoiceLang === 'te' ? 'పూర్తయింది' : (activeVoiceLang === 'hi' ? 'पूर्ण हुआ' : 'Captured');
+          submitVoiceQuestion(finalText);
+        } else {
+          setVoiceSaathiState('READY');
+          if (transcriptCard) transcriptCard.classList.add('hidden');
+        }
+      };
+
+      voiceRecognitionInstance.start();
+    } catch (err) {
+      isRecording = false;
+      console.error('[VoiceSaathi] Recognition Start Exception:', err);
+      setVoiceSaathiState('READY');
+    }
+  }
+  window.handleVoiceRecordClick = handleVoiceRecordClick;
+
+  // Ask 1-Tap Quick Question directly
+  function askVoiceQuickPrompt(promptText) {
+    if (isSpeaking) stopVoiceAnswer();
+    if (isRecording && voiceRecognitionInstance) {
+      try { voiceRecognitionInstance.abort(); } catch (_e) {}
+      isRecording = false;
+    }
+    const transcriptCard = document.getElementById('voiceTranscriptCard');
+    const transcriptContent = document.getElementById('voiceTranscriptContent');
+    const transcriptStatus = document.getElementById('voiceTranscriptStatus');
+
+    if (transcriptCard) transcriptCard.classList.remove('hidden');
+    if (transcriptStatus) transcriptStatus.textContent = activeVoiceLang === 'te' ? 'ఎంచుకున్న ప్రశ్న' : (activeVoiceLang === 'hi' ? 'चयनित सवाल' : 'Selected Prompt');
+    if (transcriptContent) transcriptContent.textContent = promptText;
+
+    submitVoiceQuestion(promptText);
+  }
+  window.askVoiceQuickPrompt = askVoiceQuickPrompt;
+
+  // Submit Voice Query to Backend API (/api/voice-saathi)
+  async function submitVoiceQuestion(userQuestion) {
+    if (!userQuestion || isProcessingVoiceQuery) return;
+    isProcessingVoiceQuery = true;
+    lastRecognizedTranscript = userQuestion;
+    setVoiceSaathiState('PROCESSING');
+
+    const answerContent = document.getElementById('voiceAnswerContent');
+    const answerProvider = document.getElementById('voiceAnswerProvider');
+    if (answerContent) {
+      answerContent.innerHTML = `
+        <div class="flex items-center gap-2 text-emerald-800">
+          <div class="w-4 h-4 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
+          <span>${activeVoiceLang === 'te' ? 'వ్యవసాయ సమాధానం సిద్ధం చేస్తోంది...' : (activeVoiceLang === 'hi' ? 'उत्तर तैयार हो रहा है...' : 'Formulating agricultural answer...')}</span>
+        </div>
+      `;
+    }
+
+    try {
+      const storedKey = localStorage.getItem('kisan_gemini_api_key') || '';
+      const headers = { 'Content-Type': 'application/json' };
+      if (storedKey) headers['x-gemini-key'] = storedKey;
+
+      const res = await fetch('/api/voice-saathi', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          message: userQuestion,
+          language: activeVoiceLang,
+          profileName: currentFarmerName || 'Farmer',
+          apiKey: storedKey
+        })
+      });
+
+      let data = null;
+      if (res.ok) {
+        data = await res.json();
+      }
+
+      if (data && data.success && data.reply) {
+        const spoken = data.spokenText || cleanSpeechAudioText(data.reply);
+        if (answerContent) answerContent.textContent = data.reply;
+        if (answerProvider) {
+          answerProvider.textContent = data.geminiConnected
+            ? '✨ Gemini AI Spoken Answer'
+            : '🌱 Kisan Knowledge Engine Spoken';
+        }
+        lastSpokenText = spoken;
+        speakVoiceAnswer(spoken, activeVoiceLang);
+      } else {
+        // Fallback message
+        const fallbackText = activeVoiceLang === 'te'
+          ? 'ధన్యవాదాలు రైతు మిత్రమా! ఖచ్చితమైన విశ్లేషణ కొరకు తెలంగాణ కిసాన్ కాల్ సెంటర్ టోల్-ఫ్రీ 1800-180-1551 లేదా స్థానిక వ్యవసాయ విస్తరణాధికారిని సంప్రదించండి.'
+          : (activeVoiceLang === 'hi'
+            ? 'धन्यवाद किसान भाई! सटीक जानकारी के लिए आप किसान कॉल सेंटर टोल-फ्री 1800-180-1551 पर संपर्क कर सकते हैं।'
+            : 'Thank you farmer friend! For verified on-field consultation, please contact the Kisan Call Center toll-free at 1800-180-1551.');
+
+        if (answerContent) answerContent.textContent = fallbackText;
+        if (answerProvider) answerProvider.textContent = '🌱 Kisan Knowledge Advisory';
+        lastSpokenText = fallbackText;
+        speakVoiceAnswer(fallbackText, activeVoiceLang);
+      }
+    } catch (networkErr) {
+      console.warn('[VoiceSaathi] Network query fallback:', networkErr);
+      const offlineNotice = activeVoiceLang === 'te'
+        ? 'నెట్‌వర్క్ అంతరాయం ఏర్పడింది. దయచేసి ఇంటర్నెట్ సరిచూసుకొని మళ్లీ ప్రయత్నించండి.'
+        : (activeVoiceLang === 'hi'
+          ? 'नेटवर्क समस्या हुई। कृपया इंटरनेट जांचकर पुनः प्रयास करें।'
+          : 'Network timeout. Please check your connection and try again.');
+      if (answerContent) answerContent.textContent = offlineNotice;
+      lastSpokenText = offlineNotice;
+      speakVoiceAnswer(offlineNotice, activeVoiceLang);
+    } finally {
+      isProcessingVoiceQuery = false;
+    }
+  }
+
+  // Voice Output (SpeechSynthesis TTS)
+  function selectBestTTSVoice(lang) {
+    if (!('speechSynthesis' in window)) return null;
+    const voices = window.speechSynthesis.getVoices() || [];
+    if (!voices.length) return null;
+
+    if (lang === 'te') {
+      // 1. Look for native Telugu voice
+      const teVoice = voices.find(v => v.lang.toLowerCase().startsWith('te') || v.name.toLowerCase().includes('telugu'));
+      if (teVoice) return teVoice;
+      // 2. Fallback to Indian English or Hindi
+      const inFallback = voices.find(v => v.lang.toLowerCase() === 'en-in' || v.lang.toLowerCase() === 'hi-in' || v.name.toLowerCase().includes('india'));
+      if (inFallback) return inFallback;
+    } else if (lang === 'hi') {
+      const hiVoice = voices.find(v => v.lang.toLowerCase().startsWith('hi') || v.name.toLowerCase().includes('hindi'));
+      if (hiVoice) return hiVoice;
+      const inFallback = voices.find(v => v.lang.toLowerCase() === 'en-in' || v.name.toLowerCase().includes('india'));
+      if (inFallback) return inFallback;
+    } else {
+      const enInVoice = voices.find(v => v.lang.toLowerCase() === 'en-in' || v.name.toLowerCase().includes('india'));
+      if (enInVoice) return enInVoice;
+      const enAny = voices.find(v => v.lang.toLowerCase().startsWith('en'));
+      if (enAny) return enAny;
+    }
+
+    return voices[0] || null;
+  }
+
+  function speakVoiceAnswer(textToSpeak, lang) {
+    if (!('speechSynthesis' in window)) {
+      showToast('Speech synthesis not supported in browser');
+      setVoiceSaathiState('READY');
+      return;
+    }
+
+    // Stop existing playback
+    try {
+      window.speechSynthesis.cancel();
+    } catch (_e) {}
+
+    const cleanText = cleanSpeechAudioText(textToSpeak);
+    if (!cleanText) {
+      setVoiceSaathiState('READY');
+      return;
+    }
+
+    const cfg = VOICE_LANG_CONFIG[lang] || VOICE_LANG_CONFIG.te;
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang = cfg.code;
+    utterance.rate = 0.92; // Natural, deliberate pace for farmers
+    utterance.pitch = 1.0;
+
+    const chosenVoice = selectBestTTSVoice(lang);
+    if (chosenVoice) {
+      utterance.voice = chosenVoice;
+    }
+
+    utterance.onstart = function() {
+      isSpeaking = true;
+      isVoicePaused = false;
+      activeUtterance = utterance;
+      setVoiceSaathiState('SPEAKING');
+    };
+
+    utterance.onend = function() {
+      isSpeaking = false;
+      isVoicePaused = false;
+      activeUtterance = null;
+      setVoiceSaathiState('READY');
+    };
+
+    utterance.onerror = function(e) {
+      isSpeaking = false;
+      isVoicePaused = false;
+      activeUtterance = null;
+      console.warn('[VoiceSaathi] TTS Playback Error:', e);
+      setVoiceSaathiState('READY');
+    };
+
+    try {
+      window.speechSynthesis.speak(utterance);
+    } catch (synthErr) {
+      console.warn('[VoiceSaathi] Synth speak exception:', synthErr);
+      isSpeaking = false;
+      setVoiceSaathiState('READY');
+    }
+  }
+
+  // Playback Controls
+  function replayVoiceAnswer() {
+    if (!lastSpokenText) {
+      const cfg = VOICE_LANG_CONFIG[activeVoiceLang] || VOICE_LANG_CONFIG.te;
+      lastSpokenText = cfg.defaultGreeting;
+    }
+    speakVoiceAnswer(lastSpokenText, activeVoiceLang);
+  }
+  window.replayVoiceAnswer = replayVoiceAnswer;
+
+  function togglePauseVoiceAnswer() {
+    if (!('speechSynthesis' in window)) return;
+
+    if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+      window.speechSynthesis.pause();
+      isVoicePaused = true;
+      setVoiceSaathiState('PAUSED');
+      showToast('Audio paused');
+    } else if (window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+      isVoicePaused = false;
+      setVoiceSaathiState('SPEAKING');
+      showToast('Audio resumed');
+    } else if (lastSpokenText) {
+      replayVoiceAnswer();
+    }
+  }
+  window.togglePauseVoiceAnswer = togglePauseVoiceAnswer;
+
+  function stopVoiceAnswer() {
+    if ('speechSynthesis' in window) {
+      try { window.speechSynthesis.cancel(); } catch (_e) {}
+    }
+    isSpeaking = false;
+    isVoicePaused = false;
+    activeUtterance = null;
+    setVoiceSaathiState('READY');
+  }
+  window.stopVoiceAnswer = stopVoiceAnswer;
+
+  // Floating button launcher: Opens Voice Saathi directly and initiates microphone
+  function openVoiceSaathiDirectly() {
+    navigateTo('chat');
+    switchAssistantMode('voice');
+    const sec = document.getElementById('sectionChat');
+    if (sec) sec.scrollIntoView({ behavior: 'smooth' });
+    setTimeout(() => {
+      handleVoiceRecordClick();
+    }, 450);
+  }
+  window.openVoiceSaathiDirectly = openVoiceSaathiDirectly;
+
+  // Initialize Voice Saathi
+  function initVoiceSaathi() {
+    const savedLang = localStorage.getItem('kisan_voice_lang');
+    if (['en', 'hi', 'te'].includes(savedLang)) {
+      activeVoiceLang = savedLang;
+    } else {
+      activeVoiceLang = 'te'; // Default Telugu
+    }
+    setVoiceLanguage(activeVoiceLang);
+    setVoiceSaathiState('READY');
+
+    // Ensure voices are loaded for Chrome
+    if ('speechSynthesis' in window && window.speechSynthesis.onvoiceschanged !== undefined) {
+      window.speechSynthesis.onvoiceschanged = () => {
+        // Voices refreshed
+      };
+    }
+  }
+  window.initVoiceSaathi = initVoiceSaathi;
+
+  // =========================================================================
   // SECTION 13: ABOUT TEAM & CONTRIBUTORS (About_us.java)
   // =========================================================================
   function renderAboutTeam() {
@@ -5889,6 +6498,9 @@ function initKisanSaathi() {
     applyLanguage(currentLanguage);
     if (typeof initOrUpdateChat === 'function') {
       initOrUpdateChat(currentLanguage);
+    }
+    if (typeof initVoiceSaathi === 'function') {
+      initVoiceSaathi();
     }
     loadSoilLabsData();
 

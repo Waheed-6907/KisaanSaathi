@@ -137,6 +137,17 @@ function handleRequest(req, res) {
     }
   }
 
+  // API Route: /api/voice-saathi (Voice Saathi Spoken Advisory Engine)
+  if (reqPath === '/api/voice-saathi') {
+    try {
+      const voiceSaathiHandler = require('./api/voice-saathi.js');
+      return voiceSaathiHandler(req, res);
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error: 'Voice Saathi error', details: err.message }));
+    }
+  }
+
   // Support communication with bound internal service 'web-platform' via WEB_PLATFORM_URL if present
   if (process.env.WEB_PLATFORM_URL && (reqPath.startsWith('/platform') || reqPath.startsWith('/api/platform'))) {
     try {
