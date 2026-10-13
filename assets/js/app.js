@@ -35,7 +35,7 @@ function initKisanSaathi() {
       nav_quality: "Crop Quality Prediction (AI)",
       nav_negotiate: "Price Negotiations",
       nav_orders: "Orders & Deliveries",
-      nav_wallet: "Farmer's Earning Wallet",
+      nav_wallet: "Payment Tracking System",
       nav_loan: "Blockchain Loan Ledger",
       nav_soil: "Soil Testing Labs & Card",
       nav_info: "Advisory & Information Hub",
@@ -50,7 +50,7 @@ function initKisanSaathi() {
       title_quality: "Quality",
       title_chat: "Chat",
       title_profile: "Profile",
-      wallet_earning: "Earnings",
+      wallet_earning: "Payments Received",
       negotiations_title: "Negotiations",
       orders_title: "Orders",
       your_inventory: "Your Crop Inventory",
@@ -67,10 +67,10 @@ function initKisanSaathi() {
       select_category: "Select Crop Category",
       negotiated_prices: "Negotiated Prices by Buyers",
       all_orders: "All Buyer Orders",
-      available_balance: "Earning from Crop Selling",
-      send_money_to_bank: "Send Money to Bank",
-      request_statement: "Statement",
-      recents_transactions: "Recent Transactions",
+      available_balance: "Total Payments Received from Consumers",
+      send_money_to_bank: "Direct DBT Settlement",
+      request_statement: "Download Statement",
+      recents_transactions: "Consumer Payments Received",
       labs_heading: "Soil Testing Laboratories",
       soil_test_lab: "Find nearest authorized soil testing laboratory in Telangana",
       select_state: "State",
@@ -101,7 +101,7 @@ function initKisanSaathi() {
       nav_quality: "फसल गुणवत्ता परीक्षण (AI)",
       nav_negotiate: "मूल्य बातचीत (सौदा)",
       nav_orders: "ऑर्डर एवं आपूर्ति",
-      nav_wallet: "किसान कमाई वॉलेट",
+      nav_wallet: "भुगतान ट्रैकिंग सिस्टम",
       nav_loan: "ब्लॉकचेन ऋण बहीखाता",
       nav_soil: "मृदा परीक्षण प्रयोगशालाएं",
       nav_info: "कृषि सलाह एवं सूचना केंद्र",
@@ -116,7 +116,7 @@ function initKisanSaathi() {
       title_quality: "गुणवत्ता",
       title_chat: "चैट",
       title_profile: "प्रोफ़ाइल",
-      wallet_earning: "कुल कमाई",
+      wallet_earning: "प्राप्त भुगतान",
       negotiations_title: "बातचीत",
       orders_title: "ऑर्डर",
       your_inventory: "आपकी फसल इन्वेंटरी",
@@ -133,10 +133,10 @@ function initKisanSaathi() {
       select_category: "फसल श्रेणी चुनें",
       negotiated_prices: "खरीदारों द्वारा प्रस्तावित मूल्य",
       all_orders: "सभी खरीदार ऑर्डर",
-      available_balance: "फसल बिक्री से अर्जित कमाई",
-      send_money_to_bank: "बैंक खाते में पैसे भेजें",
-      request_statement: "विवरण पत्र",
-      recents_transactions: "हाल के लेनदेन",
+      available_balance: "उपभोक्ताओं से प्राप्त कुल भुगतान",
+      send_money_to_bank: "प्रत्यक्ष DBT भुगतान",
+      request_statement: "विवरण पत्र डाउनलोड करें",
+      recents_transactions: "उपभोक्ताओं से प्राप्त भुगतान",
       labs_heading: "मृदा परीक्षण प्रयोगशालाएं",
       soil_test_lab: "निकटतम अधिकृत मृदा परीक्षण प्रयोगशाला खोजें",
       select_state: "राज्य",
@@ -167,7 +167,7 @@ function initKisanSaathi() {
       nav_quality: "పంట నాణ్యత AI పరీక్ష",
       nav_negotiate: "ధర సంప్రదింపులు",
       nav_orders: "ఆర్డర్లు & రవాణా",
-      nav_wallet: "రైతు సంపాదన వాలెట్",
+      nav_wallet: "చెల్లింపుల ట్రాకింగ్ సిస్టమ్",
       nav_loan: "బ్లాక్‌చెయిన్ పంట రుణాలు",
       nav_soil: "నేల పరీక్ష ప్రయోగశాలలు",
       nav_info: "వ్యవసాయ సలహా & సమాచారం",
@@ -182,7 +182,7 @@ function initKisanSaathi() {
       title_quality: "నాణ్యత",
       title_chat: "చాట్",
       title_profile: "ప్రొఫైల్",
-      wallet_earning: "మొత్తం సంపాదన",
+      wallet_earning: "అందిన చెల్లింపులు",
       negotiations_title: "ధర చర్చలు",
       orders_title: "ఆర్డర్లు",
       your_inventory: "మీ పంటల నిల్వ",
@@ -199,10 +199,10 @@ function initKisanSaathi() {
       select_category: "పంట రకం ఎంచుకోండి",
       negotiated_prices: "కొనుగోలుదారుల ఆఫర్లు",
       all_orders: "అన్ని కొనుగోలుదారు ఆర్డర్లు",
-      available_balance: "పంట అమ్మకం ద్వారా ఆదాయం",
-      send_money_to_bank: "బ్యాంకుకు డబ్బు పంపండి",
-      request_statement: "స్టేట్‌మెంట్",
-      recents_transactions: "ఇటీవలి లావాదేవీలు",
+      available_balance: "వినియోగదారుల నుండి అందిన మొత్తం చెల్లింపులు",
+      send_money_to_bank: "ప్రత్యక్ష DBT బదిలీ",
+      request_statement: "చెల్లింపుల స్టేట్‌మెంట్ డౌన్‌లోడ్",
+      recents_transactions: "వినియోగదారుల నుండి అందిన చెల్లింపులు",
       labs_heading: "నేల పరీక్ష ప్రయోగశాలలు",
       soil_test_lab: "తెలంగాణలో అధీకృత నేల పరీక్ష కేంద్రాలు",
       select_state: "రాష్ట్రం",
@@ -233,7 +233,7 @@ function initKisanSaathi() {
       nav_quality: "فصل کے معیار کی جانچ (AI)",
       nav_negotiate: "قیمتوں کے مذاکرات",
       nav_orders: "آرڈرز اور ترسیل",
-      nav_wallet: "کسان کی کمائی کا بٹوہ",
+      nav_wallet: "ادائیگی ٹریکنگ سسٹم",
       nav_loan: "بلاک چین قرض کا کھاتہ",
       nav_soil: "مٹی ٹیسٹ کرنے والی لیبارٹریز",
       nav_info: "زرعی مشاورتی مرکز",
@@ -248,7 +248,7 @@ function initKisanSaathi() {
       title_quality: "معیار",
       title_chat: "چیٹ",
       title_profile: "پروفائل",
-      wallet_earning: "کل آمدنی",
+      wallet_earning: "موصولہ ادائیگیاں",
       negotiations_title: "بات چیت",
       orders_title: "آرڈرز",
       your_inventory: "آپ کی فصلوں کی فہرست",
@@ -265,10 +265,10 @@ function initKisanSaathi() {
       select_category: "فصل کی قسم منتخب کریں",
       negotiated_prices: "خریداروں کی تجاویز",
       all_orders: "تمام خریدار آرڈرز",
-      available_balance: "فصل کی فروخت سے آمدنی",
-      send_money_to_bank: "بینک میں رقم منتقل کریں",
-      request_statement: "اسٹیٹمنٹ",
-      recents_transactions: "حالیہ لین دین",
+      available_balance: "صارفین سے موصولہ کل ادائیگیاں",
+      send_money_to_bank: "براہ راست ڈی بی ٹی ادائیگی",
+      request_statement: "اسٹیٹمنٹ ڈاؤن لوڈ کریں",
+      recents_transactions: "خریداروں سے موصولہ ادائیگیاں",
       labs_heading: "مٹی ٹیسٹنگ لیبز",
       soil_test_lab: "قریبی مٹی کی جانچ گاہ تلاش کریں",
       select_state: "ریاست",
@@ -1722,27 +1722,6 @@ function initKisanSaathi() {
 
   if (drawerBackdrop) drawerBackdrop.addEventListener('click', closeDrawer);
 
-  // Switch to consumer/farmer from drawer buttons
-  const drawerBtnSwitchToConsumer = document.getElementById('drawerBtnSwitchToConsumer');
-  if (drawerBtnSwitchToConsumer) {
-    drawerBtnSwitchToConsumer.addEventListener('click', () => {
-      currentPortalRole = 'consumer';
-      updatePortalRoleUI();
-      navigateTo('consumer');
-      showToast('Switched to Consumer / Vendor Portal');
-    });
-  }
-
-  const drawerBtnSwitchToFarmer = document.getElementById('drawerBtnSwitchToFarmer');
-  if (drawerBtnSwitchToFarmer) {
-    drawerBtnSwitchToFarmer.addEventListener('click', () => {
-      currentPortalRole = 'farmer';
-      updatePortalRoleUI();
-      navigateTo('inventory');
-      showToast('Switched to Farmer Portal');
-    });
-  }
-
   // Bind drawer navigation links
   document.querySelectorAll('.drawer-item').forEach(link => {
     link.addEventListener('click', () => {
@@ -1770,34 +1749,6 @@ function initKisanSaathi() {
   document.getElementById('btnViewModeToggle').addEventListener('click', () => {
     applyViewMode(currentViewMode === 'mobile' ? 'desktop' : 'mobile');
   });
-
-  // Switch Portal Header Button
-  const btnSwitchActivePortal = document.getElementById('btnSwitchActivePortal');
-  if (btnSwitchActivePortal) {
-    btnSwitchActivePortal.addEventListener('click', () => {
-      if (currentPortalRole === 'farmer') {
-        currentPortalRole = 'consumer';
-        updatePortalRoleUI();
-        navigateTo('consumer');
-        showToast('Switched to Consumer / Vendor Portal');
-      } else {
-        currentPortalRole = 'farmer';
-        updatePortalRoleUI();
-        navigateTo('inventory');
-        showToast('Switched to Farmer Portal');
-      }
-    });
-  }
-
-  const btnSwitchToFarmerView = document.getElementById('btnSwitchToFarmerView');
-  if (btnSwitchToFarmerView) {
-    btnSwitchToFarmerView.addEventListener('click', () => {
-      currentPortalRole = 'farmer';
-      updatePortalRoleUI();
-      navigateTo('inventory');
-      showToast('Switched to Farmer Portal');
-    });
-  }
 
   document.getElementById('btnQuickWeather').addEventListener('click', () => navigateTo('weather'));
   document.getElementById('btnQuickProfile').addEventListener('click', () => navigateTo('profile'));
@@ -2441,20 +2392,46 @@ function initKisanSaathi() {
       };
       orders.unshift(newOrder);
 
-      // Update wallet
+      // 1. Deduct payment from consumer escrow vault
+      const prevEscrow = Number(localStorage.getItem('kisan_consumer_escrow')) || (currentConsumerEscrow || 150000);
+      currentConsumerEscrow = Math.max(0, prevEscrow - totalAmount);
+      localStorage.setItem('kisan_consumer_escrow', currentConsumerEscrow);
+
+      // Record debit transaction in consumer escrow ledger
+      let consumerTxns = JSON.parse(localStorage.getItem('kisan_consumer_escrow_txns')) || [];
+      consumerTxns.unshift({
+        title: `Payment to Farmer for ${nego.itemTitle} (${nego.quantity} Kg)`,
+        type: 'release',
+        amount: totalAmount,
+        tx: '0x' + Array.from({length: 8}, () => Math.floor(Math.random()*16).toString(16)).join(''),
+        time: 'Just now',
+        status: 'Settled to Farmer DBT'
+      });
+      localStorage.setItem('kisan_consumer_escrow_txns', JSON.stringify(consumerTxns));
+
+      // 2. Add payment received from consumer to farmer's Payment Tracking System
       wallet.balance += totalAmount;
-      wallet.transactions.unshift({
-        id: `TXN-${Date.now().toString().slice(-4)}`,
-        buyer: nego.buyer.name,
+      const paymentTxn = {
+        id: `PAY-${Date.now().toString().slice(-4)}`,
+        buyer: nego.buyer?.company || nego.buyer?.name || 'Verified Consumer',
         amount: totalAmount,
         type: "credit",
-        time: new Date().toLocaleString(),
-        desc: `Accepted deal for ${nego.itemTitle} (Destination: ${decidedLocation})`
-      });
+        time: new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }),
+        cropName: nego.itemTitle,
+        quantity: nego.quantity,
+        ratePerKg: nego.proposedPrice,
+        deliveryLocation: decidedLocation,
+        status: "Payment Received (DBT Credited)",
+        desc: `Direct payment from ${nego.buyer?.company || nego.buyer?.name} for ${nego.quantity} Kg ${nego.itemTitle}`
+      };
+      wallet.transactions.unshift(paymentTxn);
 
       localStorage.setItem('kisan_orders', JSON.stringify(orders));
       localStorage.setItem('kisan_wallet', JSON.stringify(wallet));
       localStorage.setItem('kisan_negotiations', JSON.stringify(negotiations));
+
+      renderWallet();
+      if (typeof renderConsumerWallet === 'function') renderConsumerWallet();
 
       // Sync with Supabase negotiations, orders, profiles, and wallet_transactions tables
       if (window.supabaseClient) {
@@ -2586,7 +2563,7 @@ function initKisanSaathi() {
             ` : `
               <div class="text-center py-1 text-emerald-700 font-bold text-xs flex items-center justify-center gap-1">
                 <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
-                <span>Delivery Fulfilled | Escrow Released to Wallet</span>
+                <span>Delivery Fulfilled | Payment Credited to Payment Tracking</span>
               </div>
             `}
           </div>
@@ -2625,6 +2602,7 @@ function initKisanSaathi() {
 
     showToast(`Shipment updated: ${nextStatus}!`);
     renderOrders();
+    if (typeof renderConsumerOrders === 'function') renderConsumerOrders();
   };
 
   // Interactive Map & Order Details Modal
@@ -2708,98 +2686,73 @@ function initKisanSaathi() {
   });
 
   // =========================================================================
-  // SECTION 6: FARMER WALLET (WalletSectionActivity)
+  // SECTION 6: FARMER PAYMENT TRACKING SYSTEM (Consumer Payments Received)
   // =========================================================================
   function renderWallet() {
-    document.getElementById('walletTotalBalance').textContent = `₹${wallet.balance.toLocaleString('en-IN')}`;
+    const totalEl = document.getElementById('walletTotalBalance');
+    if (totalEl) totalEl.textContent = `₹${wallet.balance.toLocaleString('en-IN')}`;
     const txList = document.getElementById('walletTransactionsList');
+    if (!txList) return;
 
-    txList.innerHTML = wallet.transactions.map(tx => `
-      <div class="kisan-card p-3 flex justify-between items-center text-xs">
-        <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold ${tx.type === 'credit' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}">
-            ${tx.type === 'credit' ? '↓' : '↑'}
+    if (!wallet.transactions || wallet.transactions.length === 0) {
+      txList.innerHTML = `
+        <div class="bg-gray-50 border border-dashed border-gray-300 rounded-2xl p-6 text-center text-xs text-gray-500">
+          <i data-lucide="receipt" class="w-8 h-8 text-gray-400 mx-auto mb-1.5"></i>
+          <p class="font-bold text-gray-700">No Consumer Payments Received Yet</p>
+          <p class="text-[11px] mt-0.5">When buyers purchase crops or accept price offers, payments will automatically appear here.</p>
+        </div>
+      `;
+      if (window.lucide) lucide.createIcons();
+      return;
+    }
+
+    txList.innerHTML = wallet.transactions.map(tx => {
+      const amount = Math.abs(tx.amount || 0);
+      const buyerName = tx.buyer || 'Verified Agro-Buyer';
+      const cropInfo = tx.cropName ? `${tx.cropName} (${tx.quantity || ''} Kg)` : (tx.desc || 'Crop harvest procurement');
+      const timeStr = tx.time || 'Recently';
+      const destStr = tx.deliveryLocation ? `<span class="block text-[10px] text-gray-500 mt-0.5"><i data-lucide="map-pin" class="w-3 h-3 inline text-emerald-600"></i> ${tx.deliveryLocation}</span>` : '';
+      const txId = tx.id || ('PAY-' + Math.floor(1000 + Math.random() * 9000));
+
+      return `
+        <div class="kisan-card p-3.5 flex justify-between items-start text-xs border-l-4 border-emerald-500 hover:border-emerald-600 transition">
+          <div class="flex items-start gap-3">
+            <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold shrink-0 shadow-xs mt-0.5">
+              <i data-lucide="arrow-down-left" class="w-5 h-5 text-emerald-700"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="font-bold text-sm text-gray-900">${buyerName}</span>
+                <span class="inline-flex items-center gap-1 text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                  <i data-lucide="check" class="w-2.5 h-2.5 text-emerald-600"></i> Received (DBT Credited)
+                </span>
+              </div>
+              <p class="text-xs font-semibold text-gray-700 mt-0.5">${cropInfo}</p>
+              ${destStr}
+              <div class="flex items-center gap-2 text-[10px] text-gray-400 mt-1 font-mono">
+                <span>Ref: ${txId}</span>
+                <span>•</span>
+                <span>${timeStr}</span>
+              </div>
+            </div>
           </div>
-          <div>
-            <span class="font-bold text-gray-800 block">${tx.buyer}</span>
-            <span class="text-[11px] text-gray-500">${tx.time} | ${tx.desc}</span>
+          <div class="text-right shrink-0">
+            <span class="text-[10px] text-gray-500 block uppercase font-bold">Amount Paid</span>
+            <span class="text-base font-extrabold text-emerald-700">+₹${amount.toLocaleString('en-IN')}</span>
           </div>
         </div>
-        <div class="font-extrabold ${tx.type === 'credit' ? 'text-emerald-600' : 'text-red-600'}">
-          ${tx.type === 'credit' ? '+' : ''}₹${Math.abs(tx.amount).toLocaleString('en-IN')}
-        </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
 
     if (window.lucide) lucide.createIcons();
   }
 
-  // Withdraw Modal
-  document.getElementById('btnOpenWithdraw').addEventListener('click', () => {
-    document.getElementById('modalWithdraw').classList.add('open');
-  });
-
-  document.getElementById('btnCloseWithdraw').addEventListener('click', () => {
-    document.getElementById('modalWithdraw').classList.remove('open');
-  });
-
-  document.getElementById('formWithdraw').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const amt = Number(document.getElementById('inputWithdrawAmount').value);
-    if (amt > wallet.balance || amt <= 0) {
-      alert('Invalid withdrawal amount');
-      return;
-    }
-
-    wallet.balance -= amt;
-    const debitTxn = {
-      id: `TXN-${Date.now().toString().slice(-4)}`,
-      buyer: "State Bank of India (IMPS Transfer)",
-      amount: -amt,
-      type: "debit",
-      time: new Date().toLocaleString(),
-      desc: "Instant payout to A/C **4521"
-    };
-    wallet.transactions.unshift(debitTxn);
-
-    localStorage.setItem('kisan_wallet', JSON.stringify(wallet));
-    document.getElementById('modalWithdraw').classList.remove('open');
-    renderWallet();
-    showToast(`Transferred ₹${amt.toLocaleString('en-IN')} to SBI account successfully!`);
-
-    // Sync with Supabase profiles and wallet_transactions
-    if (window.supabaseClient) {
-      let activeFarmerId = currentFarmerId || 'FARMER-TG-7721';
-      const authData = localStorage.getItem('kisan_auth');
-      if (authData) {
-        try {
-          const sess = JSON.parse(authData);
-          if (sess.farmerId) activeFarmerId = sess.farmerId;
-        } catch (e) {}
-      }
-
-      try {
-        window.supabaseClient.from('profiles').update({
-          wallet_balance: wallet.balance,
-          updated_at: new Date().toISOString()
-        }).eq('farmer_id', activeFarmerId).then();
-
-        window.supabaseClient.from('wallet_transactions').insert([{
-          farmer_id: activeFarmerId,
-          title: 'IMPS Bank Transfer (SBI A/C **4521)',
-          type: 'debit',
-          amount: amt,
-          status: 'completed'
-        }]).then();
-      } catch (err) {
-        console.warn('Supabase withdrawal sync notice:', err);
-      }
-    }
-  });
-
-  document.getElementById('btnRequestStatement').addEventListener('click', () => {
-    showToast('Official sales statement downloaded (CSV/PDF)');
-  });
+  const btnRequestStatement = document.getElementById('btnRequestStatement');
+  if (btnRequestStatement) {
+    btnRequestStatement.addEventListener('click', () => {
+      showToast('Official consumer payment statement downloaded (CSV/PDF)');
+    });
+  }
 
   // =========================================================================
   // SECTION 7: BLOCKCHAIN LOAN LEDGER (BlockchainActivity)

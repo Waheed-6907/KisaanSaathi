@@ -212,16 +212,54 @@ const KISAN_DATA = {
     }
   ],
 
-  // Wallet
+  // Payment Tracking System (Consumer Payments Received)
   wallet: {
-    balance: 74200,
+    balance: 104200,
     transactions: [
-      { id: "TXN-9901", buyer: "Sri Srinivasa Agro Corp", amount: 22000, type: "credit", time: "08-Oct-2026 14:22", desc: "Order ORD-77101 settled via Escrow" },
-      { id: "TXN-9902", buyer: "SBI Bank (Warangal Branch)", amount: -15000, type: "debit", time: "06-Oct-2026 11:15", desc: "Instant IMPS payout to A/C **8821" },
-      { id: "TXN-9903", buyer: "Hyderabad Organic Mart", amount: 35000, type: "credit", time: "03-Oct-2026 16:40", desc: "Telangana Sona batch dispatch" },
-      { id: "TXN-9904", buyer: "Rythu Bandhu Financial Aid", amount: 10000, type: "credit", time: "28-Sep-2026 10:00", desc: "Telangana Govt seasonal investment assistance" },
-      { id: "TXN-9905", buyer: "Andhra Bank / Union Bank", amount: -10000, type: "debit", time: "22-Sep-2026 09:30", desc: "ATM / Branch withdrawal" },
-      { id: "TXN-9906", buyer: "Enumamula APMC Settlement", amount: 32200, type: "credit", time: "16-Sep-2026 15:10", desc: "Paddy procurement direct credit" }
+      { 
+        id: "PAY-9901", 
+        buyer: "Bowenpally Bulk Millers", 
+        amount: 27500, 
+        type: "credit", 
+        time: "Today, 02:45 PM", 
+        cropName: "Telangana Sona Paddy (1,000 Kg)",
+        deliveryLocation: "Bowenpally Modern Market Yard, Secunderabad",
+        status: "Payment Received (DBT Credited)",
+        desc: "Counter offer accepted & produce dispatched" 
+      },
+      { 
+        id: "PAY-9902", 
+        buyer: "Hyderabad Organic Wholesale Mart", 
+        amount: 35000, 
+        type: "credit", 
+        time: "10-Oct-2026 16:40", 
+        cropName: "Organic Bhendi & Chillies (650 Kg)",
+        deliveryLocation: "Gudimalkapur Wholesale Mandi, Hyderabad",
+        status: "Payment Received (DBT Credited)",
+        desc: "Direct bulk procurement payment received" 
+      },
+      { 
+        id: "PAY-9903", 
+        buyer: "Sri Srinivasa Agro Corp", 
+        amount: 22000, 
+        type: "credit", 
+        time: "08-Oct-2026 14:22", 
+        cropName: "Tandur Red Gram (400 Kg)",
+        deliveryLocation: "Enumamula Agriculture Market, Warangal",
+        status: "Payment Received (DBT Credited)",
+        desc: "Escrow deal settled upon terminal arrival" 
+      },
+      { 
+        id: "PAY-9904", 
+        buyer: "Kandlakoi Agro Processing Terminal", 
+        amount: 19700, 
+        type: "credit", 
+        time: "03-Oct-2026 11:30", 
+        cropName: "Premium Cotton (250 Kg)",
+        deliveryLocation: "Kandlakoi Agro Terminal, Medchal",
+        status: "Payment Received (DBT Credited)",
+        desc: "Automated biometric Mandi DBT credit" 
+      }
     ]
   },
 
