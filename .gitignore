@@ -38,3 +38,6 @@ $RECYCLE.BIN/
 *.tmp
 tmp/
 temp/
+
+.vercel
+.env*

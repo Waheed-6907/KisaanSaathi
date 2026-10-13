@@ -1,0 +1,12 @@
+# Ignore large non-web assets from Vercel deployment bundle
+mobile-source
+presentation
+app-screenshots
+.agents
+.git
+node_modules
+*.zip
+*.pptx
+*.pdf
+test_*.js
+inspect_*.ps1

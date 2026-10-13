@@ -28,6 +28,20 @@
   <!-- Leaflet CSS & JS for Interactive Mandi/Farmer Route Maps -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Supabase JS Client SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    window.NEXT_PUBLIC_SUPABASE_URL = "https://ytuiolcffxcqnwlefvrr.supabase.co";
+    window.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_rhZSeYOxbYh1pVJGKSGpDw_Xswiu0XH";
+    try {
+      if (window.supabase) {
+        window.supabaseClient = window.supabase.createClient(window.NEXT_PUBLIC_SUPABASE_URL, window.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY);
+        console.log("✔ Supabase Client initialized:", window.NEXT_PUBLIC_SUPABASE_URL);
+      }
+    } catch (e) {
+      console.warn("Supabase init notice:", e.message);
+    }
+  </script>
   <!-- Custom Stylesheet -->
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -37,7 +51,16 @@
   <!-- 0. LOGIN SCREEN (ENTRY VIEWPOINT) -->
   <!-- ========================================== -->
   <div id="loginScreen" class="fixed inset-0 z-[200] bg-gradient-to-br from-indigo-950 via-purple-900 to-slate-950 flex items-center justify-center p-4 overflow-y-auto">
-    <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border border-purple-200/20 my-auto">
+    <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border border-purple-200/20 my-auto relative">
+      
+      <!-- OAuth In-Flight Loading Overlay -->
+      <div id="loginOAuthLoading" class="hidden absolute inset-0 bg-white/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-6 text-center space-y-4">
+        <div class="w-14 h-14 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+        <div>
+          <h3 class="font-bold text-gray-900 text-lg">Signing in via Google...</h3>
+          <p class="text-xs text-gray-500 mt-1">Authenticating profile, recording in Supabase and loading homepage...</p>
+        </div>
+      </div>
       
       <!-- Login Header -->
       <div class="bg-gradient-to-r from-purple-800 via-purple-700 to-indigo-800 p-6 text-white text-center relative">
@@ -137,6 +160,25 @@
     </div>
   </div>
 
+  <!-- Immediate pre-render script to prevent login modal flash if user is already authenticated or returning from OAuth -->
+  <script>
+    (function() {
+      try {
+        var hasAuth = localStorage.getItem('kisan_auth');
+        var hasCode = window.location.search && window.location.search.indexOf('code=') !== -1;
+        var hasHash = window.location.hash && window.location.hash.indexOf('access_token=') !== -1;
+        var ls = document.getElementById('loginScreen');
+        var ol = document.getElementById('loginOAuthLoading');
+        if (hasAuth && ls) {
+          ls.style.display = 'none';
+          ls.classList.add('hidden');
+        } else if ((hasCode || hasHash) && ol) {
+          ol.classList.remove('hidden');
+        }
+      } catch (e) {}
+    })();
+  </script>
+
   <!-- ========================================== -->
   <!-- 1. TOP GLOBAL CONTROL & VIEW SWITCHER BANNER -->
   <!-- ========================================== -->
@@ -149,6 +191,12 @@
     </div>
 
     <div class="flex items-center gap-2 md:gap-4">
+      <!-- Supabase Live Status Pill -->
+      <div id="headerSupabaseStatus" class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 rounded-lg text-xs font-mono shadow-sm" title="Connected to Supabase PostgreSQL & Auth">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="font-semibold">Supabase Connected</span>
+      </div>
+
       <!-- Language Switcher Toggle -->
       <button id="btnLangToggle" class="flex items-center gap-1.5 px-3 py-1 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-lg border border-gray-600 transition">
         <i data-lucide="globe" class="w-4 h-4 text-cyan-400"></i>
@@ -857,10 +905,11 @@
         <section id="sectionProfile" class="app-section hidden space-y-4">
           <div class="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm text-center relative space-y-2">
             <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 p-1 mx-auto shadow-md">
-              <img src="assets/images/icon.svg" alt="Profile" class="w-full h-full object-contain filter invert rounded-full" onerror="this.src='assets/team/shivam.jpeg'" />
+              <img id="profileFarmerAvatar" src="assets/images/icon.svg" alt="Profile" class="w-full h-full object-contain filter invert rounded-full" onerror="this.src='assets/team/shivam.jpeg'" />
             </div>
-            <h3 class="text-lg font-bold text-gray-900">K. Ramarao Reddy</h3>
-            <p class="text-xs text-gray-500">Geesugonda Village, Warangal Rural, Telangana</p>
+            <h3 id="profileFarmerName" class="text-lg font-bold text-gray-900">K. Ramarao Reddy</h3>
+            <p id="profileFarmerPlace" class="text-xs text-gray-500">Geesugonda Village, Warangal Rural, Telangana</p>
+            <p id="profileFarmerEmail" class="text-xs text-purple-700 font-semibold"></p>
             <div class="inline-flex items-center gap-1 px-3 py-1 bg-emerald-50 text-emerald-800 rounded-full text-xs font-bold border border-emerald-200">
               <i data-lucide="award" class="w-3.5 h-3.5 text-emerald-600"></i> Verified Farmer (ID: FARMER-TG-7721)
             </div>

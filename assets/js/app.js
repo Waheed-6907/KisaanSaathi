@@ -180,16 +180,312 @@ function initKisanSaathi() {
   }
 
   // =========================================================================
-  // AUTHENTICATION & LOGIN PAGE CONTROLLER
+  // AUTHENTICATION & SUPABASE INTEGRATION CONTROLLER
   // =========================================================================
-  function checkAuthStatus() {
-    const authData = localStorage.getItem('kisan_auth');
+  function updateSupabaseBadge(isConnected = true) {
+    const badge = document.getElementById('headerSupabaseStatus');
+    if (!badge) return;
+    if (isConnected) {
+      badge.classList.remove('hidden');
+      badge.classList.add('inline-flex');
+    }
+  }
+
+  function hideLoginScreen() {
     const loginScreen = document.getElementById('loginScreen');
-    if (!loginScreen) return;
-    if (!authData) {
-      loginScreen.classList.remove('hidden');
-    } else {
+    if (loginScreen) {
+      loginScreen.style.display = 'none';
       loginScreen.classList.add('hidden');
+      loginScreen.classList.remove('flex');
+    }
+    const oauthLoading = document.getElementById('loginOAuthLoading');
+    if (oauthLoading) {
+      oauthLoading.classList.add('hidden');
+    }
+  }
+
+  function showLoginScreen() {
+    const loginScreen = document.getElementById('loginScreen');
+    if (loginScreen) {
+      loginScreen.style.display = 'flex';
+      loginScreen.classList.remove('hidden');
+      loginScreen.classList.add('flex');
+    }
+    const oauthLoading = document.getElementById('loginOAuthLoading');
+    if (oauthLoading) {
+      oauthLoading.classList.add('hidden');
+    }
+  }
+
+  // Update farmer identity across the app (drawer, profile screen, headers)
+  function applyFarmerProfileUI(farmerName, email, phone) {
+    const drawerFarmerName = document.getElementById('drawerFarmerName');
+    if (drawerFarmerName && farmerName) drawerFarmerName.textContent = farmerName;
+
+    const drawerFarmerPlace = document.getElementById('drawerFarmerPlace');
+    if (drawerFarmerPlace) drawerFarmerPlace.textContent = email || 'Warangal Rural, Telangana';
+
+    const profileFarmerName = document.getElementById('profileFarmerName');
+    if (profileFarmerName && farmerName) profileFarmerName.textContent = farmerName;
+
+    const profileFarmerPlace = document.getElementById('profileFarmerPlace');
+    if (profileFarmerPlace) profileFarmerPlace.textContent = 'Warangal Rural, Telangana';
+
+    const profileFarmerEmail = document.getElementById('profileFarmerEmail');
+    if (profileFarmerEmail && email) profileFarmerEmail.textContent = email;
+  }
+
+  // Record user login into Supabase database (profiles table + user_logins audit table)
+  async function recordLoginInDatabase(user, farmerName, provider = 'google') {
+    if (!window.supabaseClient) return;
+    try {
+      console.log('📡 Recording login in Supabase database for:', farmerName, user?.email);
+
+      // 1. Update / Record in public.profiles table
+      const { error: profErr } = await window.supabaseClient
+        .from('profiles')
+        .update({
+          user_id: user?.id || null,
+          full_name: farmerName,
+          updated_at: new Date().toISOString()
+        })
+        .eq('farmer_id', 'FARMER-TG-7721');
+
+      if (profErr) {
+        console.warn('Supabase profiles update notice:', profErr.message);
+      } else {
+        console.log('✔ Successfully recorded login in Supabase profiles table!');
+      }
+
+      // 2. Also record in user_logins audit table (if created by SQL schema)
+      try {
+        const { error: logErr } = await window.supabaseClient
+          .from('user_logins')
+          .insert([
+            {
+              user_id: user?.id || null,
+              email: user?.email || '',
+              full_name: farmerName,
+              provider: provider,
+              logged_in_at: new Date().toISOString(),
+              user_agent: navigator.userAgent
+            }
+          ]);
+        if (logErr) {
+          console.info('user_logins audit table notice:', logErr.message);
+        } else {
+          console.log('✔ Successfully recorded login in user_logins audit table!');
+        }
+      } catch (e) {
+        // user_logins insert is non-blocking
+      }
+    } catch (e) {
+      console.warn('Database login recording notice:', e.message);
+    }
+  }
+
+  // Handle successful authentication for any provider
+  async function handleUserAuthenticated(user, provider = 'google') {
+    const farmerName = user.user_metadata?.full_name || 
+                       user.user_metadata?.name || 
+                       (user.email ? user.email.split('@')[0] : 'K. Ramarao Reddy');
+
+    const email = user.email || '';
+    const phone = user.phone || '9848022334';
+
+    const localSession = {
+      authenticated: true,
+      farmerName: farmerName,
+      email: email,
+      phone: phone,
+      district: 'Warangal',
+      state: 'Telangana',
+      supabaseId: user.id,
+      provider: provider,
+      loginTime: new Date().toISOString()
+    };
+
+    localStorage.setItem('kisan_auth', JSON.stringify(localSession));
+
+    // Update UI elements
+    applyFarmerProfileUI(farmerName, email, phone);
+    updateSupabaseBadge(true);
+
+    // Completely dismiss login screen and redirect to homepage
+    hideLoginScreen();
+    navigateTo('inventory');
+
+    // Clean URL query and hash (remove ?code=... or #access_token=...)
+    if (window.location.search.includes('code=') || window.location.hash.includes('access_token=')) {
+      const cleanUrl = window.location.origin + window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+    }
+
+    showToast(currentLanguage === 'hi' 
+      ? `स्वागत है, ${farmerName} (Google)!` 
+      : `Welcome, ${farmerName}! Signed in via Google.`);
+
+    // Record login in database & sync data
+    await recordLoginInDatabase(user, farmerName, provider);
+    await syncWithSupabase();
+  }
+
+  async function checkAuthStatus() {
+    const loginScreen = document.getElementById('loginScreen');
+    const oauthLoading = document.getElementById('loginOAuthLoading');
+    const urlParams = new URLSearchParams(window.location.search);
+    const authCode = urlParams.get('code');
+    const authError = urlParams.get('error') || urlParams.get('error_description');
+    const hasHash = window.location.hash && window.location.hash.includes('access_token');
+
+    // 1. Check for OAuth callback error
+    if (authError) {
+      console.error('Google OAuth URL Error:', authError);
+      showToast('OAuth Error: ' + authError);
+      showLoginScreen();
+      return;
+    }
+
+    // 2. If OAuth callback params detected in URL (?code=... or #access_token=...)
+    if (authCode || hasHash) {
+      console.log('🔑 Detected OAuth redirect in URL. Initializing session exchange...');
+      if (oauthLoading) oauthLoading.classList.remove('hidden');
+
+      // If PKCE authorization code in URL, explicitly exchange it
+      if (authCode && window.supabaseClient) {
+        try {
+          const { data, error } = await window.supabaseClient.auth.exchangeCodeForSession(authCode);
+          if (!error && data && data.session && data.session.user) {
+            console.log('✔ Auth code exchanged successfully for user:', data.session.user.email);
+            await handleUserAuthenticated(data.session.user, 'google');
+            return;
+          } else if (error) {
+            console.warn('Supabase exchangeCodeForSession notice:', error.message);
+          }
+        } catch (err) {
+          console.warn('Exception during code exchange:', err);
+        }
+      }
+    }
+
+    // 3. Check live Supabase Auth session
+    if (window.supabaseClient) {
+      try {
+        const { data: { session }, error } = await window.supabaseClient.auth.getSession();
+        if (!error && session && session.user) {
+          console.log('✔ Found active Supabase session for user:', session.user.email);
+          await handleUserAuthenticated(session.user, 'google');
+          return;
+        }
+      } catch (e) {
+        console.warn('Supabase getSession notice:', e);
+      }
+    }
+
+    // 4. Check local storage session
+    const authData = localStorage.getItem('kisan_auth');
+    if (authData) {
+      try {
+        const localSession = JSON.parse(authData);
+        if (localSession && localSession.authenticated) {
+          applyFarmerProfileUI(localSession.farmerName, localSession.email, localSession.phone);
+          hideLoginScreen();
+          updateSupabaseBadge(true);
+          syncWithSupabase();
+          navigateTo('inventory');
+          return;
+        }
+      } catch (e) {
+        console.warn('Corrupted local auth data');
+      }
+    }
+
+    // 5. If no active session, show login screen
+    showLoginScreen();
+  }
+
+  // Register realtime Supabase Auth state listener
+  if (window.supabaseClient) {
+    try {
+      window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
+        console.log('⚡ Supabase onAuthStateChange:', event, session?.user?.email);
+        if ((event === 'SIGNED_IN' || event === 'USER_UPDATED') && session && session.user) {
+          await handleUserAuthenticated(session.user, session.user.app_metadata?.provider || 'google');
+        } else if (event === 'SIGNED_OUT') {
+          localStorage.removeItem('kisan_auth');
+          showLoginScreen();
+        }
+      });
+    } catch (e) {
+      console.warn('Supabase auth state listener error:', e);
+    }
+  }
+
+  // Supabase Data Sync: Sync crops, negotiations, and orders with Supabase database
+  async function syncWithSupabase() {
+    if (!window.supabaseClient) return;
+    try {
+      // 1. Fetch crops from Supabase
+      const { data: cropsData, error: cropsErr } = await window.supabaseClient
+        .from('crops')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (!cropsErr && cropsData && cropsData.length > 0) {
+        console.log('✔ Loaded', cropsData.length, 'crops from Supabase database');
+        inventory = cropsData.map(c => ({
+          id: c.id,
+          title: c.crop_name,
+          title_hi: c.crop_name,
+          category: c.category || 'grain',
+          quality: c.ai_grade || 'Elite',
+          quantity: Number(c.quantity_kg),
+          price: Number(c.price_per_kg),
+          description: c.description || 'Certified high-quality produce from Telangana agricultural farmlands.',
+          description_hi: c.description || 'तेलंगाना कृषि भूमि से प्रमाणित उच्च गुणवत्ता उत्पाद।',
+          defect: Number(c.defect_ratio || 2.1),
+          dateAdded: c.created_at ? new Date(c.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+          image: c.image_url || 'assets/raw/paddy.png',
+          reviews: []
+        }));
+        localStorage.setItem('kisan_inventory', JSON.stringify(inventory));
+        renderInventory();
+      }
+
+      // 2. Fetch negotiations from Supabase
+      const { data: negData, error: negErr } = await window.supabaseClient
+        .from('negotiations')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (!negErr && negData && negData.length > 0) {
+        console.log('✔ Loaded', negData.length, 'negotiations from Supabase database');
+        negotiations = negData.map(n => ({
+          id: n.id,
+          buyer: {
+            name: n.buyer_name,
+            phone: "+91 98480 33412",
+            location: n.mandi_location || "Bowenpally Modern Market Yard"
+          },
+          itemTitle: n.crop_name,
+          actualPrice: Number(n.counter_price_per_kg || (n.offer_price_per_kg * 1.1).toFixed(0)),
+          proposedPrice: Number(n.offer_price_per_kg),
+          quantity: Number(n.offered_quantity_kg),
+          image: "assets/raw/paddy.png",
+          status: n.status || "pending",
+          note: `Offer from ${n.buyer_company || n.buyer_name} at ₹${n.offer_price_per_kg}/Kg for ${n.offered_quantity_kg} Kg.`
+        }));
+        localStorage.setItem('kisan_negotiations', JSON.stringify(negotiations));
+        if (activeSection === 'negotiate') renderNegotiations();
+      }
+
+      // 3. Check test table 'todos'
+      const { data: todosData } = await window.supabaseClient.from('todos').select('*');
+      if (todosData && todosData.length > 0) {
+        console.log('✔ Supabase todos table accessible. Count:', todosData.length);
+      }
+    } catch (err) {
+      console.warn('Supabase data sync notice:', err.message);
     }
   }
 
@@ -212,30 +508,38 @@ function initKisanSaathi() {
     }
   };
 
-  function performLogin(farmerName = 'K. Ramarao Reddy', phone = '9848022334') {
+  async function performLogin(farmerName = 'K. Ramarao Reddy', phone = '9848022334') {
     const session = {
       authenticated: true,
       farmerName: farmerName,
       phone: phone,
       district: 'Warangal',
       state: 'Telangana',
+      provider: 'otp',
       loginTime: new Date().toISOString()
     };
     localStorage.setItem('kisan_auth', JSON.stringify(session));
-    const loginScreen = document.getElementById('loginScreen');
-    if (loginScreen) {
-      loginScreen.classList.add('hidden');
-    }
+    applyFarmerProfileUI(farmerName, '', phone);
+    hideLoginScreen();
+    updateSupabaseBadge(true);
     showToast(currentLanguage === 'hi' ? `स्वागत है, ${farmerName}!` : `Welcome to KisanSaathi, ${farmerName}!`);
     navigateTo('inventory');
+
+    // Record login in database
+    await recordLoginInDatabase({ id: null, email: 'farmer@kisaansaathi.telangana.gov.in' }, farmerName, 'otp');
+    syncWithSupabase();
   }
 
-  window.handleSignOut = function() {
-    localStorage.removeItem('kisan_auth');
-    const loginScreen = document.getElementById('loginScreen');
-    if (loginScreen) {
-      loginScreen.classList.remove('hidden');
+  window.handleSignOut = async function() {
+    if (window.supabaseClient) {
+      try {
+        await window.supabaseClient.auth.signOut();
+      } catch (e) {
+        console.warn('Supabase signout notice:', e);
+      }
     }
+    localStorage.removeItem('kisan_auth');
+    showLoginScreen();
     showToast(currentLanguage === 'hi' ? 'सफलतापूर्वक लॉगआउट किया गया' : 'Logged out successfully');
   };
 
@@ -277,8 +581,57 @@ function initKisanSaathi() {
 
   const btnGoogleLogin = document.getElementById('btnGoogleLogin');
   if (btnGoogleLogin) {
-    btnGoogleLogin.addEventListener('click', () => {
-      performLogin('K. Ramarao Reddy (Google)', '9848022334');
+    btnGoogleLogin.addEventListener('click', async () => {
+      // 1. Check if running on local file:// protocol
+      if (window.location.protocol === 'file:') {
+        alert(
+          "⚠️ Google OAuth Notice:\n\n" +
+          "Google does not permit OAuth callbacks to local 'file://' URLs for security.\n\n" +
+          "To use real Google / Gmail Login:\n" +
+          "• Start your local server: run 'npm start' in terminal\n" +
+          "• Open: http://localhost:3000 in your browser\n\n" +
+          "For testing right now without a server, use 'Quick Farmer Login' or 'Mobile OTP Login'!"
+        );
+        return;
+      }
+
+      if (window.supabaseClient) {
+        const oauthLoading = document.getElementById('loginOAuthLoading');
+        if (oauthLoading) oauthLoading.classList.remove('hidden');
+        showToast(currentLanguage === 'hi' ? 'Google / Gmail लॉगिन शुरू हो रहा है...' : 'Connecting to Google OAuth...');
+        try {
+          const redirectUrl = window.location.origin + window.location.pathname;
+          console.log('Initiating Supabase Google OAuth with callback:', redirectUrl);
+
+          const { data, error } = await window.supabaseClient.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+              redirectTo: redirectUrl
+            }
+          });
+
+          if (error) {
+            console.error('Supabase Google OAuth error:', error);
+            if (oauthLoading) oauthLoading.classList.add('hidden');
+            alert(
+              "Google Sign-In Error: " + error.message + "\n\n" +
+              "Check that '" + window.location.origin + "/*' is added under:\n" +
+              "Supabase Dashboard > Authentication > URL Configuration > Redirect URLs"
+            );
+          } else if (data && data.url) {
+            // Explicitly redirect browser window to Google OAuth screen
+            console.log('Redirecting to Google:', data.url);
+            window.location.href = data.url;
+          }
+        } catch (err) {
+          console.error('OAuth redirect exception:', err);
+          const oauthLoading = document.getElementById('loginOAuthLoading');
+          if (oauthLoading) oauthLoading.classList.add('hidden');
+          alert('OAuth Error: ' + err.message);
+        }
+      } else {
+        alert('Supabase client is not loaded. Please verify internet connectivity.');
+      }
     });
   }
 
@@ -656,17 +1009,28 @@ function initKisanSaathi() {
     document.getElementById('modalItemDetails').classList.remove('open');
   });
 
-  document.getElementById('btnDeleteItem').addEventListener('click', () => {
+  document.getElementById('btnDeleteItem').addEventListener('click', async () => {
     if (confirm('Are you sure you want to remove this crop from your inventory?')) {
-      inventory = inventory.filter(i => i.id !== currentViewingItemId);
+      const idToDelete = currentViewingItemId;
+      inventory = inventory.filter(i => i.id !== idToDelete);
       localStorage.setItem('kisan_inventory', JSON.stringify(inventory));
       document.getElementById('modalItemDetails').classList.remove('open');
       renderInventory();
       showToast('Crop removed successfully');
+
+      // Sync deletion with Supabase crops table
+      if (window.supabaseClient && idToDelete) {
+        try {
+          const { error } = await window.supabaseClient.from('crops').delete().eq('id', idToDelete);
+          if (!error) console.log('✔ Deleted crop from Supabase:', idToDelete);
+        } catch (e) {
+          console.warn('Supabase delete notice:', e);
+        }
+      }
     }
   });
 
-  document.getElementById('btnOpenEditCrop').addEventListener('click', () => {
+  document.getElementById('btnOpenEditCrop').addEventListener('click', async () => {
     const item = inventory.find(i => i.id === currentViewingItemId);
     if (!item) return;
     const newPrice = prompt('Enter new price (₹ / Kg):', item.price);
@@ -676,6 +1040,16 @@ function initKisanSaathi() {
       document.getElementById('modalItemDetails').classList.remove('open');
       renderInventory();
       showToast('Crop price updated!');
+
+      // Sync updated price with Supabase crops table
+      if (window.supabaseClient && item.id) {
+        try {
+          const { error } = await window.supabaseClient.from('crops').update({ price_per_kg: item.price }).eq('id', item.id);
+          if (!error) console.log('✔ Updated price in Supabase:', item.id, item.price);
+        } catch (e) {
+          console.warn('Supabase price update notice:', e);
+        }
+      }
     }
   });
 
@@ -784,10 +1158,45 @@ function initKisanSaathi() {
     saveCropToInventory(newCrop);
   });
 
-  function saveCropToInventory(crop) {
+  async function saveCropToInventory(crop) {
     inventory.unshift(crop);
     localStorage.setItem('kisan_inventory', JSON.stringify(inventory));
-    showToast('Crop successfully listed in marketplace!');
+    renderInventory();
+
+    // Save to Supabase `crops` table
+    if (window.supabaseClient) {
+      try {
+        const { data, error } = await window.supabaseClient.from('crops').insert([{
+          crop_name: crop.title,
+          category: crop.category || 'grain',
+          variety: crop.title.includes('Paddy') || crop.title.includes('Rice') ? 'Telangana Sona (RNR 15048)' : 'Certified Hybrid',
+          ai_grade: crop.quality || 'Elite',
+          quantity_kg: crop.quantity,
+          price_per_kg: crop.price,
+          description: crop.description,
+          image_url: crop.image,
+          farmer_id: 'FARMER-TG-7721',
+          cluster_id: 'Warangal Agri-Cluster #12',
+          mandi: 'Enumamula Wholesale Mandi (Warangal)',
+          status: 'listed'
+        }]).select();
+
+        if (!error && data && data.length > 0) {
+          console.log('✔ Crop saved to Supabase database table `crops` with ID:', data[0].id);
+          crop.id = data[0].id;
+          localStorage.setItem('kisan_inventory', JSON.stringify(inventory));
+          showToast('Crop synced to Supabase database successfully!');
+        } else if (error) {
+          console.warn('Supabase crop insert error:', error.message);
+          showToast('Crop saved locally (' + error.message + ')');
+        }
+      } catch (e) {
+        console.warn('Supabase crop save notice:', e);
+      }
+    } else {
+      showToast('Crop successfully listed in marketplace!');
+    }
+
     document.getElementById('formAddCrop').reset();
     uploadPlaceholder.classList.remove('hidden');
     uploadImagePreview.classList.add('hidden');
@@ -1019,11 +1428,39 @@ function initKisanSaathi() {
       localStorage.setItem('kisan_wallet', JSON.stringify(wallet));
       localStorage.setItem('kisan_negotiations', JSON.stringify(negotiations));
 
+      // Sync with Supabase negotiations and orders tables
+      if (window.supabaseClient) {
+        try {
+          if (nego.id && !nego.id.startsWith('NEGO-')) {
+            window.supabaseClient.from('negotiations').update({ status: 'accepted' }).eq('id', nego.id).then();
+          }
+          window.supabaseClient.from('orders').insert([{
+            crop_name: nego.itemTitle,
+            buyer_name: nego.buyer.name,
+            quantity_kg: nego.quantity,
+            total_amount: totalAmount,
+            freight_savings_percent: 38.0,
+            escrow_status: 'escrow_locked',
+            blockchain_tx_hash: '0x' + Array.from({length: 40}, () => Math.floor(Math.random()*16).toString(16)).join(''),
+            dbt_payout_within_hours: 24
+          }]).then();
+        } catch (e) {
+          console.warn('Supabase order sync notice:', e);
+        }
+      }
+
       showToast(`Offer accepted! ₹${totalAmount.toLocaleString('en-IN')} added to Escrow.`);
     } else {
       nego.status = 'rejected';
       nego.note = `Declined offer. Asking price maintained.`;
       localStorage.setItem('kisan_negotiations', JSON.stringify(negotiations));
+
+      if (window.supabaseClient && nego.id && !nego.id.startsWith('NEGO-')) {
+        try {
+          window.supabaseClient.from('negotiations').update({ status: 'rejected' }).eq('id', nego.id).then();
+        } catch (e) {}
+      }
+
       showToast('Counter offer declined.');
     }
 

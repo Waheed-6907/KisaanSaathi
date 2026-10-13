@@ -6,6 +6,25 @@ const path = require('path');
 const PORT = process.env.PORT || 3000;
 const ROOT = __dirname;
 
+// Automatically parse and load .env.local / .env into process.env if present
+['.env.local', '.env'].forEach(envFile => {
+  const envPath = path.join(__dirname, envFile);
+  if (fs.existsSync(envPath)) {
+    try {
+      const content = fs.readFileSync(envPath, 'utf8');
+      content.split('\n').forEach(line => {
+        const trimmed = line.trim();
+        if (trimmed && !trimmed.startsWith('#') && trimmed.includes('=')) {
+          const [k, ...vParts] = trimmed.split('=');
+          const key = k.trim();
+          const val = vParts.join('=').trim().replace(/^['"]|['"]$/g, '');
+          if (!process.env[key]) process.env[key] = val;
+        }
+      });
+    } catch (_e) {}
+  }
+});
+
 // Pre-load and cache index.html so it is bundled by @vercel/nft and instantly available in memory
 let cachedIndexHtml = '';
 try {
