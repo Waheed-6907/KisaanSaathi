@@ -181,6 +181,17 @@ function handleRequest(req, res) {
     }
   }
 
+  // API Route: /api/crop-vision (Genuine Computer Vision Crop Recognition & Pricing API)
+  if (reqPath === '/api/crop-vision') {
+    try {
+      const cropVisionHandler = require('./api/crop-vision.js');
+      return cropVisionHandler(req, res);
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error: 'Crop Vision error', details: err.message }));
+    }
+  }
+
   // Support communication with bound internal service 'web-platform' via WEB_PLATFORM_URL if present
   if (process.env.WEB_PLATFORM_URL && (reqPath.startsWith('/platform') || reqPath.startsWith('/api/platform'))) {
     try {

@@ -25,7 +25,9 @@ const OFFICIAL_MSP_TABLE = {
   'PADDY_COMMON': 2300.00,
   'COTTON': 7121.00,
   'MAIZE': 2225.00,
-  'BENGAL_GRAM': 5650.00
+  'BENGAL_GRAM': 5650.00,
+  'WHEAT': 2425.00,
+  'RED_GRAM': 7550.00
 };
 
 async function parseBody(req) {

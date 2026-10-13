@@ -1994,9 +1994,11 @@ function initKisanSaathi() {
 
   // =========================================================================
   // SECTION 2: ADD CROP TO INVENTORY (UploadInventoryActivity)
-  // With simulated CV Quality & Price Estimation + Almora Cluster 15 Trigger
+  // Genuine Computer Vision Produce Recognition & Fair Market Price Estimation
   // =========================================================================
   let uploadedCropImageUrl = 'assets/raw/wheat.png';
+  let isCurrentUploadPreset = false;
+  let currentUploadRequestId = 0;
 
   const uploadDropArea = document.getElementById('uploadDropArea');
   const inputCropImage = document.getElementById('inputCropImage');
@@ -2004,52 +2006,253 @@ function initKisanSaathi() {
   const uploadImagePreview = document.getElementById('uploadImagePreview');
   const aiScanningIndicator = document.getElementById('aiScanningIndicator');
 
+  // Result feedback cards
+  const aiCardInvalid = document.getElementById('aiCardInvalid');
+  const aiCardAmbiguous = document.getElementById('aiCardAmbiguous');
+  const aiCardVerified = document.getElementById('aiCardVerified');
+  const aiCardPreset = document.getElementById('aiCardPreset');
+  const aiInvalidReason = document.getElementById('aiInvalidReason');
+  const aiAmbiguousReason = document.getElementById('aiAmbiguousReason');
+  const aiVerifiedCropName = document.getElementById('aiVerifiedCropName');
+  const aiVerifiedConfidence = document.getElementById('aiVerifiedConfidence');
+  const aiVerifiedReason = document.getElementById('aiVerifiedReason');
+  const aiSurfaceGradeText = document.getElementById('aiSurfaceGradeText');
+  const aiMandiPriceCard = document.getElementById('aiMandiPriceCard');
+  const predictedPriceHint = document.getElementById('predictedPriceHint');
+
+  const btnTryAnotherImage = document.getElementById('btnTryAnotherImage');
+  const btnRetakePhoto = document.getElementById('btnRetakePhoto');
+
+  if (btnTryAnotherImage) {
+    btnTryAnotherImage.addEventListener('click', (e) => {
+      e.stopPropagation();
+      inputCropImage.click();
+    });
+  }
+  if (btnRetakePhoto) {
+    btnRetakePhoto.addEventListener('click', (e) => {
+      e.stopPropagation();
+      inputCropImage.click();
+    });
+  }
+
+  function hideAllAiCards() {
+    if (aiCardInvalid) aiCardInvalid.classList.add('hidden');
+    if (aiCardAmbiguous) aiCardAmbiguous.classList.add('hidden');
+    if (aiCardVerified) aiCardVerified.classList.add('hidden');
+    if (aiCardPreset) aiCardPreset.classList.add('hidden');
+  }
+
+  function clearStalePredictions() {
+    hideAllAiCards();
+    const nameEl = document.getElementById('inputItemName');
+    const priceEl = document.getElementById('inputItemPrice');
+    if (nameEl) nameEl.value = '';
+    if (priceEl) priceEl.value = '';
+    if (predictedPriceHint) predictedPriceHint.textContent = '';
+    if (aiMandiPriceCard) aiMandiPriceCard.innerHTML = '';
+  }
+
   uploadDropArea.addEventListener('click', () => inputCropImage.click());
 
   inputCropImage.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) {
+      isCurrentUploadPreset = false;
       const reader = new FileReader();
       reader.onload = (ev) => {
         uploadedCropImageUrl = ev.target.result;
-        triggerMLAnalysis(uploadedCropImageUrl);
+        analyzeCropImage(uploadedCropImageUrl, false);
       };
       reader.readAsDataURL(file);
     }
   });
 
-  // Sample pickers
+  // Sample preset pickers (clearly marked as demo test mode)
   document.querySelectorAll('.btn-sample-pick').forEach(btn => {
-    btn.addEventListener('click', (e) => {
+    btn.addEventListener('click', async (e) => {
       e.stopPropagation();
       const sample = btn.getAttribute('data-sample');
       const name = btn.getAttribute('data-name');
       const cat = btn.getAttribute('data-cat');
+      const cropId = btn.getAttribute('data-cropid') || 'PADDY_COMMON';
+
+      isCurrentUploadPreset = true;
       uploadedCropImageUrl = sample;
+
+      // Clear stale predictions
+      clearStalePredictions();
+      if (aiCardPreset) aiCardPreset.classList.remove('hidden');
+
+      uploadPlaceholder.classList.add('hidden');
+      uploadImagePreview.src = sample;
+      uploadImagePreview.classList.remove('hidden');
+
       document.getElementById('inputItemName').value = name;
       document.getElementById('selectItemType').value = cat;
-      triggerMLAnalysis(sample);
+
+      // Show scanning spinner briefly for UI realism
+      aiScanningIndicator.classList.remove('hidden');
+      const thisRequestId = ++currentUploadRequestId;
+
+      try {
+        // Fetch real market price for this preset commodity
+        const res = await fetch(`/api/market-prices?commodityId=${encodeURIComponent(cropId)}`);
+        const pData = await res.json();
+        if (thisRequestId !== currentUploadRequestId) return;
+
+        aiScanningIndicator.classList.add('hidden');
+        const obs = (pData.observations && pData.observations[0]) || null;
+        if (obs && obs.modalPricePerKg) {
+          document.getElementById('inputItemPrice').value = obs.modalPricePerKg;
+          if (predictedPriceHint) {
+            predictedPriceHint.textContent = `✓ Mandi Modal Rate: ₹${obs.modalPricePerKg} / Kg (${obs.marketName} • Agmarknet ${obs.observationDate})`;
+          }
+        } else {
+          if (predictedPriceHint) {
+            predictedPriceHint.textContent = 'Market price unavailable — enter your expected price manually.';
+          }
+        }
+        showToast(`Preset Demo Loaded: ${name}`);
+      } catch (_err) {
+        if (thisRequestId !== currentUploadRequestId) return;
+        aiScanningIndicator.classList.add('hidden');
+        if (predictedPriceHint) {
+          predictedPriceHint.textContent = 'Market price unavailable — enter your expected price manually.';
+        }
+      }
+      if (window.lucide) window.lucide.createIcons();
     });
   });
 
-  function triggerMLAnalysis(imgSrc) {
+  async function analyzeCropImage(imgSrc, isPreset) {
+    const thisRequestId = ++currentUploadRequestId;
+
+    // Reset stale predictions immediately
+    clearStalePredictions();
+
     uploadPlaceholder.classList.add('hidden');
     uploadImagePreview.src = imgSrc;
     uploadImagePreview.classList.remove('hidden');
     aiScanningIndicator.classList.remove('hidden');
 
-    // Simulate 2.5s CV inference pipeline
-    setTimeout(() => {
-      aiScanningIndicator.classList.add('hidden');
-      const qualities = ['Premium', 'Elite', 'Classic'];
-      const pickedQuality = qualities[Math.floor(Math.random() * qualities.length)];
-      document.getElementById('selectItemQuality').value = pickedQuality;
+    try {
+      const response = await fetch('/api/crop-vision', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          imageBase64: imgSrc,
+          mimeType: imgSrc.startsWith('data:image/png') ? 'image/png' : 'image/jpeg'
+        })
+      });
 
-      const basePrice = pickedQuality === 'Elite' ? 65 : pickedQuality === 'Premium' ? 48 : 38;
-      document.getElementById('inputItemPrice').value = basePrice;
-      document.getElementById('predictedPriceHint').textContent = `✓ ML Predicted Fair Price: ₹${basePrice - 4} - ₹${basePrice + 5} / Kg (${pickedQuality} Grade)`;
-      showToast(`AI Detected: ${pickedQuality} Quality Crop! Price auto-filled.`);
-    }, 2200);
+      // Stale response guard to prevent out-of-order race conditions
+      if (thisRequestId !== currentUploadRequestId) return;
+
+      aiScanningIndicator.classList.add('hidden');
+
+      if (!response.ok) {
+        throw new Error(`Vision service returned HTTP ${response.status}`);
+      }
+
+      const result = await response.json();
+      if (thisRequestId !== currentUploadRequestId) return;
+
+      // CASE A & B: Image Rejected / Invalid or Ambiguous Produce
+      if (!result.is_supported_produce) {
+        // Do NOT assign crop name, quality grade, or predicted price
+        document.getElementById('inputItemName').value = '';
+        document.getElementById('inputItemPrice').value = '';
+        if (predictedPriceHint) predictedPriceHint.textContent = '';
+
+        if (result.is_ambiguous) {
+          // Low quality, blurry or ambiguous image
+          if (aiCardAmbiguous) {
+            aiCardAmbiguous.classList.remove('hidden');
+            if (aiAmbiguousReason) {
+              aiAmbiguousReason.textContent = result.rejection_reason || result.reason || 'Image is too blurry or low contrast to verify.';
+            }
+          }
+        } else {
+          // Explicitly unrelated object (phone, person, vehicle, document, etc.)
+          if (aiCardInvalid) {
+            aiCardInvalid.classList.remove('hidden');
+            if (aiInvalidReason) {
+              aiInvalidReason.textContent = result.rejection_reason || result.reason || 'No supported produce detected in image.';
+            }
+          }
+        }
+        // Do NOT display a success notification
+        if (window.lucide) window.lucide.createIcons();
+        return;
+      }
+
+      // CASE C: Produce Successfully Verified!
+      if (aiCardVerified) {
+        aiCardVerified.classList.remove('hidden');
+        if (aiVerifiedCropName) aiVerifiedCropName.textContent = result.crop_name || 'Verified Produce';
+        if (aiVerifiedConfidence) {
+          const confPct = Math.round((result.confidence || 0.9) * 100);
+          aiVerifiedConfidence.textContent = `${confPct}% Confidence`;
+        }
+        if (aiVerifiedReason) aiVerifiedReason.textContent = result.reason || 'Authentic agricultural produce verified.';
+      }
+
+      // Populate form fields
+      document.getElementById('inputItemName').value = result.crop_name || '';
+      if (result.crop_category) {
+        document.getElementById('selectItemType').value = result.crop_category;
+      }
+
+      // Surface-only quality assessment
+      if (result.visible_surface_quality && result.visible_surface_quality.estimated_grade) {
+        const estGrade = result.visible_surface_quality.estimated_grade;
+        document.getElementById('selectItemQuality').value = estGrade;
+        if (aiSurfaceGradeText) {
+          aiSurfaceGradeText.textContent = `Surface Quality Grade: ${estGrade} — ${result.visible_surface_quality.observation || 'Visual inspection'}`;
+        }
+      } else {
+        document.getElementById('selectItemQuality').value = 'Classic';
+        if (aiSurfaceGradeText) {
+          aiSurfaceGradeText.textContent = 'Surface Quality Grade: Farmer-Provided / Standard';
+        }
+      }
+
+      // Authentic Agmarknet Mandi Price
+      if (result.market_price && result.market_price.available && result.market_price.modalPricePerKg) {
+        const mp = result.market_price;
+        document.getElementById('inputItemPrice').value = mp.modalPricePerKg;
+        const priceLabel = `✓ Agmarknet Modal Rate: ₹${mp.modalPricePerKg} / Kg (${mp.mandiName} • ${mp.observationDate})`;
+        if (predictedPriceHint) predictedPriceHint.textContent = priceLabel;
+        if (aiMandiPriceCard) {
+          aiMandiPriceCard.innerHTML = `<span class="text-emerald-700 font-bold">Verified Agmarknet Mandi Price:</span> ₹${mp.modalPricePerKg} / Kg <span class="text-[11px] text-gray-500 font-normal">(${mp.mandiName}, ${mp.district} • ${mp.source} ${mp.observationDate})</span>`;
+        }
+        showToast(`Produce Verified: ${result.crop_name}! Agmarknet price auto-filled.`);
+      } else {
+        document.getElementById('inputItemPrice').value = '';
+        const unavailableMsg = 'Market price unavailable — enter your expected price manually.';
+        if (predictedPriceHint) predictedPriceHint.textContent = unavailableMsg;
+        if (aiMandiPriceCard) {
+          aiMandiPriceCard.innerHTML = `<span class="text-amber-700 font-medium">${unavailableMsg}</span>`;
+        }
+        showToast(`Produce Verified: ${result.crop_name}. Please set your price.`);
+      }
+
+    } catch (err) {
+      if (thisRequestId !== currentUploadRequestId) return;
+      aiScanningIndicator.classList.add('hidden');
+      console.error('Vision analysis error:', err);
+      // Graceful error handling: show ambiguous/retry card, clear stale price
+      clearStalePredictions();
+      if (aiCardAmbiguous) {
+        aiCardAmbiguous.classList.remove('hidden');
+        if (aiAmbiguousReason) {
+          aiAmbiguousReason.textContent = 'Unable to connect to vision service. Please try again or fill in crop details manually.';
+        }
+      }
+    }
+
+    if (window.lucide) window.lucide.createIcons();
   }
 
   // Handle Form Submission with Cluster Recommendation
