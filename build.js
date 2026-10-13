@@ -56,7 +56,8 @@ const jsFiles = [
   'api/logistics.js', 
   'api/voice-saathi.js',
   'api/market-prices.js',
-  'api/market-agent.js'
+  'api/market-agent.js',
+  'api/credit-assessment.js'
 ];
 for (const jsFile of jsFiles) {
   const fullPath = path.join(__dirname, jsFile);

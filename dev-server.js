@@ -170,6 +170,17 @@ function handleRequest(req, res) {
     }
   }
 
+  // API Route: /api/credit-assessment (Inclusive Farmer Credit Assessment & Schemes API)
+  if (reqPath === '/api/credit-assessment') {
+    try {
+      const creditAssessmentHandler = require('./api/credit-assessment.js');
+      return creditAssessmentHandler(req, res);
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error: 'Credit Assessment error', details: err.message }));
+    }
+  }
+
   // Support communication with bound internal service 'web-platform' via WEB_PLATFORM_URL if present
   if (process.env.WEB_PLATFORM_URL && (reqPath.startsWith('/platform') || reqPath.startsWith('/api/platform'))) {
     try {

@@ -310,6 +310,141 @@ const KISAN_DATA = {
     }
   ],
 
+  // Inclusive Agricultural Credit Schemes Registry
+  agriculturalCreditSchemes: [
+    {
+      scheme_code: 'KCC_REVISED_2026',
+      scheme_name: 'Kisan Credit Card (KCC) - Scale of Finance',
+      scheme_name_te: 'కిసాన్ క్రెడిట్ కార్డ్ (KCC) పంట రుణం',
+      scheme_name_hi: 'किसान क्रेडिट कार्ड (KCC) फसल ऋण',
+      issuing_agency: 'Ministry of Agriculture & NABARD / Commercial & RRB Banks',
+      max_limit_amount: 300000,
+      subsidized_interest_rate_pct: 7.0,
+      effective_interest_rate_pct: 4.0,
+      allows_no_credit_history: true,
+      permits_tenant_farmers: true,
+      eligible_tenancy_types: ['owner_cultivator', 'tenant_farmer', 'oral_lessee', 'sharecropper', 'jlg_member'],
+      eligible_purposes: ['crop_production_seeds_fertilizers', 'micro_irrigation_drip_sprinkler', 'working_capital'],
+      required_documents: ['identity_aadhaar', 'bank_passbook', 'cultivation_proof', 'crop_sowing_declaration'],
+      criteria_summary: 'Collateral-free crop loan up to Rs. 1,60,000 under RBI guidelines. 3% prompt repayment incentive brings effective interest to 4%. Tenant farmers eligible via JLG or village VRO declaration.',
+      verification_source_url: 'https://agricoop.nic.in/en/kcc',
+      rules_verified_at: '2026-10-01'
+    },
+    {
+      scheme_code: 'JLG_TENANT_SCHEME',
+      scheme_name: 'NABARD Joint Liability Group (JLG) Tenant Credit',
+      scheme_name_te: 'కౌలు రైతుల జేఎల్‌జీ (JLG) సమూహ రుణం',
+      scheme_name_hi: 'नाबार्ड संयुक्त देयता समूह (JLG) बटाईदार ऋण',
+      issuing_agency: 'NABARD & State Cooperative Banks / RRBs',
+      max_limit_amount: 150000,
+      subsidized_interest_rate_pct: 7.0,
+      effective_interest_rate_pct: 4.0,
+      allows_no_credit_history: true,
+      permits_tenant_farmers: true,
+      eligible_tenancy_types: ['tenant_farmer', 'oral_lessee', 'sharecropper', 'jlg_member'],
+      eligible_purposes: ['crop_production_seeds_fertilizers', 'farm_machinery_equipment', 'allied_farming'],
+      required_documents: ['identity_aadhaar', 'bank_passbook', 'jlg_peer_undertaking', 'village_vro_certificate'],
+      criteria_summary: 'Specifically tailored for oral lessees, sharecroppers, and tenant farmers without registered land titles. Peer guarantee through group of 4-10 farmers replaces physical collateral.',
+      verification_source_url: 'https://www.nabard.org/content1.aspx?id=516',
+      rules_verified_at: '2026-10-01'
+    },
+    {
+      scheme_code: 'AIF_POST_HARVEST',
+      scheme_name: 'Agriculture Infrastructure Fund (AIF) Value Addition',
+      scheme_name_te: 'వ్యవసాయ మౌలిక సదుపాయాల నిధి (AIF)',
+      scheme_name_hi: 'कृषि अवसंरचना कोष (AIF) मूल्य संवर्धन ऋण',
+      issuing_agency: 'Ministry of Agriculture and Farmers Welfare (DA&FW)',
+      max_limit_amount: 2000000,
+      subsidized_interest_rate_pct: 9.0,
+      effective_interest_rate_pct: 6.0,
+      allows_no_credit_history: true,
+      permits_tenant_farmers: true,
+      eligible_tenancy_types: ['owner_cultivator', 'tenant_farmer', 'jlg_member'],
+      eligible_purposes: ['post_harvest_storage', 'farm_machinery_equipment'],
+      required_documents: ['identity_aadhaar', 'bank_passbook', 'project_estimate', 'land_possession_or_lease'],
+      criteria_summary: '3% interest subvention per annum up to Rs. 2 Crore for setting up post-harvest farm-gate infrastructure, packhouses, mini-warehouses, and solar drying units.',
+      verification_source_url: 'https://agriinfra.dac.gov.in/',
+      rules_verified_at: '2026-10-01'
+    },
+    {
+      scheme_code: 'PM_KUSUM_B_SOLAR',
+      scheme_name: 'PM-KUSUM Component-B Solar Irrigation Pump Loan',
+      scheme_name_te: 'పీఎం-కుసుమ్ సౌర వ్యవసాయ పంపు పథకం',
+      scheme_name_hi: 'पीएम-कुसुम सोलर पंप कृषि ऋण',
+      issuing_agency: 'Ministry of New and Renewable Energy (MNRE) & REDS',
+      max_limit_amount: 350000,
+      subsidized_interest_rate_pct: 7.5,
+      effective_interest_rate_pct: 4.5,
+      allows_no_credit_history: true,
+      permits_tenant_farmers: true,
+      eligible_tenancy_types: ['owner_cultivator', 'tenant_farmer', 'sharecropper'],
+      eligible_purposes: ['solar_water_pump', 'micro_irrigation_drip_sprinkler'],
+      required_documents: ['identity_aadhaar', 'bank_passbook', 'water_source_proof', 'quotation_empanelled_vendor'],
+      criteria_summary: '60% government subsidy (30% Central + 30% State), 30% bank term loan, and only 10% farmer contribution for solar water pumping systems from 3 HP to 7.5 HP.',
+      verification_source_url: 'https://pmkusum.mnre.gov.in/',
+      rules_verified_at: '2026-10-01'
+    }
+  ],
+
+  // Seed Farmer Loan Applications
+  farmerLoanApplications: [
+    {
+      id: "APP-KCC-2026-7821",
+      application_number: "APP-KCC-2026-7821",
+      farmer_id: "FARMER-TG-7721",
+      pathway: "no_credit_history",
+      applicant_name: "K. Ramarao Reddy",
+      applicant_phone: "9848022334",
+      state: "Telangana",
+      district: "Warangal Rural",
+      village: "Geesugonda",
+      preferred_mandi: "Enumamula Wholesale Mandi",
+      tenancy_type: "tenant_farmer",
+      land_size_acres: 4.0,
+      cultivation_evidence: "village_vro_certificate",
+      primary_crops: ["Telangana Sona Paddy", "Tandur Red Gram"],
+      cropping_season: "kharif",
+      expected_harvest_quintals: 80,
+      estimated_harvest_value: 224000,
+      loan_purpose: "crop_production_seeds_fertilizers",
+      requested_amount: 120000,
+      preferred_tenure_months: 12,
+      estimated_seasonal_income: 220000,
+      estimated_farming_expenses: 75000,
+      existing_debt_obligations: 15000,
+      indicative_status: "potentially_eligible",
+      application_status: "submitted",
+      is_simulated_assessment: true,
+      matched_schemes: [
+        {
+          scheme_code: "KCC_REVISED_2026",
+          scheme_name: "Kisan Credit Card (KCC) - Scale of Finance",
+          effective_interest_rate: 4.0,
+          max_limit_amount: 300000
+        },
+        {
+          scheme_code: "JLG_TENANT_SCHEME",
+          scheme_name: "NABARD Joint Liability Group (JLG) Tenant Credit",
+          effective_interest_rate: 4.0,
+          max_limit_amount: 150000
+        }
+      ],
+      factor_breakdowns: {
+        tenancy_status: { type: "tenant_farmer", recognized_under_rbi: true, collateral_free_eligible: true },
+        cashflow_capacity: { gross_seasonal_income: 220000, operating_farming_expenses: 75000, net_seasonal_surplus: 145000, debt_service_ratio: 2.18, status: "Strong" },
+        scale_of_finance: { acres_cultivated: 4.0, scale_limit_benchmark: 168000, requested_amount: 120000 },
+        credit_history_mode: "Assessed exclusively on farm production & cash flow (Zero CIBIL requirement)"
+      },
+      missing_requirements: [
+        "Village Panchayat VRO Cultivation Certificate OR Tenancy Undertaking",
+        "Aadhaar Card (e-KYC verified)",
+        "Bank Passbook Copy (DBT Active)"
+      ],
+      blockchain_tx_hash: "0x7c91a4b8e23f0051d98a2e7c419e0b82f63a87d1",
+      created_at: "Today, 10:30 AM"
+    }
+  ],
+
   // Real Soil Testing Labs across Telangana Districts
   soilLabs: [
     // Hyderabad
