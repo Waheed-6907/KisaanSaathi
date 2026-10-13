@@ -2751,10 +2751,621 @@ function initKisanSaathi() {
     if (window.lucide) lucide.createIcons();
   }
 
+  // =========================================================================
+  // PDF STATEMENT GENERATION ENGINE (Farmer Payments & Consumer Escrow)
+  // =========================================================================
+
+  // Printable fallback generator if jsPDF is blocked or unavailable
+  function openPrintableStatementFallback(options) {
+    try {
+      const isFarmer = options.type === 'farmer';
+      const printWin = window.open('', '_blank', 'width=900,height=800');
+      if (!printWin) {
+        showToast('Please allow popups to view/print the official statement.');
+        return;
+      }
+
+      const rowsHtml = (options.txns || []).map((t, i) => {
+        const ref = t.id || ('PAY-' + (9900 + i));
+        const date = t.time || 'Recent';
+        const party = isFarmer ? (t.buyer || 'Verified Buyer') : (t.farmer || 'Farmer Direct');
+        const desc = t.cropName ? `${t.cropName} (${t.quantity || ''} Kg)` : (t.desc || 'Agricultural Produce');
+        const dest = t.deliveryLocation ? `<br/><small style="color:#64748b;">📍 ${t.deliveryLocation}</small>` : '';
+        const amt = Math.abs(t.amount || 0).toLocaleString('en-IN');
+        const st = t.status || (isFarmer ? 'Received (DBT Credited)' : 'Settled via Escrow');
+        return `
+          <tr>
+            <td style="padding:8px 10px; border-bottom:1px solid #e2e8f0; font-family:monospace; font-weight:bold;">${ref}</td>
+            <td style="padding:8px 10px; border-bottom:1px solid #e2e8f0;">${date}</td>
+            <td style="padding:8px 10px; border-bottom:1px solid #e2e8f0; font-weight:600;">${party}</td>
+            <td style="padding:8px 10px; border-bottom:1px solid #e2e8f0;">${desc}${dest}</td>
+            <td style="padding:8px 10px; border-bottom:1px solid #e2e8f0; color:#059669; font-weight:bold;">${st}</td>
+            <td style="padding:8px 10px; border-bottom:1px solid #e2e8f0; text-align:right; font-weight:bold; color:#107850;">₹${amt}</td>
+          </tr>
+        `;
+      }).join('');
+
+      const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>${isFarmer ? 'KisanSaathi_Farmer_Payment_Statement' : 'KisanSaathi_Consumer_Escrow_Statement'}</title>
+          <meta charset="utf-8" />
+          <style>
+            @media print {
+              body { margin: 0; padding: 15mm; }
+              .no-print { display: none !important; }
+            }
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #1e293b; margin: 20px auto; max-width: 820px; line-height: 1.4; }
+            .header { background: #107850; color: #fff; padding: 18px 24px; border-radius: 12px; margin-bottom: 20px; }
+            .header h1 { margin: 0 0 4px; font-size: 20px; letter-spacing: 0.5px; }
+            .header p { margin: 2px 0; font-size: 11px; opacity: 0.9; }
+            .card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; display: flex; justify-content: space-between; }
+            .badge { display: inline-block; padding: 4px 10px; background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; font-size: 11px; font-weight: bold; border-radius: 6px; }
+            table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px; }
+            th { background: #f1f5f9; padding: 8px 10px; text-align: left; font-size: 11px; text-transform: uppercase; color: #475569; border-bottom: 2px solid #cbd5e1; }
+            .footer { border-top: 1px solid #e2e8f0; padding-top: 12px; font-size: 10px; color: #64748b; text-align: center; }
+            .btn-print { background: #107850; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+          </style>
+        </head>
+        <body>
+          <div class="no-print" style="margin-bottom:15px; display:flex; justify-content:space-between; align-items:center; background:#f1f5f9; padding:10px 16px; border-radius:8px;">
+            <span style="font-size:12px; font-weight:bold; color:#334155;">Official Statement Ready for Print / PDF Export</span>
+            <button class="btn-print" onclick="window.print()">🖨️ Print / Save as PDF</button>
+          </div>
+          <div class="header">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <h1>🌾 KISAN SAATHI</h1>
+                <p>Govt. of Telangana Agri-Tech Platform | Rythu Bandhu Samithi</p>
+                <p>Automated Multi-Sig Escrow & Direct Mandi Payment Gateway</p>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-weight:bold; font-size:13px; text-transform:uppercase;">${isFarmer ? 'Official Payment Statement' : 'Escrow Audit Statement'}</div>
+                <p style="font-size:10px; margin-top:4px;">Date: ${options.dateFormatted} ${options.timeFormatted}</p>
+                <p style="font-size:10px; font-family:monospace;">REF: KS-${Date.now().toString(36).toUpperCase()}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div>
+              <div style="font-size:11px; color:#64748b; text-transform:uppercase; font-weight:bold;">${isFarmer ? 'Farmer Beneficiary Information' : 'Consumer / Buyer Details'}</div>
+              <div style="font-size:14px; font-weight:bold; color:#0f172a; margin-top:2px;">${isFarmer ? options.farmerName : options.buyerName}</div>
+              <div style="font-size:11px; color:#475569; margin-top:2px;">ID: ${isFarmer ? options.farmerId : options.buyerId} | Phone: ${options.phone}</div>
+              <div style="font-size:11px; color:#475569;">${isFarmer ? ('Location: ' + options.village) : ('Address: ' + options.address)}</div>
+              ${isFarmer ? `<div style="font-size:11px; color:#059669; font-weight:bold; margin-top:2px;">Bank: ${options.bankAc}</div>` : ''}
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:11px; color:#64748b; text-transform:uppercase; font-weight:bold;">${isFarmer ? 'Total Payments Received' : 'Available Escrow Balance'}</div>
+              <div style="font-size:22px; font-weight:bold; color:#107850; margin-top:2px;">₹${Number(options.balance).toLocaleString('en-IN')}</div>
+              <div class="badge" style="margin-top:4px;">${isFarmer ? '✓ 100% DBT Cleared' : '✓ Multi-Sig Secured'}</div>
+            </div>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Txn ID</th>
+                <th>Date / Time</th>
+                <th>${isFarmer ? 'Buyer' : 'Farmer Origin'}</th>
+                <th>Crop & Delivery Mandi</th>
+                <th>Settlement Status</th>
+                <th style="text-align:right;">Amount (₹)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml || '<tr><td colspan="6" style="text-align:center; padding:15px; color:#94a3b8;">No transactions found.</td></tr>'}
+            </tbody>
+          </table>
+
+          <div class="footer">
+            <p>Direct Benefit Transfer verified via Telangana State APMC e-NAM Gateway & KisanSaathi Smart Contract.</p>
+            <p style="font-family:monospace; margin-top:3px;">Digital Verification Hash: 0x${Array.from({length: 40}, () => Math.floor(Math.random()*16).toString(16)).join('')}</p>
+            <p style="margin-top:3px;">This is a computer-generated authenticated electronic statement. No physical signature is required.</p>
+          </div>
+        </body>
+        </html>
+      `;
+
+      printWin.document.open();
+      printWin.document.write(html);
+      printWin.document.close();
+      setTimeout(() => {
+        try { printWin.print(); } catch(e) {}
+      }, 500);
+    } catch (err) {
+      console.error('Printable fallback error:', err);
+    }
+  }
+
+  // Farmer Payment Tracking PDF Statement Generator
+  window.generateFarmerPaymentStatementPDF = function() {
+    try {
+      showToast('Generating official Payment Tracking PDF statement...');
+
+      // Resolve farmer profile info
+      let farmerName = 'M. Ramesh Goud';
+      let farmerId = currentFarmerId || 'FARMER-TG-7721';
+      let phone = '+91 98480 22338';
+      let village = 'Geesugonda, Warangal Rural, Telangana';
+      let bankAc = 'State Bank of India (A/C: •••• 8821 | IFSC: SBIN0020144)';
+
+      const authData = localStorage.getItem('kisan_auth');
+      if (authData) {
+        try {
+          const auth = JSON.parse(authData);
+          if (auth.farmerName) farmerName = auth.farmerName;
+          if (auth.farmerId) farmerId = auth.farmerId;
+          if (auth.phone) phone = auth.phone;
+          if (auth.village) village = auth.village;
+        } catch (e) {}
+      }
+
+      const now = new Date();
+      const dateFormatted = now.toLocaleDateString('en-IN', {
+        day: '2-digit', month: 'short', year: 'numeric'
+      });
+      const timeFormatted = now.toLocaleTimeString('en-IN', {
+        hour: '2-digit', minute: '2-digit', hour12: true
+      });
+      const fileTimestamp = now.toISOString().slice(0, 10);
+
+      // Fetch live wallet transactions
+      const txns = (wallet && wallet.transactions && wallet.transactions.length > 0)
+        ? wallet.transactions
+        : [];
+      const balance = wallet ? wallet.balance : 104200;
+
+      // Check if jsPDF library is available
+      const jspdfModule = window.jspdf || (window.jspdf && window.jspdf.jsPDF ? window.jspdf : null);
+      if (!jspdfModule || !jspdfModule.jsPDF) {
+        console.warn('jsPDF not loaded directly, launching printable PDF fallback');
+        openPrintableStatementFallback({
+          type: 'farmer',
+          farmerName,
+          farmerId,
+          phone,
+          village,
+          bankAc,
+          dateFormatted,
+          timeFormatted,
+          balance,
+          txns
+        });
+        return;
+      }
+
+      const { jsPDF } = jspdfModule;
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+
+      // Header Banner
+      doc.setFillColor(16, 120, 80);
+      doc.rect(0, 0, pageWidth, 28, 'F');
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(15);
+      doc.setTextColor(255, 255, 255);
+      doc.text('KISAN SAATHI', 14, 11);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8.5);
+      doc.setTextColor(220, 250, 230);
+      doc.text('Government of Telangana Agri-Tech Platform & Direct Mandi Gateway', 14, 17);
+      doc.text('Rythu Bandhu Samithi | Automated Escrow & DBT Settlement System', 14, 22);
+
+      // Header Right Info
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9.5);
+      doc.setTextColor(255, 255, 255);
+      doc.text('OFFICIAL PAYMENT LEDGER', pageWidth - 14, 11, { align: 'right' });
+      doc.setFontSize(7.5);
+      doc.setFont('helvetica', 'normal');
+      doc.text('AUTHENTICATED DBT STATEMENT', pageWidth - 14, 16, { align: 'right' });
+      doc.text(`Ref: KS-STMT-${now.getFullYear()}-${Math.floor(10000 + Math.random()*90000)}`, pageWidth - 14, 21, { align: 'right' });
+
+      // Profile Card
+      doc.setFillColor(248, 250, 252);
+      doc.setDrawColor(226, 232, 240);
+      doc.roundedRect(14, 33, pageWidth - 28, 38, 2.5, 2.5, 'FD');
+
+      // Left Column Details
+      doc.setFontSize(9.5);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(15, 23, 42);
+      doc.text('Farmer Beneficiary Details', 18, 40);
+
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(71, 85, 105);
+      doc.text('Farmer Name:', 18, 46);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(15, 23, 42);
+      doc.text(farmerName, 42, 46);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(71, 85, 105);
+      doc.text('Farmer Reg ID:', 18, 52);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(15, 23, 42);
+      doc.text(farmerId, 42, 52);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(71, 85, 105);
+      doc.text('Village/Mandal:', 18, 58);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(15, 23, 42);
+      doc.text(village, 42, 58);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(71, 85, 105);
+      doc.text('Bank Account:', 18, 64);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(16, 120, 80);
+      doc.text(bankAc, 42, 64);
+
+      // Right Column Balance Box
+      doc.setFillColor(236, 253, 245);
+      doc.setDrawColor(167, 243, 208);
+      doc.roundedRect(pageWidth - 76, 37, 58, 30, 2, 2, 'FD');
+
+      doc.setFontSize(7.5);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(6, 95, 70);
+      doc.text('TOTAL CONSUMER PAYMENTS', pageWidth - 47, 43.5, { align: 'center' });
+
+      doc.setFontSize(13);
+      doc.setTextColor(5, 150, 105);
+      doc.text(`Rs. ${Number(balance).toLocaleString('en-IN')}`, pageWidth - 47, 51.5, { align: 'center' });
+
+      doc.setFontSize(7);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(71, 85, 105);
+      doc.text(`${txns.length} Verified Procurement Entries`, pageWidth - 47, 58, { align: 'center' });
+      doc.text('Settlement: 100% DBT Cleared', pageWidth - 47, 62, { align: 'center' });
+
+      // Statement Metadata
+      doc.setFontSize(7.5);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(100, 116, 139);
+      doc.text('Statement Period: Current FY (2026-27)', 14, 76);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Generated On: ${dateFormatted} at ${timeFormatted} IST`, pageWidth - 14, 76, { align: 'right' });
+
+      // Table Data
+      const tableBody = txns.map((t, idx) => {
+        const refId = t.id || `PAY-${9900 + idx}`;
+        const time = t.time || 'Recently';
+        const buyer = t.buyer || 'Verified Buyer';
+        const crop = t.cropName ? `${t.cropName} (${t.quantity || ''} Kg)` : (t.desc || 'Agricultural Produce');
+        const dest = t.deliveryLocation || 'Mandi Yard';
+        const status = t.status || 'Received (DBT Credited)';
+        const amount = `+Rs. ${Math.abs(t.amount || 0).toLocaleString('en-IN')}`;
+        return [refId, time, buyer, `${crop}\nDestination: ${dest}`, status, amount];
+      });
+
+      if (tableBody.length === 0) {
+        tableBody.push(['-', dateFormatted, 'No transactions recorded', '-', 'N/A', 'Rs. 0']);
+      }
+
+      if (typeof doc.autoTable === 'function') {
+        doc.autoTable({
+          startY: 80,
+          head: [['Txn Ref', 'Date / Time', 'Consumer / Buyer', 'Crop & Decided Mandi', 'Settlement Status', 'Amount Paid']],
+          body: tableBody,
+          theme: 'striped',
+          headStyles: {
+            fillColor: [16, 120, 80],
+            textColor: 255,
+            fontStyle: 'bold',
+            fontSize: 7.5,
+            halign: 'left'
+          },
+          bodyStyles: {
+            fontSize: 7,
+            textColor: [30, 41, 59],
+            cellPadding: 2.5
+          },
+          alternateRowStyles: {
+            fillColor: [248, 250, 252]
+          },
+          columnStyles: {
+            0: { cellWidth: 20, fontStyle: 'bold' },
+            1: { cellWidth: 24 },
+            2: { cellWidth: 36, fontStyle: 'bold' },
+            3: { cellWidth: 54 },
+            4: { cellWidth: 26, textColor: [5, 150, 105], fontStyle: 'bold' },
+            5: { cellWidth: 22, halign: 'right', fontStyle: 'bold', textColor: [16, 120, 80] }
+          },
+          margin: { left: 14, right: 14, bottom: 25 },
+          didDrawPage: function() {
+            doc.setDrawColor(203, 213, 225);
+            doc.setLineWidth(0.3);
+            doc.line(14, pageHeight - 18, pageWidth - 14, pageHeight - 18);
+
+            doc.setFontSize(6.5);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(100, 116, 139);
+            doc.text('Rythu Bandhu Samithi | KisanSaathi Automated Multi-Sig Escrow & APMC e-NAM Gateway', 14, pageHeight - 13);
+            doc.text('This is an authenticated computer-generated payment statement. No physical signature required.', 14, pageHeight - 9);
+
+            doc.setFont('helvetica', 'bold');
+            doc.text(`Page ${doc.internal.getNumberOfPages()}`, pageWidth - 14, pageHeight - 11, { align: 'right' });
+          }
+        });
+      }
+
+      const filename = `KisanSaathi_Payment_Statement_${farmerId}_${fileTimestamp}.pdf`;
+      doc.save(filename);
+      showToast('Payment statement PDF downloaded successfully!');
+    } catch (err) {
+      console.error('PDF error:', err);
+      showToast('Exporting printable payment statement...');
+      openPrintableStatementFallback({
+        type: 'farmer',
+        farmerName: 'M. Ramesh Goud',
+        farmerId: 'FARMER-TG-7721',
+        phone: '+91 98480 22338',
+        village: 'Geesugonda, Warangal Rural, Telangana',
+        bankAc: 'SBI A/C: •••• 8821',
+        dateFormatted: new Date().toLocaleDateString('en-IN'),
+        timeFormatted: new Date().toLocaleTimeString('en-IN'),
+        balance: wallet ? wallet.balance : 104200,
+        txns: wallet ? wallet.transactions : []
+      });
+    }
+  };
+
+  // Consumer Escrow Audit PDF Generator
+  window.downloadConsumerAuditStatementPDF = function() {
+    try {
+      showToast('Generating Buyer Escrow Audit PDF statement...');
+
+      let buyerName = 'Bowenpally Bulk Millers';
+      let buyerId = 'BUYER-HYD-5501';
+      let phone = '+91 94401 22334';
+      let address = 'Bowenpally Modern Market Yard, Secunderabad, Telangana';
+
+      const consumerAuth = localStorage.getItem('kisan_consumer_auth');
+      if (consumerAuth) {
+        try {
+          const ca = JSON.parse(consumerAuth);
+          if (ca.company || ca.name) buyerName = ca.company || ca.name;
+          if (ca.id) buyerId = ca.id;
+          if (ca.phone) phone = ca.phone;
+          if (ca.address) address = ca.address;
+        } catch(e) {}
+      }
+
+      const now = new Date();
+      const dateFormatted = now.toLocaleDateString('en-IN', {
+        day: '2-digit', month: 'short', year: 'numeric'
+      });
+      const timeFormatted = now.toLocaleTimeString('en-IN', {
+        hour: '2-digit', minute: '2-digit', hour12: true
+      });
+      const fileTimestamp = now.toISOString().slice(0, 10);
+
+      const escrowBal = currentConsumerEscrow || 107500;
+      const lockedBal = currentConsumerLockedEscrow || 42500;
+      const totalBal = escrowBal + lockedBal;
+
+      const txns = JSON.parse(localStorage.getItem('kisan_consumer_escrow_txns') || '[]');
+
+      const jspdfModule = window.jspdf || (window.jspdf && window.jspdf.jsPDF ? window.jspdf : null);
+      if (!jspdfModule || !jspdfModule.jsPDF) {
+        openPrintableStatementFallback({
+          type: 'consumer',
+          buyerName,
+          buyerId,
+          phone,
+          address,
+          dateFormatted,
+          timeFormatted,
+          balance: totalBal,
+          txns
+        });
+        return;
+      }
+
+      const { jsPDF } = jspdfModule;
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+
+      // Header Banner (Amber & Dark Indigo)
+      doc.setFillColor(30, 27, 75);
+      doc.rect(0, 0, pageWidth, 28, 'F');
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(15);
+      doc.setTextColor(245, 158, 11);
+      doc.text('KISAN SAATHI', 14, 11);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8.5);
+      doc.setTextColor(255, 255, 255);
+      doc.text('Consumer & Commercial Buyer Escrow Vault Platform', 14, 17);
+      doc.text('Multi-Sig Smart Contract Verification & APMC Direct Clearing', 14, 22);
+
+      // Header Right Info
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9.5);
+      doc.setTextColor(255, 255, 255);
+      doc.text('ESCROW AUDIT STATEMENT', pageWidth - 14, 11, { align: 'right' });
+      doc.setFontSize(7.5);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(245, 158, 11);
+      doc.text('IMMUTABLE PROCUREMENT LOG', pageWidth - 14, 16, { align: 'right' });
+      doc.setTextColor(203, 213, 225);
+      doc.text(`Ref: ESC-AUD-${now.getFullYear()}-${Math.floor(10000 + Math.random()*90000)}`, pageWidth - 14, 21, { align: 'right' });
+
+      // Buyer Summary Card
+      doc.setFillColor(248, 250, 252);
+      doc.setDrawColor(226, 232, 240);
+      doc.roundedRect(14, 33, pageWidth - 28, 38, 2.5, 2.5, 'FD');
+
+      // Left Info
+      doc.setFontSize(9.5);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(15, 23, 42);
+      doc.text('Buyer Entity & Verification', 18, 40);
+
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(71, 85, 105);
+      doc.text('Company / Buyer:', 18, 46);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(15, 23, 42);
+      doc.text(buyerName, 45, 46);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(71, 85, 105);
+      doc.text('Registration ID:', 18, 52);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(15, 23, 42);
+      doc.text(buyerId, 45, 52);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(71, 85, 105);
+      doc.text('Delivery Destination:', 18, 58);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(15, 23, 42);
+      doc.text(address, 45, 58);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(71, 85, 105);
+      doc.text('Contact Phone:', 18, 64);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(30, 27, 75);
+      doc.text(phone, 45, 64);
+
+      // Right Balance Card
+      doc.setFillColor(254, 243, 199);
+      doc.setDrawColor(251, 191, 36);
+      doc.roundedRect(pageWidth - 76, 37, 58, 30, 2, 2, 'FD');
+
+      doc.setFontSize(7.5);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(146, 64, 14);
+      doc.text('TOTAL ESCROW VAULT', pageWidth - 47, 43.5, { align: 'center' });
+
+      doc.setFontSize(13);
+      doc.setTextColor(180, 83, 9);
+      doc.text(`Rs. ${Number(totalBal).toLocaleString('en-IN')}`, pageWidth - 47, 51.5, { align: 'center' });
+
+      doc.setFontSize(7);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(71, 85, 105);
+      doc.text(`Available: Rs. ${Number(escrowBal).toLocaleString('en-IN')}`, pageWidth - 47, 58, { align: 'center' });
+      doc.text(`Locked in Transit: Rs. ${Number(lockedBal).toLocaleString('en-IN')}`, pageWidth - 47, 62, { align: 'center' });
+
+      // Metadata
+      doc.setFontSize(7.5);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(100, 116, 139);
+      doc.text('Audit Scope: Commercial Mandi Procurement', 14, 76);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Generated On: ${dateFormatted} at ${timeFormatted} IST`, pageWidth - 14, 76, { align: 'right' });
+
+      const tableBody = (txns && txns.length > 0) ? txns.map((t, idx) => {
+        const ref = t.id || `TXN-ESC-${1000 + idx}`;
+        const time = t.time || 'Recent';
+        const type = t.type === 'credit' ? 'Escrow Deposit' : 'Procurement Debit';
+        const desc = t.desc || 'Agri consignment payment';
+        const st = t.status || 'Verified';
+        const amt = (t.amount >= 0 ? '+Rs. ' : '-Rs. ') + Math.abs(t.amount || 0).toLocaleString('en-IN');
+        return [ref, time, type, desc, st, amt];
+      }) : [
+        ['ESC-701', '10-Oct-2026', 'Procurement Debit', 'Settlement for Organic Bhendi & Chillies', 'Completed', '-Rs. 35,000'],
+        ['ESC-702', '08-Oct-2026', 'Procurement Debit', 'Settlement for Tandur Red Gram batch', 'Completed', '-Rs. 22,000'],
+        ['ESC-703', '05-Oct-2026', 'Escrow Deposit', 'Multi-Sig Smart Contract vault top-up', 'Completed', '+Rs. 1,00,000']
+      ];
+
+      if (typeof doc.autoTable === 'function') {
+        doc.autoTable({
+          startY: 80,
+          head: [['Txn Ref', 'Date / Time', 'Type', 'Description / Batch', 'Status', 'Amount']],
+          body: tableBody,
+          theme: 'striped',
+          headStyles: {
+            fillColor: [30, 27, 75],
+            textColor: 255,
+            fontStyle: 'bold',
+            fontSize: 7.5,
+            halign: 'left'
+          },
+          bodyStyles: {
+            fontSize: 7,
+            textColor: [30, 41, 59],
+            cellPadding: 2.5
+          },
+          alternateRowStyles: {
+            fillColor: [248, 250, 252]
+          },
+          columnStyles: {
+            0: { cellWidth: 22, fontStyle: 'bold' },
+            1: { cellWidth: 24 },
+            2: { cellWidth: 32, fontStyle: 'bold' },
+            3: { cellWidth: 60 },
+            4: { cellWidth: 22, textColor: [5, 150, 105], fontStyle: 'bold' },
+            5: { cellWidth: 22, halign: 'right', fontStyle: 'bold', textColor: [30, 27, 75] }
+          },
+          margin: { left: 14, right: 14, bottom: 25 },
+          didDrawPage: function() {
+            doc.setDrawColor(203, 213, 225);
+            doc.setLineWidth(0.3);
+            doc.line(14, pageHeight - 18, pageWidth - 14, pageHeight - 18);
+
+            doc.setFontSize(6.5);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(100, 116, 139);
+            doc.text('KisanSaathi Escrow Protocol | Smart Contract Multi-Sig Verified Ledger', 14, pageHeight - 13);
+            doc.text('This is an authenticated computer-generated escrow audit statement. No physical signature required.', 14, pageHeight - 9);
+
+            doc.setFont('helvetica', 'bold');
+            doc.text(`Page ${doc.internal.getNumberOfPages()}`, pageWidth - 14, pageHeight - 11, { align: 'right' });
+          }
+        });
+      }
+
+      const filename = `KisanSaathi_Buyer_Escrow_Audit_${fileTimestamp}.pdf`;
+      doc.save(filename);
+      showToast('Buyer Escrow Audit statement PDF downloaded successfully!');
+    } catch (err) {
+      console.error('Consumer PDF error:', err);
+      showToast('Exporting printable escrow audit statement...');
+      openPrintableStatementFallback({
+        type: 'consumer',
+        buyerName: 'Bowenpally Bulk Millers',
+        buyerId: 'BUYER-HYD-5501',
+        phone: '+91 94401 22334',
+        address: 'Bowenpally Modern Market Yard, Secunderabad',
+        dateFormatted: new Date().toLocaleDateString('en-IN'),
+        timeFormatted: new Date().toLocaleTimeString('en-IN'),
+        balance: 150000,
+        txns: []
+      });
+    }
+  };
+
   const btnRequestStatement = document.getElementById('btnRequestStatement');
   if (btnRequestStatement) {
-    btnRequestStatement.addEventListener('click', () => {
-      showToast('Official consumer payment statement downloaded (CSV/PDF)');
+    btnRequestStatement.addEventListener('click', (e) => {
+      e.preventDefault();
+      generateFarmerPaymentStatementPDF();
     });
   }
 

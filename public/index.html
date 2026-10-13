@@ -42,6 +42,19 @@
       console.warn("Supabase init notice:", e.message);
     }
   </script>
+  <!-- jsPDF & AutoTable for Instant PDF Statement Generation -->
+  <script src="assets/js/vendor/jspdf.umd.min.js"></script>
+  <script src="assets/js/vendor/jspdf.plugin.autotable.min.js"></script>
+  <script>
+    if (!window.jspdf) {
+      const s1 = document.createElement('script');
+      s1.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+      document.head.appendChild(s1);
+      const s2 = document.createElement('script');
+      s2.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js';
+      document.head.appendChild(s2);
+    }
+  </script>
   <!-- Custom Stylesheet -->
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -931,9 +944,9 @@
             </div>
 
             <div class="pt-1 flex gap-2">
-              <button id="btnRequestStatement" class="flex-1 py-2.5 bg-white text-emerald-900 hover:bg-emerald-50 rounded-xl font-bold text-xs shadow transition flex items-center justify-center gap-1.5">
+              <button id="btnRequestStatement" onclick="generateFarmerPaymentStatementPDF()" class="flex-1 py-2.5 bg-white text-emerald-900 hover:bg-emerald-50 rounded-xl font-bold text-xs shadow transition flex items-center justify-center gap-1.5">
                 <i data-lucide="file-text" class="w-4 h-4 text-emerald-700"></i>
-                <span data-i18n="request_statement">Download Payment Statement</span>
+                <span data-i18n="request_statement">Download Payment Statement (PDF)</span>
               </button>
             </div>
           </div>
@@ -2470,8 +2483,8 @@
               <button onclick="openConsumerEscrowDepositModal()" class="flex-1 py-2.5 bg-white text-amber-900 font-bold text-xs rounded-xl shadow hover:bg-amber-50 transition flex items-center justify-center gap-1.5">
                 <i data-lucide="plus-circle" class="w-4 h-4 text-emerald-600"></i> Deposit Escrow Funds
               </button>
-              <button onclick="showToast('Exporting Escrow Statement PDF...')" class="py-2.5 px-3 bg-white/20 text-white font-semibold text-xs rounded-xl hover:bg-white/30 transition flex items-center justify-center gap-1 border border-white/30">
-                <i data-lucide="download" class="w-4 h-4"></i> Audit Statement
+              <button id="btnConsumerAuditStatement" onclick="downloadConsumerAuditStatementPDF()" class="py-2.5 px-3 bg-white/20 text-white font-semibold text-xs rounded-xl hover:bg-white/30 transition flex items-center justify-center gap-1 border border-white/30">
+                <i data-lucide="download" class="w-4 h-4"></i> Audit Statement (PDF)
               </button>
             </div>
           </div>
