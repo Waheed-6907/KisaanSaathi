@@ -85,6 +85,17 @@ function handleRequest(req, res) {
     }
   }
 
+  // API Route: /api/whatsapp (Twilio WhatsApp Webhook)
+  if (reqPath === '/api/whatsapp') {
+    try {
+      const whatsappHandler = require('./api/whatsapp.js');
+      return whatsappHandler(req, res);
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error: 'WhatsApp webhook error', details: err.message }));
+    }
+  }
+
   // Support communication with bound internal service 'web-platform' via WEB_PLATFORM_URL if present
   if (process.env.WEB_PLATFORM_URL && (reqPath.startsWith('/platform') || reqPath.startsWith('/api/platform'))) {
     try {

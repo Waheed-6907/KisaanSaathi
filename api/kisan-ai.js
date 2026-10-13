@@ -1,0 +1,410 @@
+/**
+ * KisanSaathi AI Assistant Engine
+ * Powering both Web Chatbot and Twilio WhatsApp Sandbox for Telangana Farmers
+ */
+
+const https = require('https');
+
+// Core Domain Knowledge Base (Telangana Agriculture)
+const KISAN_KNOWLEDGE = {
+  en: [
+    {
+      keywords: ['rate', 'price', 'mandi', 'bhav', 'market', 'cost', 'paddy', 'rice', 'cotton', 'turmeric', 'chilli', 'mirchi', 'maize'],
+      reply: "*🌾 Today's Mandi Rates (Telangana Mandis)*\n\n" +
+             "• *Telangana Sona (RNR 15048)*: ₹2,650 - ₹2,750 / Quintal (Enumamula Mandi, Warangal)\n" +
+             "• *Sona Masoori (BPT 5204)*: ₹2,200 - ₹2,350 / Qtl (Bowenpally Mandi, Secunderabad)\n" +
+             "• *Premium Cotton*: ₹7,450 / Qtl\n" +
+             "• *Nizamabad Turmeric*: ₹13,800 / Qtl\n" +
+             "• *Red Gram (Tandur)*: ₹9,800 / Qtl\n\n" +
+             "💡 *Tip:* Selling directly through KisanSaathi guarantees direct DBT settlement within 24 hours."
+    },
+    {
+      keywords: ['pest', 'disease', 'spray', 'neem', 'fungus', 'leaf', 'worm', 'insect', 'organic', 'treatment', 'neemastra', 'aphid', 'borer'],
+      reply: "*🌿 Organic Pest Management: Neemastra Formulation*\n\n" +
+             "For stem borers, aphids, and whiteflies in paddy and cotton:\n" +
+             "1. Take 5 kg fresh neem leaves, 5 liters cow urine, and 2 kg desi cow dung.\n" +
+             "2. Ferment in a shaded container for 48 hours, stirring twice daily.\n" +
+             "3. Filter through cloth. Spray *200 ml per 15L pump*.\n\n" +
+             "✅ 100% organic, zero soil degradation, and saves ₹800/acre in pesticide expenses."
+    },
+    {
+      keywords: ['insurance', 'pmfby', 'claim', 'loss', 'flood', 'rain', 'drought', 'damage', 'unseasonal'],
+      reply: "*📋 PMFBY Crop Insurance & Disaster Relief*\n\n" +
+             "If crops are damaged due to unseasonal rain, hail, or drought in Telangana:\n" +
+             "• *Deadline:* File your claim within *72 hours* of incident.\n" +
+             "• *Toll-Free Helpline:* 1800-180-1551 (Kisan Call Center)\n" +
+             "• *PMFBY Support:* 1800-200-5142\n" +
+             "• You can also report damage directly on the KisanSaathi portal with geotagged field photos."
+    },
+    {
+      keywords: ['cluster', 'fpo', 'warangal', 'group', 'aggregation', 'transport', 'freight', 'truck', 'pool'],
+      reply: "*📦 Warangal Agri-Cluster #12 (Shared Logistics)*\n\n" +
+             "Connects 480+ smallholder farmers across Geesugonda, Atmakur, and Wardhannapet.\n" +
+             "• Pooling sub-500kg batches reduces freight costs by *38%*.\n" +
+             "• Unlocks direct wholesale contracts with Hyderabad food processors.\n" +
+             "• Daily transport runs to Bowenpally and Enumamula Mandis."
+    },
+    {
+      keywords: ['loan', 'credit', 'kcc', 'interest', 'money', 'bank', 'score', 'kisan credit'],
+      reply: "*💳 Agri-Credit & Subsidized Crop Loans*\n\n" +
+             "• *Pre-approved Limit:* Up to ₹3,00,000 crop loan via Telangana State Cooperative Bank.\n" +
+             "• *Effective Interest Rate:* 4% subsidized annual rate (with prompt repayment).\n" +
+             "• *Kisan Credit Score:* 785/900 based on verified harvest history and Soil Health records."
+    },
+    {
+      keywords: ['soil', 'lab', 'testing', 'card', 'npk', 'ph', 'fertilizer', 'urea', 'dap'],
+      reply: "*🧪 Telangana Soil Health Testing Labs*\n\n" +
+             "Testing is *FREE* under the National Soil Health Card scheme:\n" +
+             "• *Warangal:* RARS Mulugu Road & AMC Paidipally\n" +
+             "• *Hyderabad:* PJTSAU Rajendranagar\n" +
+             "• *Medchal:* Kandlakoi AMC\n" +
+             "• *Nizamabad:* Shradhanand Gunj\n\n" +
+             "Optimal pH for Telangana red sandy loams is 6.5 - 7.5."
+    },
+    {
+      keywords: ['seed', 'variety', 'sona', 'rnr', 'bpt', 'paddy', 'masoori', 'red gram', 'seeds'],
+      reply: "*🌱 Certified High-Yielding Seeds (PJTSAU)*\n\n" +
+             "• *Telangana Sona (RNR 15048):* Low Glycemic Index (GI 51), high blast resistance.\n" +
+             "• *Samba Mahsuri (BPT 5204):* Premium fine grain variety.\n" +
+             "• *Tandur Red Gram:* GI-tagged pulse variety suited for drylands.\n" +
+             "Certified seeds available at AMC Warangal & PJTSAU Seed Centers."
+    },
+    {
+      keywords: ['rythu', 'bandhu', 'bharosa', 'scheme', 'subsidy', 'government', 'dbt'],
+      reply: "*🏛️ Telangana Rythu Bharosa / Rythu Bandhu Scheme*\n\n" +
+             "• Provides financial investment assistance of *₹10,000 per acre per year* directly into farmer DBT accounts.\n" +
+             "• Verifiable via your Pattadar Passbook and Aadhaar link.\n" +
+             "• For grievance status, contact your local Mandal Agricultural Officer (MAO)."
+    }
+  ],
+  hi: [
+    {
+      keywords: ['भाव', 'rate', 'price', 'mandi', 'दाम', 'धान', 'कपास', 'हल्दी', 'बाजार', 'मंडी', 'रेट'],
+      reply: "*🌾 आज के ताजा मंडी भाव (तेलंगाना मंडियां)*\n\n" +
+             "• *तेलंगाना सोना धान (RNR 15048):* ₹2,650 - ₹2,750 / क्विंटल (एनाममुला मंडी, वारंगल)\n" +
+             "• *सोना मसूरी (BPT 5204):* ₹2,200 - ₹2,350 / क्विंटल (बोवेनपल्ली मंडी, सिकंदराबाद)\n" +
+             "• *उच्च गुणवत्ता कपास:* ₹7,450 / क्विंटल\n" +
+             "• *निजामाबाद हल्दी:* ₹13,800 / क्विंटल\n\n" +
+             "💡 *किसान साथी से सीधा बेचने पर 24 घंटे में बैंक खाते में DBT भुगतान प्राप्त होता है।*"
+    },
+    {
+      keywords: ['कीटनाशक', 'pest', 'disease', 'neem', 'स्प्रे', 'रोग', 'कीड़ा', 'फफूंद', 'दवा', 'नीमास्त्र'],
+      reply: "*🌿 जैविक कीटनाशक: नीमास्त्र बनाने की विधि*\n\n" +
+             "धान और कपास में तना छेदक व रस चूसक कीड़ों की रोकथाम:\n" +
+             "1. 5 किग्रा ताजा नीम के पत्ते, 5 लीटर गोमूत्र और 2 किग्रा देसी गाय का गोबर लें।\n" +
+             "2. छायादार स्थान पर 48 घंटे सड़ाएं और दिन में 2 बार डंडे से घुमाएं।\n" +
+             "3. कपड़े से छानकर *200 मिली प्रति 15 लीटर स्प्रे पंप* में छिड़कें।\n\n" +
+             "✅ 100% जैविक सुरक्षा, मिट्टी को कोई नुकसान नहीं, प्रति एकड़ ₹800 की बचत।"
+    },
+    {
+      keywords: ['बीमा', 'claim', 'pmfby', 'क्लेम', 'नुकसान', 'बारिश', 'मुआवजा', 'ओलावृष्टि', 'सूखा'],
+      reply: "*📋 प्रधानमंत्री फसल बीमा योजना (PMFBY) सहायता*\n\n" +
+             "बेमौसम बारिश या सूखे से फसल नुकसान होने पर:\n" +
+             "• नुकसान के *72 घंटे* के भीतर क्लेम दर्ज कराना अनिवार्य है।\n" +
+             "• *टोल-फ्री किसान कॉल सेंटर:* 1800-180-1551\n" +
+             "• *PMFBY हेल्पलाइन:* 1800-200-5142\n" +
+             "• किसान साथी पोर्टल पर भी खेत की फोटो अपलोड कर क्लेम सहायता पा सकते हैं।"
+    },
+    {
+      keywords: ['क्लस्टर', 'cluster', 'वारंगल', 'समूह', 'fpo', 'गाड़ी', 'परिवहन', 'भाड़ा'],
+      reply: "*📦 वारंगल एग्री-क्लस्टर #12 (साझा परिवहन)*\n\n" +
+             "गीसुगोंडा, आत्माकुर और वर्धन्नापेट के 480+ किसानों का समूह:\n" +
+             "• 500 किग्रा से कम फसल को साझा गाड़ी से भेजने पर भाड़े में *38% की बचत* होती है।\n" +
+             "• हैदराबाद के बड़े व्यापारियों से सीधा कांट्रैक्ट मिलता है।"
+    },
+    {
+      keywords: ['ऋण', 'kcc', 'क्रेडिट', 'लोन', 'पैसा', 'बैंक', 'स्कोर', 'ब्याज'],
+      reply: "*💳 किसान क्रेडिट एवं 4% फसली ऋण*\n\n" +
+             "• फसल रिकॉर्ड और सॉइल हेल्थ के आधार पर क्रेडिट स्कोर: *785/900*।\n" +
+             "• तेलंगाना राज्य सहकारी बैंक से *4% रियायती ब्याज दर* पर ₹3,00,000 तक का फसली ऋण उपलब्ध है।"
+    },
+    {
+      keywords: ['मिट्टी', 'मृदा', 'soil', 'जांच', 'लैब', 'एनपीके', 'पीएच', 'खाद', 'यूरिया'],
+      reply: "*🧪 सरकारी मृदा परीक्षण प्रयोगशालाएं (निःशुल्क)*\n\n" +
+             "सॉइल हेल्थ कार्ड योजना के तहत जांच मुफ्त है:\n" +
+             "• *वारंगल:* RARS मुलुगु रोड एवं AMC पैडीपल्ली\n" +
+             "• *हैदराबाद:* PJTSAU राजेंद्रनगर\n" +
+             "• *मेदचल:* कंदलाकोयी AMC\n" +
+             "• *निजामाबाद:* श्रद्धानंद गंज"
+    },
+    {
+      keywords: ['बीज', 'किस्म', 'सोना', 'rnr', 'धान', 'वैरायटी', 'चना'],
+      reply: "*🌱 प्रमाणित उन्नत बीज किस्में (PJTSAU)*\n\n" +
+             "• *तेलंगाना सोना (RNR 15048):* कम ग्लाइसेमिक इंडेक्स (GI 51), ब्लास्ट रोग प्रतिरोधी।\n" +
+             "• *सांभा महसूरी (BPT 5204):* महीन चावल की लोकप्रिय किस्म।\n" +
+             "• *तांदूर लाल चना (GI टैग):* कम पानी में अधिक उपज।"
+    },
+    {
+      keywords: ['रायथू', 'बंधु', 'भरोसा', 'योजना', 'सब्सिडी', 'सरकारी', 'dbt'],
+      reply: "*🏛️ तेलंगाना रायथू भरोसा / रायथू बंधु योजना*\n\n" +
+             "• किसानों को प्रति एकड़ *₹10,000 प्रति वर्ष* की प्रत्यक्ष निवेश सहायता (DBT) दी जाती है।\n" +
+             "• स्थिति जांचने के लिए अपने पट्टा पासबुक एवं आधार लिंक का उपयोग करें।"
+    }
+  ]
+};
+
+// Quick Greeting Templates
+const GREETINGS = {
+  en: (name) => `🌾 *Namaste ${name || 'Farmer Friend'}!* Welcome to *KisanSaathi AI Assistant* (Telangana).\n\n` +
+                "How can I help you today? You can ask me about:\n" +
+                "• *Mandi Rates* (Warangal Enumamula, Hyderabad Bowenpally)\n" +
+                "• *Organic Pest Sprays* (Neemastra recipe)\n" +
+                "• *PMFBY Crop Insurance* (Damage claims within 72 hrs)\n" +
+                "• *Subsidized 4% Crop Loans* & Soil Health Testing\n" +
+                "• *Telangana Sona Seeds* & Rythu Bharosa\n\n" +
+                "Just reply with your query in English or Hindi!",
+  hi: (name) => `🌾 *नमस्ते ${name || 'किसान साथी'}!* *किसान साथी AI सहायक* (तेलंगाना) में आपका स्वागत है।\n\n` +
+                "आज मैं आपकी क्या सहायता कर सकता हूँ? आप पूछ सकते हैं:\n" +
+                "• *ताजा मंडी भाव* (वारंगल एनाममुला, बोवेनपल्ली)\n" +
+                "• *जैविक कीटनाशक* (नीमास्त्र बनाने की विधि)\n" +
+                "• *फसल बीमा क्लेम* (PMFBY 72 घंटे में सूचना)\n" +
+                "• *4% फसली ऋण (KCC)* एवं निःशुल्क मिट्टी जांच\n" +
+                "• *तेलंगाना सोना बीज* एवं रायथू भरोसा योजना\n\n" +
+                "कृपया अपना प्रश्न हिंदी या अंग्रेजी में लिखकर भेजें!"
+};
+
+// General fallback advisories
+const FALLBACKS = {
+  en: "🌾 *KisanSaathi AI Advisory*\n\n" +
+      "Thank you for reaching out! To give you the most accurate agricultural advisory for Telangana, could you please specify if your query relates to:\n" +
+      "1. *Mandi Rates* (e.g. 'Paddy price in Warangal')\n" +
+      "2. *Pest & Disease Control* (e.g. 'Organic spray for stem borer')\n" +
+      "3. *PMFBY Crop Insurance Claims*\n" +
+      "4. *Soil Testing Labs or Seeds*\n\n" +
+      "📞 *Kisan Call Center (Toll-Free):* 1800-180-1551",
+  hi: "🌾 *किसान साथी कृषि सलाह*\n\n" +
+      "आपके प्रश्न के लिए धन्यवाद! तेलंगाना की कृषि सलाह हेतु कृपया बताएं कि आपका प्रश्न किस विषय पर है:\n" +
+      "1. *मंडी भाव* (जैसे 'वारंगल में धान का रेट')\n" +
+      "2. *कीटनाशक व रोग नियंत्रण* (जैसे 'नीमास्त्र स्प्रे')\n" +
+      "3. *फसल बीमा क्लेम*\n" +
+      "4. *मिट्टी जांच या बीज किस्में*\n\n" +
+      "📞 *टोल-फ्री किसान कॉल सेंटर:* 1800-180-1551"
+};
+
+/**
+ * Detect language of incoming message
+ */
+function detectLanguage(text) {
+  // Contains Devanagari Unicode range
+  if (/[\u0900-\u097F]/.test(text)) {
+    return 'hi';
+  }
+  const lower = (text || '').toLowerCase().trim();
+  const hindiPhrases = ['kya hai', 'bhav kya', 'kaise banaye', 'kripya', 'namaskar', 'kitna hai', 'bataye', 'bataiye', 'keeda'];
+  if (hindiPhrases.some(p => lower.includes(p))) {
+    return 'hi';
+  }
+  return 'en';
+}
+
+/**
+ * Check if the query is a friendly greeting or menu request
+ */
+function isGreeting(text) {
+  const clean = (text || '').toLowerCase().trim().replace(/[^\w\s]/g, '');
+  const greetingWords = ['hi', 'hello', 'hey', 'namaste', 'namaskar', 'start', 'help', 'menu', 'kisan', 'kisaan', 'test', 'info'];
+  return greetingWords.includes(clean) || (clean.length > 0 && clean.length <= 3 && !['rate', 'crop', 'pest', 'seed', 'urea'].includes(clean));
+}
+
+/**
+ * Optional: Call Google Gemini API if GEMINI_API_KEY is configured
+ */
+function callGeminiAPI(apiKey, prompt, lang, profileName) {
+  return new Promise((resolve, reject) => {
+    const systemPrompt = `You are KisanSaathi AI, an expert agricultural assistant specifically dedicated to Telangana farmers (districts: Warangal, Hyderabad, Secunderabad, Medchal, Nizamabad).
+The farmer's name is "${profileName || 'Farmer'}".
+Key Knowledge:
+- Telangana Sona (RNR 15048) Paddy: ₹2,650 - ₹2,750 / Quintal.
+- Sona Masoori (BPT 5204): ₹2,200 - ₹2,350 / Quintal.
+- Warangal Enumamula Mandi & Bowenpally Mandi prices.
+- Organic Neemastra: 5kg neem leaves, 5L cow urine, 2kg desi cow dung fermented 48 hrs, spray 200ml/15L pump.
+- PMFBY Crop Insurance: File claim within 72 hours, toll-free 1800-180-1551.
+- Warangal Agri-Cluster #12: 38% logistics savings.
+- Agri-Credit score 785/900: 4% subsidized crop loan pre-approved up to ₹3,00,000 via TSCAB.
+- Soil Health Card labs: Warangal RARS, PJTSAU Rajendranagar, Kandlakoi AMC.
+- Rythu Bharosa / Rythu Bandhu: ₹10,000/acre/year DBT.
+Format instructions:
+- Output in WhatsApp markdown (*bold*, bullet points).
+- Keep response under 1200 characters.
+- Tone: Respectful, practical, clear, encouraging.
+- Language: Respond in ${lang === 'hi' ? 'Hindi (Devanagari)' : 'English'}.
+- End with Kisan Call Center Helpline: 1800-180-1551.`;
+
+    const payload = JSON.stringify({
+      contents: [
+        {
+          role: "user",
+          parts: [
+            { text: `${systemPrompt}\n\nFarmer Query: ${prompt}` }
+          ]
+        }
+      ],
+      generationConfig: {
+        maxOutputTokens: 600,
+        temperature: 0.3
+      }
+    });
+
+    const options = {
+      hostname: 'generativelanguage.googleapis.com',
+      port: 443,
+      path: `/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(payload)
+      },
+      timeout: 7000
+    };
+
+    const req = https.request(options, (res) => {
+      let data = '';
+      res.on('data', chunk => { data += chunk; });
+      res.on('end', () => {
+        try {
+          if (res.statusCode >= 200 && res.statusCode < 300) {
+            const parsed = JSON.parse(data);
+            const text = parsed?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (text && text.trim()) {
+              return resolve(text.trim());
+            }
+          }
+          reject(new Error(`Gemini API returned status ${res.statusCode}`));
+        } catch (e) {
+          reject(e);
+        }
+      });
+    });
+
+    req.on('timeout', () => {
+      req.destroy();
+      reject(new Error('Gemini API request timed out'));
+    });
+    req.on('error', reject);
+    req.write(payload);
+    req.end();
+  });
+}
+
+/**
+ * Optional: Call OpenAI API if OPENAI_API_KEY is configured
+ */
+function callOpenAIAPI(apiKey, prompt, lang, profileName) {
+  return new Promise((resolve, reject) => {
+    const systemPrompt = `You are KisanSaathi AI, an expert agricultural assistant dedicated to Telangana farmers.
+Farmer's name: "${profileName || 'Farmer'}".
+Provide accurate Telangana farming advisory (Mandi rates in Enumamula/Bowenpally, Organic Neemastra spray, PMFBY insurance 72h, 4% crop loan, Rythu Bharosa).
+Respond in ${lang === 'hi' ? 'Hindi' : 'English'} with WhatsApp markdown (*bold*, bullets), max 1200 chars. Helpline: 1800-180-1551.`;
+
+    const payload = JSON.stringify({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: prompt }
+      ],
+      max_tokens: 500,
+      temperature: 0.3
+    });
+
+    const options = {
+      hostname: 'api.openai.com',
+      port: 443,
+      path: '/v1/chat/completions',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Length': Buffer.byteLength(payload)
+      },
+      timeout: 7000
+    };
+
+    const req = https.request(options, (res) => {
+      let data = '';
+      res.on('data', chunk => { data += chunk; });
+      res.on('end', () => {
+        try {
+          if (res.statusCode >= 200 && res.statusCode < 300) {
+            const parsed = JSON.parse(data);
+            const text = parsed?.choices?.[0]?.message?.content;
+            if (text && text.trim()) {
+              return resolve(text.trim());
+            }
+          }
+          reject(new Error(`OpenAI API status ${res.statusCode}`));
+        } catch (e) {
+          reject(e);
+        }
+      });
+    });
+
+    req.on('timeout', () => {
+      req.destroy();
+      reject(new Error('OpenAI API request timed out'));
+    });
+    req.on('error', reject);
+    req.write(payload);
+    req.end();
+  });
+}
+
+/**
+ * Primary KisanSaathi AI Response Generator
+ * Resolves farmer queries using Telangana Knowledge Engine with optional LLM enhancement
+ */
+async function getKisanAiResponse(rawMessage, { profileName = '', fromNumber = '' } = {}) {
+  const query = (rawMessage || '').trim();
+  const lang = detectLanguage(query);
+
+  // 1. Check for greetings or menu commands
+  if (!query || isGreeting(query)) {
+    const greetingFunc = GREETINGS[lang] || GREETINGS.en;
+    return greetingFunc(profileName);
+  }
+
+  // 2. Check for optional external LLM enhancement if environment variable exists
+  if (process.env.GEMINI_API_KEY) {
+    try {
+      const geminiReply = await callGeminiAPI(process.env.GEMINI_API_KEY, query, lang, profileName);
+      if (geminiReply) return geminiReply;
+    } catch (err) {
+      console.warn('[KisanAI] Gemini API failed, falling back to core knowledge engine:', err.message);
+    }
+  } else if (process.env.OPENAI_API_KEY) {
+    try {
+      const openaiReply = await callOpenAIAPI(process.env.OPENAI_API_KEY, query, lang, profileName);
+      if (openaiReply) return openaiReply;
+    } catch (err) {
+      console.warn('[KisanAI] OpenAI API failed, falling back to core knowledge engine:', err.message);
+    }
+  }
+
+  // 3. Core Knowledge Base Search
+  const lower = query.toLowerCase();
+  const primaryList = KISAN_KNOWLEDGE[lang] || KISAN_KNOWLEDGE.en;
+  for (const item of primaryList) {
+    if (item.keywords.some(k => lower.includes(k.toLowerCase()))) {
+      return `${item.reply}\n\n📞 *Kisan Helpline:* 1800-180-1551`;
+    }
+  }
+
+  // 4. Cross-language search (e.g. Hindi user typing English keyword like 'rate' or vice-versa)
+  const secondaryLang = lang === 'en' ? 'hi' : 'en';
+  const secondaryList = KISAN_KNOWLEDGE[secondaryLang] || [];
+  for (const item of secondaryList) {
+    if (item.keywords.some(k => lower.includes(k.toLowerCase()))) {
+      return `${item.reply}\n\n📞 *Kisan Helpline:* 1800-180-1551`;
+    }
+  }
+
+  // 5. Fallback response with guidance
+  const fallback = FALLBACKS[lang] || FALLBACKS.en;
+  return fallback;
+}
+
+module.exports = {
+  getKisanAiResponse,
+  detectLanguage,
+  isGreeting,
+  KISAN_KNOWLEDGE
+};
