@@ -6,7 +6,7 @@ module.exports = (req, res) => {
   res.end(JSON.stringify({
     status: 'healthy',
     project: 'KisanSaathi',
-    version: '3.0.0',
+    version: '3.5.0',
     team: 'Team ForeverKnights',
     region: 'Telangana',
     timestamp: new Date().toISOString()

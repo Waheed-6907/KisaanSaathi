@@ -1,6 +1,6 @@
 {
   "name": "kisaansaathi",
-  "version": "3.0.0",
+  "version": "3.5.0",
   "description": "KisanSaathi - Technology-Driven Direct Farm-to-Buyer Marketplace with AI Crop Quality Grading & Value Addition for Farmers (Telangana)",
   "scripts": {
     "start": "node dev-server.js",
