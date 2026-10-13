@@ -7,6 +7,8 @@ function initKisanSaathi() {
   let currentViewMode = localStorage.getItem('kisan_view_mode') || 'mobile'; // 'mobile' or 'desktop'
   let activeSection = 'inventory';
   let activeLeafletMap = null;
+  let currentFarmerId = null;
+  let currentFarmerName = null;
 
   // Local state clone of KISAN_DATA
   let inventory = JSON.parse(localStorage.getItem('kisan_inventory')) || [...KISAN_DATA.inventory];
@@ -217,98 +219,138 @@ function initKisanSaathi() {
     }
   }
 
-  // Update farmer identity across the app (drawer, profile screen, headers)
-  function applyFarmerProfileUI(farmerName, email, phone) {
-    const drawerFarmerName = document.getElementById('drawerFarmerName');
-    if (drawerFarmerName && farmerName) drawerFarmerName.textContent = farmerName;
+  // Update farmer identity across the app (drawer, profile screen, headers, wallet)
+  function applyFarmerProfileUI(farmerName, email, phone, district = 'Warangal Rural', farmerId = '', walletBalance = null, creditScore = null, preApprovedLoan = null) {
+    if (farmerName) {
+      const drawerFarmerName = document.getElementById('drawerFarmerName');
+      if (drawerFarmerName) drawerFarmerName.textContent = farmerName;
+      const profileFarmerName = document.getElementById('profileFarmerName');
+      if (profileFarmerName) profileFarmerName.textContent = farmerName;
+    }
 
+    const locText = (district || 'Warangal Rural') + ', Telangana';
     const drawerFarmerPlace = document.getElementById('drawerFarmerPlace');
-    if (drawerFarmerPlace) drawerFarmerPlace.textContent = email || 'Warangal Rural, Telangana';
-
-    const profileFarmerName = document.getElementById('profileFarmerName');
-    if (profileFarmerName && farmerName) profileFarmerName.textContent = farmerName;
-
+    if (drawerFarmerPlace) drawerFarmerPlace.textContent = locText;
     const profileFarmerPlace = document.getElementById('profileFarmerPlace');
-    if (profileFarmerPlace) profileFarmerPlace.textContent = 'Warangal Rural, Telangana';
+    if (profileFarmerPlace) profileFarmerPlace.textContent = locText;
 
+    const contactText = email || (phone ? '+91 ' + phone : '');
     const profileFarmerEmail = document.getElementById('profileFarmerEmail');
-    if (profileFarmerEmail && email) profileFarmerEmail.textContent = email;
+    if (profileFarmerEmail && contactText) profileFarmerEmail.textContent = contactText;
+
+    if (farmerId) {
+      const profileBadgeId = document.getElementById('profileFarmerIdBadge');
+      if (profileBadgeId) profileBadgeId.textContent = 'Verified Farmer (ID: ' + farmerId + ')';
+    }
+
+    if (walletBalance !== null && !isNaN(walletBalance)) {
+      wallet.balance = Number(walletBalance);
+      const walletEl = document.getElementById('walletTotalBalance');
+      if (walletEl) walletEl.textContent = '₹' + Number(walletBalance).toLocaleString('en-IN');
+    }
+
+    if (creditScore !== null) {
+      const csEl = document.getElementById('profileCreditScoreValue');
+      if (csEl) csEl.textContent = creditScore;
+      const drawerCsEl = document.getElementById('drawerCreditScoreBadge');
+      if (drawerCsEl) drawerCsEl.textContent = 'Agri Credit Score: ' + creditScore;
+    }
+
+    if (preApprovedLoan !== null) {
+      const loanEl = document.getElementById('profileLoanAmountValue');
+      if (loanEl) loanEl.textContent = '₹' + Number(preApprovedLoan).toLocaleString('en-IN');
+    }
   }
 
   // Record user login into Supabase database (profiles table + user_logins audit table)
-  async function recordLoginInDatabase(user, farmerName, provider = 'google') {
+  async function recordLoginInDatabase(farmerProfile, farmerName, provider = 'credentials') {
     if (!window.supabaseClient) return;
     try {
-      console.log('📡 Recording login in Supabase database for:', farmerName, user?.email);
+      console.log('📡 Recording login in Supabase database for:', farmerName, farmerProfile?.email || farmerProfile?.phone);
 
       // 1. Update / Record in public.profiles table
-      const { error: profErr } = await window.supabaseClient
-        .from('profiles')
-        .update({
-          user_id: user?.id || null,
-          full_name: farmerName,
-          updated_at: new Date().toISOString()
-        })
-        .eq('farmer_id', 'FARMER-TG-7721');
-
-      if (profErr) {
-        console.warn('Supabase profiles update notice:', profErr.message);
-      } else {
-        console.log('✔ Successfully recorded login in Supabase profiles table!');
+      if (farmerProfile.farmer_id) {
+        await window.supabaseClient
+          .from('profiles')
+          .update({
+            user_id: farmerProfile.user_id || null,
+            updated_at: new Date().toISOString()
+          })
+          .eq('farmer_id', farmerProfile.farmer_id);
       }
 
-      // 2. Also record in user_logins audit table (if created by SQL schema)
+      // 2. Insert into user_logins audit table
       try {
-        const { error: logErr } = await window.supabaseClient
+        await window.supabaseClient
           .from('user_logins')
           .insert([
             {
-              user_id: user?.id || null,
-              email: user?.email || '',
+              user_id: farmerProfile.user_id || null,
+              farmer_id: farmerProfile.farmer_id || null,
+              email: farmerProfile.email || '',
               full_name: farmerName,
               provider: provider,
               logged_in_at: new Date().toISOString(),
               user_agent: navigator.userAgent
             }
           ]);
-        if (logErr) {
-          console.info('user_logins audit table notice:', logErr.message);
-        } else {
-          console.log('✔ Successfully recorded login in user_logins audit table!');
-        }
+        console.log('✔ Successfully recorded login audit in user_logins table!');
       } catch (e) {
-        // user_logins insert is non-blocking
+        // user_logins audit insert is non-blocking
       }
     } catch (e) {
       console.warn('Database login recording notice:', e.message);
     }
   }
 
-  // Handle successful authentication for any provider
-  async function handleUserAuthenticated(user, provider = 'google') {
-    const farmerName = user.user_metadata?.full_name || 
-                       user.user_metadata?.name || 
-                       (user.email ? user.email.split('@')[0] : 'K. Ramarao Reddy');
+  // Set active farmer session across storage, UI, and navigation
+  async function setActiveFarmerSession(farmerProfile, provider = 'credentials') {
+    const farmerId = farmerProfile.farmer_id || 'FARMER-TG-7721';
+    const farmerName = farmerProfile.full_name || 'Farmer';
+    const email = farmerProfile.email || '';
+    const phone = farmerProfile.phone || '';
+    const district = farmerProfile.district || 'Warangal Rural';
+    const state = farmerProfile.state || 'Telangana';
+    const walletBalance = Number(farmerProfile.wallet_balance || 25000);
+    const creditScore = Number(farmerProfile.agri_credit_score || 780);
+    const preApprovedLoan = Number(farmerProfile.pre_approved_loan || 250000);
 
-    const email = user.email || '';
-    const phone = user.phone || '9848022334';
+    // Isolate user session: if switching farmers or new account, reset arrays
+    if (currentFarmerId !== farmerId) {
+      inventory = [];
+      orders = [];
+      negotiations = [];
+      wallet.balance = walletBalance;
+      wallet.transactions = [];
+      localStorage.removeItem('kisan_inventory');
+      localStorage.removeItem('kisan_orders');
+      localStorage.removeItem('kisan_negotiations');
+    }
 
     const localSession = {
       authenticated: true,
+      farmerId: farmerId,
       farmerName: farmerName,
       email: email,
       phone: phone,
-      district: 'Warangal',
-      state: 'Telangana',
-      supabaseId: user.id,
+      district: district,
+      state: state,
+      walletBalance: walletBalance,
+      creditScore: creditScore,
+      preApprovedLoan: preApprovedLoan,
+      supabaseId: farmerProfile.user_id || null,
       provider: provider,
       loginTime: new Date().toISOString()
     };
 
     localStorage.setItem('kisan_auth', JSON.stringify(localSession));
 
+    // Update global references
+    currentFarmerId = farmerId;
+    currentFarmerName = farmerName;
+
     // Update UI elements
-    applyFarmerProfileUI(farmerName, email, phone);
+    applyFarmerProfileUI(farmerName, email, phone, district, farmerId, walletBalance, creditScore, preApprovedLoan);
     updateSupabaseBadge(true);
 
     // Completely dismiss login screen and redirect to homepage
@@ -321,13 +363,80 @@ function initKisanSaathi() {
       window.history.replaceState({}, document.title, cleanUrl);
     }
 
-    showToast(currentLanguage === 'hi' 
-      ? `स्वागत है, ${farmerName} (Google)!` 
-      : `Welcome, ${farmerName}! Signed in via Google.`);
-
-    // Record login in database & sync data
-    await recordLoginInDatabase(user, farmerName, provider);
+    // Record login in database & sync user-scoped data
+    await recordLoginInDatabase(farmerProfile, farmerName, provider);
     await syncWithSupabase();
+  }
+
+  // Handle Google OAuth callback & profile resolution
+  async function handleUserAuthenticated(user, provider = 'google') {
+    const email = user.email || '';
+    const googleName = user.user_metadata?.full_name || 
+                       user.user_metadata?.name || 
+                       (user.email ? user.email.split('@')[0] : 'Farmer');
+
+    console.log('Handling Google User Authentication in Supabase:', email);
+    let activeProfile = null;
+
+    if (window.supabaseClient) {
+      try {
+        // 1. Look up existing profile by email or user_id
+        const { data: existingProfiles, error: fetchErr } = await window.supabaseClient
+          .from('profiles')
+          .select('*')
+          .or(`user_id.eq.${user.id},email.eq.${email}`);
+
+        if (!fetchErr && existingProfiles && existingProfiles.length > 0) {
+          activeProfile = existingProfiles[0];
+          console.log('✔ Found existing Supabase profile for Google user:', activeProfile.farmer_id);
+        } else {
+          // 2. First-time Google login: Automatically create verified profile in Supabase
+          const newFarmerId = 'FARMER-TG-' + (user.id ? user.id.slice(0, 4).toUpperCase() : Math.floor(1000 + Math.random() * 9000));
+          const newProfile = {
+            user_id: user.id,
+            farmer_id: newFarmerId,
+            full_name: googleName,
+            email: email,
+            phone: user.phone || '98' + Math.floor(10000000 + Math.random() * 90000000),
+            village: 'Telangana Farmlands',
+            district: 'Warangal Rural',
+            state: 'Telangana',
+            wallet_balance: 25000.00,
+            agri_credit_score: 780,
+            pre_approved_loan: 250000.00,
+            updated_at: new Date().toISOString()
+          };
+
+          const { data: inserted, error: insErr } = await window.supabaseClient
+            .from('profiles')
+            .insert([newProfile])
+            .select();
+
+          if (!insErr && inserted && inserted.length > 0) {
+            activeProfile = inserted[0];
+            console.log('✔ Auto-registered new Google farmer profile in Supabase:', newFarmerId);
+          } else {
+            activeProfile = newProfile;
+          }
+        }
+      } catch (e) {
+        console.warn('Google profile lookup notice:', e);
+      }
+    }
+
+    if (!activeProfile) {
+      activeProfile = {
+        farmer_id: 'FARMER-TG-' + (user.id ? user.id.slice(0, 4).toUpperCase() : '7721'),
+        full_name: googleName,
+        email: email,
+        wallet_balance: 25000,
+        agri_credit_score: 780,
+        pre_approved_loan: 250000
+      };
+    }
+
+    await setActiveFarmerSession(activeProfile, provider);
+    showToast(`Welcome, ${googleName}! Logged in via Google.`);
   }
 
   async function checkAuthStatus() {
@@ -388,7 +497,18 @@ function initKisanSaathi() {
       try {
         const localSession = JSON.parse(authData);
         if (localSession && localSession.authenticated) {
-          applyFarmerProfileUI(localSession.farmerName, localSession.email, localSession.phone);
+          currentFarmerId = localSession.farmerId || 'FARMER-TG-7721';
+          currentFarmerName = localSession.farmerName || 'Farmer';
+          applyFarmerProfileUI(
+            localSession.farmerName,
+            localSession.email,
+            localSession.phone,
+            localSession.district,
+            localSession.farmerId,
+            localSession.walletBalance,
+            localSession.creditScore,
+            localSession.preApprovedLoan
+          );
           hideLoginScreen();
           updateSupabaseBadge(true);
           syncWithSupabase();
@@ -421,18 +541,41 @@ function initKisanSaathi() {
     }
   }
 
-  // Supabase Data Sync: Sync crops, negotiations, and orders with Supabase database
+  // Supabase Data Sync: Fetch user-scoped crops, negotiations, orders, and wallet
   async function syncWithSupabase() {
     if (!window.supabaseClient) return;
+
+    // Resolve active farmer ID
+    let activeFarmerId = currentFarmerId || 'FARMER-TG-7721';
+    const authData = localStorage.getItem('kisan_auth');
+    if (authData) {
+      try {
+        const sess = JSON.parse(authData);
+        if (sess.farmerId) activeFarmerId = sess.farmerId;
+      } catch (e) {}
+    }
+
     try {
-      // 1. Fetch crops from Supabase
-      const { data: cropsData, error: cropsErr } = await window.supabaseClient
+      console.log('🔄 Syncing user progress with Supabase for Farmer ID:', activeFarmerId);
+
+      // 1. Fetch THIS farmer's crops from Supabase `crops` table
+      let { data: cropsData, error: cropsErr } = await window.supabaseClient
         .from('crops')
         .select('*')
+        .eq('farmer_id', activeFarmerId)
         .order('created_at', { ascending: false });
 
-      if (!cropsErr && cropsData && cropsData.length > 0) {
-        console.log('✔ Loaded', cropsData.length, 'crops from Supabase database');
+      // If demo farmer with 0 crops, fallback to seed crops
+      if ((!cropsData || cropsData.length === 0) && activeFarmerId === 'FARMER-TG-7721') {
+        const { data: allCrops } = await window.supabaseClient
+          .from('crops')
+          .select('*')
+          .order('created_at', { ascending: false });
+        cropsData = allCrops;
+      }
+
+      if (!cropsErr && cropsData) {
+        console.log('✔ Loaded', cropsData.length, 'crops from Supabase for farmer:', activeFarmerId);
         inventory = cropsData.map(c => ({
           id: c.id,
           title: c.crop_name,
@@ -441,8 +584,8 @@ function initKisanSaathi() {
           quality: c.ai_grade || 'Elite',
           quantity: Number(c.quantity_kg),
           price: Number(c.price_per_kg),
-          description: c.description || 'Certified high-quality produce from Telangana agricultural farmlands.',
-          description_hi: c.description || 'तेलंगाना कृषि भूमि से प्रमाणित उच्च गुणवत्ता उत्पाद।',
+          description: c.description || 'Certified produce from Telangana farmlands.',
+          description_hi: c.description || 'तेलंगाना कृषि भूमि से प्रमाणित उत्पाद।',
           defect: Number(c.defect_ratio || 2.1),
           dateAdded: c.created_at ? new Date(c.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
           image: c.image_url || 'assets/raw/paddy.png',
@@ -450,87 +593,170 @@ function initKisanSaathi() {
         }));
         localStorage.setItem('kisan_inventory', JSON.stringify(inventory));
         renderInventory();
+      } else if (!cropsErr && (!cropsData || cropsData.length === 0) && activeFarmerId !== 'FARMER-TG-7721') {
+        inventory = [];
+        localStorage.setItem('kisan_inventory', JSON.stringify(inventory));
+        renderInventory();
       }
 
-      // 2. Fetch negotiations from Supabase
-      const { data: negData, error: negErr } = await window.supabaseClient
+      // 2. Fetch negotiations scoped to this farmer
+      let { data: negData, error: negErr } = await window.supabaseClient
         .from('negotiations')
         .select('*')
+        .eq('farmer_id', activeFarmerId)
         .order('created_at', { ascending: false });
 
-      if (!negErr && negData && negData.length > 0) {
-        console.log('✔ Loaded', negData.length, 'negotiations from Supabase database');
-        negotiations = negData.map(n => ({
-          id: n.id,
-          buyer: {
-            name: n.buyer_name,
-            phone: "+91 98480 33412",
-            location: n.mandi_location || "Bowenpally Modern Market Yard"
-          },
-          itemTitle: n.crop_name,
-          actualPrice: Number(n.counter_price_per_kg || (n.offer_price_per_kg * 1.1).toFixed(0)),
-          proposedPrice: Number(n.offer_price_per_kg),
-          quantity: Number(n.offered_quantity_kg),
-          image: "assets/raw/paddy.png",
-          status: n.status || "pending",
-          note: `Offer from ${n.buyer_company || n.buyer_name} at ₹${n.offer_price_per_kg}/Kg for ${n.offered_quantity_kg} Kg.`
-        }));
+      if ((!negData || negData.length === 0) && activeFarmerId === 'FARMER-TG-7721') {
+        const { data: allNeg } = await window.supabaseClient
+          .from('negotiations')
+          .select('*')
+          .order('created_at', { ascending: false });
+        negData = allNeg;
+      }
+
+      if (!negErr && negData) {
+        if (negData.length > 0) {
+          negotiations = negData.map(n => ({
+            id: n.id,
+            buyer: {
+              name: n.buyer_name,
+              phone: "+91 98480 33412",
+              location: n.mandi_location || "Bowenpally Modern Market Yard"
+            },
+            itemTitle: n.crop_name,
+            actualPrice: Number(n.counter_price_per_kg || (n.offer_price_per_kg * 1.1).toFixed(0)),
+            proposedPrice: Number(n.offer_price_per_kg),
+            quantity: Number(n.offered_quantity_kg),
+            image: "assets/raw/paddy.png",
+            status: n.status || "pending",
+            note: `Offer from ${n.buyer_company || n.buyer_name} at ₹${n.offer_price_per_kg}/Kg for ${n.offered_quantity_kg} Kg.`
+          }));
+        } else if (activeFarmerId !== 'FARMER-TG-7721') {
+          negotiations = [];
+        }
         localStorage.setItem('kisan_negotiations', JSON.stringify(negotiations));
         if (activeSection === 'negotiate') renderNegotiations();
       }
 
-      // 3. Check test table 'todos'
-      const { data: todosData } = await window.supabaseClient.from('todos').select('*');
-      if (todosData && todosData.length > 0) {
-        console.log('✔ Supabase todos table accessible. Count:', todosData.length);
+      // 3. Fetch orders scoped to this farmer
+      try {
+        let { data: ordersData, error: ordersErr } = await window.supabaseClient
+          .from('orders')
+          .select('*')
+          .eq('farmer_id', activeFarmerId)
+          .order('created_at', { ascending: false });
+
+        if ((!ordersData || ordersData.length === 0) && activeFarmerId === 'FARMER-TG-7721') {
+          const { data: allOrders } = await window.supabaseClient
+            .from('orders')
+            .select('*')
+            .order('created_at', { ascending: false });
+          ordersData = allOrders;
+        }
+
+        if (!ordersErr && ordersData) {
+          if (ordersData.length > 0) {
+            orders = ordersData.map(o => ({
+              id: o.id,
+              receiptNumber: `KS-TG-2026-${o.id ? o.id.slice(0, 5).toUpperCase() : Math.floor(10000 + Math.random()*90000)}`,
+              date: o.created_at ? new Date(o.created_at).toLocaleDateString('en-GB') : new Date().toLocaleDateString('en-GB'),
+              amount: Number(o.total_amount),
+              completed: o.escrow_status === 'escrow_released',
+              status: o.escrow_status === 'escrow_released' ? 'Delivered' : 'In Transit',
+              buyer: {
+                first_name: o.buyer_name,
+                phone: '+91 98480 33412',
+                address: 'Bowenpally Modern Market Yard, Secunderabad, Telangana'
+              },
+              items: [
+                { name: o.crop_name, quantity: Number(o.quantity_kg), pricePerKg: Number(o.price_per_kg || 28), total: Number(o.total_amount) }
+              ],
+              route: {
+                origin: "Geesugonda, Warangal (17.9689, 79.5941)",
+                destination: "Bowenpally Mandi, Secunderabad (17.4770, 78.4870)",
+                distanceKm: 148,
+                logisticsPartner: "VRL Telangana Agri-Freight"
+              }
+            }));
+          } else if (activeFarmerId !== 'FARMER-TG-7721') {
+            orders = [];
+          }
+          localStorage.setItem('kisan_orders', JSON.stringify(orders));
+          if (activeSection === 'orders') renderOrders();
+        }
+      } catch (ordErr) {
+        console.warn('Orders fetch notice:', ordErr);
       }
+
+      // 4. Fetch wallet transactions scoped to this farmer
+      try {
+        const { data: txData, error: txErr } = await window.supabaseClient
+          .from('wallet_transactions')
+          .select('*')
+          .eq('farmer_id', activeFarmerId)
+          .order('created_at', { ascending: false });
+
+        if (!txErr && txData && txData.length > 0) {
+          wallet.transactions = txData.map(t => ({
+            id: t.id,
+            buyer: t.title,
+            amount: t.type === 'debit' ? -Number(t.amount) : Number(t.amount),
+            type: t.type,
+            time: new Date(t.created_at).toLocaleString(),
+            desc: t.tx_hash ? `Tx: ${t.tx_hash.slice(0, 10)}...` : 'Direct Escrow Settlement'
+          }));
+          localStorage.setItem('kisan_wallet', JSON.stringify(wallet));
+          if (activeSection === 'wallet') renderWallet();
+        }
+      } catch (txEx) {}
+
+      // 5. Fetch latest profile stats
+      const { data: profData } = await window.supabaseClient
+        .from('profiles')
+        .select('*')
+        .eq('farmer_id', activeFarmerId)
+        .maybeSingle();
+
+      if (profData) {
+        applyFarmerProfileUI(
+          profData.full_name,
+          profData.email,
+          profData.phone,
+          profData.district,
+          profData.farmer_id,
+          profData.wallet_balance,
+          profData.agri_credit_score,
+          profData.pre_approved_loan
+        );
+      }
+
     } catch (err) {
       console.warn('Supabase data sync notice:', err.message);
     }
   }
 
-  window.switchLoginTab = function(tab) {
-    const otpSec = document.getElementById('loginOtpSection');
-    const directSec = document.getElementById('loginDirectSection');
-    const btnOtp = document.getElementById('tabBtnOtpLogin');
-    const btnDirect = document.getElementById('tabBtnDirectLogin');
+  // Switch between Login and Registration tabs
+  function switchLoginTab(tab) {
+    const loginSec = document.getElementById('loginFormSection');
+    const regSec = document.getElementById('registerFormSection');
+    const btnLogin = document.getElementById('tabBtnLogin');
+    const btnReg = document.getElementById('tabBtnRegister');
 
-    if (tab === 'otp') {
-      if (otpSec) otpSec.classList.remove('hidden');
-      if (directSec) directSec.classList.add('hidden');
-      if (btnOtp) btnOtp.className = 'flex-1 pb-2.5 border-b-2 border-purple-700 text-purple-700 font-bold';
-      if (btnDirect) btnDirect.className = 'flex-1 pb-2.5 text-gray-500 hover:text-gray-800 font-medium';
+    if (tab === 'login') {
+      if (loginSec) loginSec.classList.remove('hidden');
+      if (regSec) regSec.classList.add('hidden');
+      if (btnLogin) btnLogin.className = 'flex-1 pb-2.5 border-b-2 border-purple-700 text-purple-700 font-bold';
+      if (btnReg) btnReg.className = 'flex-1 pb-2.5 text-gray-500 hover:text-gray-800 font-medium';
     } else {
-      if (otpSec) otpSec.classList.add('hidden');
-      if (directSec) directSec.classList.remove('hidden');
-      if (btnOtp) btnOtp.className = 'flex-1 pb-2.5 text-gray-500 hover:text-gray-800 font-medium';
-      if (btnDirect) btnDirect.className = 'flex-1 pb-2.5 border-b-2 border-purple-700 text-purple-700 font-bold';
+      if (loginSec) loginSec.classList.add('hidden');
+      if (regSec) regSec.classList.remove('hidden');
+      if (btnLogin) btnLogin.className = 'flex-1 pb-2.5 text-gray-500 hover:text-gray-800 font-medium';
+      if (btnReg) btnReg.className = 'flex-1 pb-2.5 border-b-2 border-purple-700 text-purple-700 font-bold';
     }
-  };
-
-  async function performLogin(farmerName = 'K. Ramarao Reddy', phone = '9848022334') {
-    const session = {
-      authenticated: true,
-      farmerName: farmerName,
-      phone: phone,
-      district: 'Warangal',
-      state: 'Telangana',
-      provider: 'otp',
-      loginTime: new Date().toISOString()
-    };
-    localStorage.setItem('kisan_auth', JSON.stringify(session));
-    applyFarmerProfileUI(farmerName, '', phone);
-    hideLoginScreen();
-    updateSupabaseBadge(true);
-    showToast(currentLanguage === 'hi' ? `स्वागत है, ${farmerName}!` : `Welcome to KisanSaathi, ${farmerName}!`);
-    navigateTo('inventory');
-
-    // Record login in database
-    await recordLoginInDatabase({ id: null, email: 'farmer@kisaansaathi.telangana.gov.in' }, farmerName, 'otp');
-    syncWithSupabase();
   }
+  window.switchLoginTab = switchLoginTab;
 
-  window.handleSignOut = async function() {
+  async function handleSignOut() {
     if (window.supabaseClient) {
       try {
         await window.supabaseClient.auth.signOut();
@@ -539,43 +765,166 @@ function initKisanSaathi() {
       }
     }
     localStorage.removeItem('kisan_auth');
+    localStorage.removeItem('kisan_inventory');
+    localStorage.removeItem('kisan_orders');
+    localStorage.removeItem('kisan_negotiations');
+    localStorage.removeItem('kisan_wallet');
+    currentFarmerId = null;
+    currentFarmerName = null;
     showLoginScreen();
     showToast(currentLanguage === 'hi' ? 'सफलतापूर्वक लॉगआउट किया गया' : 'Logged out successfully');
-  };
+  }
+  window.handleSignOut = handleSignOut;
 
-  // Bind Login Page Buttons
-  const btnSubmitOtpLogin = document.getElementById('btnSubmitOtpLogin');
-  if (btnSubmitOtpLogin) {
-    btnSubmitOtpLogin.addEventListener('click', () => {
-      const phoneInput = document.getElementById('loginPhoneNumber');
-      const otpInput = document.getElementById('loginOtpCode');
+  // Bind Registration Form Button
+  const btnSubmitRegister = document.getElementById('btnSubmitRegister');
+  if (btnSubmitRegister) {
+    btnSubmitRegister.addEventListener('click', async () => {
+      const nameInput = document.getElementById('regFullName');
+      const phoneInput = document.getElementById('regPhoneNumber');
+      const pinInput = document.getElementById('regPinCode');
+      const distInput = document.getElementById('regDistrict');
+      const villageInput = document.getElementById('regVillage');
+
+      const fullName = nameInput ? nameInput.value.trim() : '';
       const phone = phoneInput ? phoneInput.value.trim() : '';
-      const otp = otpInput ? otpInput.value.trim() : '';
+      const pin = pinInput ? pinInput.value.trim() : '1234';
+      const district = distInput ? distInput.value : 'Warangal Rural';
+      const village = villageInput ? villageInput.value.trim() : 'Geesugonda';
+
+      if (!fullName || fullName.length < 2) {
+        alert('Please enter your full name (at least 2 letters).');
+        return;
+      }
       if (!phone || phone.length < 10) {
-        showToast(currentLanguage === 'hi' ? 'कृपया 10 अंकों का मान्य मोबाइल नंबर दर्ज करें' : 'Please enter a valid 10-digit mobile number');
+        alert('Please enter a valid 10-digit mobile number.');
         return;
       }
-      if (!otp || otp.length < 4) {
-        showToast(currentLanguage === 'hi' ? 'कृपया 4 अंकों का OTP कोड (1234) दर्ज करें' : 'Please enter 4-digit OTP code (e.g. 1234)');
-        return;
+
+      showToast('Registering farmer profile in Supabase...');
+
+      if (window.supabaseClient) {
+        try {
+          // 1. Check if mobile already exists in Supabase profiles
+          const { data: existing, error: checkErr } = await window.supabaseClient
+            .from('profiles')
+            .select('*')
+            .eq('phone', phone);
+
+          if (!checkErr && existing && existing.length > 0) {
+            alert('⚠️ A farmer account with mobile +91 ' + phone + ' already exists!\n\nSwitching to Login tab so you can log in.');
+            switchLoginTab('login');
+            const loginPhone = document.getElementById('loginPhoneNumber');
+            if (loginPhone) loginPhone.value = phone;
+            return;
+          }
+
+          // 2. Generate unique farmer ID
+          const farmerId = 'FARMER-TG-' + Math.floor(1000 + Math.random() * 9000);
+
+          // 3. Insert profile into Supabase
+          const profileData = {
+            farmer_id: farmerId,
+            full_name: fullName,
+            phone: phone,
+            village: village || 'Geesugonda',
+            district: district || 'Warangal Rural',
+            state: 'Telangana',
+            wallet_balance: 10000.00,
+            agri_credit_score: 750,
+            pre_approved_loan: 200000.00,
+            updated_at: new Date().toISOString()
+          };
+
+          // Try inserting with password_pin
+          let insertRes = await window.supabaseClient.from('profiles').insert([{
+            ...profileData,
+            password_pin: pin
+          }]).select();
+
+          if (insertRes.error) {
+            console.warn('Retrying insert without password_pin column:', insertRes.error.message);
+            insertRes = await window.supabaseClient.from('profiles').insert([profileData]).select();
+          }
+
+          if (insertRes.error) {
+            alert('Registration error: ' + insertRes.error.message);
+            return;
+          }
+
+          console.log('✔ Farmer registered successfully in Supabase:', farmerId);
+
+          // 4. Auto-login the newly registered farmer
+          const createdProfile = (insertRes.data && insertRes.data[0]) ? insertRes.data[0] : profileData;
+          await setActiveFarmerSession(createdProfile, 'registered');
+          showToast(`Welcome to KisanSaathi, ${fullName}! Your Farmer ID is ${farmerId}`);
+
+        } catch (err) {
+          console.error('Registration exception:', err);
+          alert('Registration error: ' + err.message);
+        }
+      } else {
+        alert('Supabase client is offline. Please check your internet connection.');
       }
-      performLogin('K. Ramarao Reddy', phone);
     });
   }
 
-  const btnRequestOtp = document.getElementById('btnRequestOtp');
-  if (btnRequestOtp) {
-    btnRequestOtp.addEventListener('click', () => {
-      const otpInput = document.getElementById('loginOtpCode');
-      if (otpInput) otpInput.value = '1234';
-      showToast(currentLanguage === 'hi' ? 'डेमो OTP भेजा गया: 1234' : 'Demo OTP sent: 1234');
-    });
-  }
+  // Bind Registered Farmer Login Button
+  const btnSubmitLogin = document.getElementById('btnSubmitLogin');
+  if (btnSubmitLogin) {
+    btnSubmitLogin.addEventListener('click', async () => {
+      const phoneInput = document.getElementById('loginPhoneNumber');
+      const pinInput = document.getElementById('loginPinCode');
+      const phone = phoneInput ? phoneInput.value.trim() : '';
+      const pin = pinInput ? pinInput.value.trim() : '';
 
-  const btnQuickDemoLogin = document.getElementById('btnQuickDemoLogin');
-  if (btnQuickDemoLogin) {
-    btnQuickDemoLogin.addEventListener('click', () => {
-      performLogin('K. Ramarao Reddy', '9848022334');
+      if (!phone || phone.length < 10) {
+        alert('Please enter your 10-digit registered mobile number.');
+        return;
+      }
+
+      showToast('Verifying registered farmer in Supabase...');
+
+      if (window.supabaseClient) {
+        try {
+          const { data, error } = await window.supabaseClient
+            .from('profiles')
+            .select('*')
+            .eq('phone', phone);
+
+          if (error) {
+            console.error('Login query error:', error);
+            alert('Login query error: ' + error.message);
+            return;
+          }
+
+          if (!data || data.length === 0) {
+            alert('❌ Mobile number +91 ' + phone + ' is NOT registered!\n\nPlease click "New Registration" to create your account first.');
+            switchLoginTab('register');
+            const regPhone = document.getElementById('regPhoneNumber');
+            if (regPhone) regPhone.value = phone;
+            return;
+          }
+
+          const farmerProfile = data[0];
+
+          // If password_pin is present on profile, verify PIN
+          if (farmerProfile.password_pin && pin && farmerProfile.password_pin !== pin) {
+            alert('❌ Incorrect PIN entered! Please enter your valid 4-digit PIN.');
+            return;
+          }
+
+          // Successful login
+          await setActiveFarmerSession(farmerProfile, 'credentials');
+          showToast(`Welcome back, ${farmerProfile.full_name}!`);
+
+        } catch (err) {
+          console.error('Login exception:', err);
+          alert('Login error: ' + err.message);
+        }
+      } else {
+        alert('Supabase client offline.');
+      }
     });
   }
 
@@ -721,7 +1070,7 @@ function initKisanSaathi() {
   }
 
   // Navigation Controller
-  window.navigateTo = function(sectionId) {
+  function navigateTo(sectionId) {
     activeSection = sectionId;
 
     // Hide all sections
@@ -780,7 +1129,8 @@ function initKisanSaathi() {
 
     // Scroll to top
     document.getElementById('mainContent').scrollTop = 0;
-  };
+  }
+  window.navigateTo = navigateTo;
 
   // Drawer Controls
   const navDrawer = document.getElementById('navDrawer');
@@ -1159,6 +1509,15 @@ function initKisanSaathi() {
   });
 
   async function saveCropToInventory(crop) {
+    let activeFarmerId = currentFarmerId || 'FARMER-TG-7721';
+    const authData = localStorage.getItem('kisan_auth');
+    if (authData) {
+      try {
+        const sess = JSON.parse(authData);
+        if (sess.farmerId) activeFarmerId = sess.farmerId;
+      } catch (e) {}
+    }
+
     inventory.unshift(crop);
     localStorage.setItem('kisan_inventory', JSON.stringify(inventory));
     renderInventory();
@@ -1175,7 +1534,7 @@ function initKisanSaathi() {
           price_per_kg: crop.price,
           description: crop.description,
           image_url: crop.image,
-          farmer_id: 'FARMER-TG-7721',
+          farmer_id: activeFarmerId,
           cluster_id: 'Warangal Agri-Cluster #12',
           mandi: 'Enumamula Wholesale Mandi (Warangal)',
           status: 'listed'
@@ -1286,6 +1645,28 @@ function initKisanSaathi() {
       document.getElementById('qualityResultCard').classList.remove('hidden');
       document.getElementById('qualityResultCard').scrollIntoView({ behavior: 'smooth' });
       showToast('Quality testing completed successfully!');
+
+      // Sync scan result to Supabase quality_gradings table
+      if (window.supabaseClient) {
+        let activeFarmerId = currentFarmerId || 'FARMER-TG-7721';
+        const authData = localStorage.getItem('kisan_auth');
+        if (authData) {
+          try {
+            const sess = JSON.parse(authData);
+            if (sess.farmerId) activeFarmerId = sess.farmerId;
+          } catch (e) {}
+        }
+        try {
+          window.supabaseClient.from('quality_gradings').insert([{
+            farmer_id: activeFarmerId,
+            crop_name: `${category} Sample`,
+            grade: picked,
+            moisture_percent: 12.4,
+            defect_percent: Number((100 - ratio).toFixed(1)),
+            purity_score: ratio
+          }]).then();
+        } catch (e) {}
+      }
     }, 2000);
   });
 
@@ -1428,24 +1809,53 @@ function initKisanSaathi() {
       localStorage.setItem('kisan_wallet', JSON.stringify(wallet));
       localStorage.setItem('kisan_negotiations', JSON.stringify(negotiations));
 
-      // Sync with Supabase negotiations and orders tables
+      // Sync with Supabase negotiations, orders, profiles, and wallet_transactions tables
       if (window.supabaseClient) {
+        let activeFarmerId = currentFarmerId || 'FARMER-TG-7721';
+        const authData = localStorage.getItem('kisan_auth');
+        if (authData) {
+          try {
+            const sess = JSON.parse(authData);
+            if (sess.farmerId) activeFarmerId = sess.farmerId;
+          } catch (e) {}
+        }
+
+        const txHash = '0x' + Array.from({length: 40}, () => Math.floor(Math.random()*16).toString(16)).join('');
+
         try {
           if (nego.id && !nego.id.startsWith('NEGO-')) {
             window.supabaseClient.from('negotiations').update({ status: 'accepted' }).eq('id', nego.id).then();
           }
           window.supabaseClient.from('orders').insert([{
+            farmer_id: activeFarmerId,
             crop_name: nego.itemTitle,
             buyer_name: nego.buyer.name,
             quantity_kg: nego.quantity,
+            price_per_kg: nego.proposedPrice,
             total_amount: totalAmount,
             freight_savings_percent: 38.0,
             escrow_status: 'escrow_locked',
-            blockchain_tx_hash: '0x' + Array.from({length: 40}, () => Math.floor(Math.random()*16).toString(16)).join(''),
+            blockchain_tx_hash: txHash,
             dbt_payout_within_hours: 24
           }]).then();
+
+          // Sync new balance to profiles table
+          window.supabaseClient.from('profiles').update({
+            wallet_balance: wallet.balance,
+            updated_at: new Date().toISOString()
+          }).eq('farmer_id', activeFarmerId).then();
+
+          // Sync credit transaction to wallet_transactions
+          window.supabaseClient.from('wallet_transactions').insert([{
+            farmer_id: activeFarmerId,
+            title: `Escrow Sale: ${nego.itemTitle}`,
+            type: 'credit',
+            amount: totalAmount,
+            status: 'completed',
+            tx_hash: txHash
+          }]).then();
         } catch (e) {
-          console.warn('Supabase order sync notice:', e);
+          console.warn('Supabase order/wallet sync notice:', e);
         }
       }
 
@@ -1629,19 +2039,49 @@ function initKisanSaathi() {
     }
 
     wallet.balance -= amt;
-    wallet.transactions.unshift({
+    const debitTxn = {
       id: `TXN-${Date.now().toString().slice(-4)}`,
       buyer: "State Bank of India (IMPS Transfer)",
       amount: -amt,
       type: "debit",
       time: new Date().toLocaleString(),
       desc: "Instant payout to A/C **4521"
-    });
+    };
+    wallet.transactions.unshift(debitTxn);
 
     localStorage.setItem('kisan_wallet', JSON.stringify(wallet));
     document.getElementById('modalWithdraw').classList.remove('open');
     renderWallet();
     showToast(`Transferred ₹${amt.toLocaleString('en-IN')} to SBI account successfully!`);
+
+    // Sync with Supabase profiles and wallet_transactions
+    if (window.supabaseClient) {
+      let activeFarmerId = currentFarmerId || 'FARMER-TG-7721';
+      const authData = localStorage.getItem('kisan_auth');
+      if (authData) {
+        try {
+          const sess = JSON.parse(authData);
+          if (sess.farmerId) activeFarmerId = sess.farmerId;
+        } catch (e) {}
+      }
+
+      try {
+        window.supabaseClient.from('profiles').update({
+          wallet_balance: wallet.balance,
+          updated_at: new Date().toISOString()
+        }).eq('farmer_id', activeFarmerId).then();
+
+        window.supabaseClient.from('wallet_transactions').insert([{
+          farmer_id: activeFarmerId,
+          title: 'IMPS Bank Transfer (SBI A/C **4521)',
+          type: 'debit',
+          amount: amt,
+          status: 'completed'
+        }]).then();
+      } catch (err) {
+        console.warn('Supabase withdrawal sync notice:', err);
+      }
+    }
   });
 
   document.getElementById('btnRequestStatement').addEventListener('click', () => {
@@ -1704,9 +2144,10 @@ function initKisanSaathi() {
   }
 
   // Credit Score Modal
-  window.showCreditScoreModal = function() {
+  function showCreditScoreModal() {
     document.getElementById('modalCreditScore').classList.add('open');
-  };
+  }
+  window.showCreditScoreModal = showCreditScoreModal;
   document.getElementById('btnCloseCreditModal').addEventListener('click', () => {
     document.getElementById('modalCreditScore').classList.remove('open');
   });
@@ -2098,7 +2539,7 @@ function initKisanSaathi() {
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
-  window.initOrUpdateChat = function(lang) {
+  function initOrUpdateChat(lang) {
     if (!chatQuickPromptsContainer) return;
     const prompts = quickPromptsByLang[lang] || quickPromptsByLang.en;
     chatQuickPromptsContainer.innerHTML = prompts.map(p => `
@@ -2137,17 +2578,18 @@ function initKisanSaathi() {
     if (chatMessages && (chatMessages.children.length === 0 || chatMessages.dataset.activeLang !== lang)) {
       chatMessages.innerHTML = '';
       chatMessages.dataset.activeLang = lang;
+      const farmerGreetingName = currentFarmerName || 'Farmer';
       const welcomeMsg = lang === 'hi'
-        ? 'नमस्ते रामाराव जी! मैं तेलंगाना का आपका किसान साथी (KisanSaathi) AI सहायक हूँ। मुझसे एनाममुला व बोवेनपल्ली मंडी के ताजा भाव, जैविक कीटनाशक, रायथू बंधु, या वारंगल व अन्य जिलों में मृदा परीक्षण के बारे में पूछें।'
-        : 'Namaste Ramarao! I am your KisanSaathi AI Assistant for Telangana. Ask me about mandi rates (Enumamula, Bowenpally), organic fertilizers, PMFBY crop insurance, or soil health testing in Warangal and surrounding districts.';
+        ? `नमस्ते ${farmerGreetingName} जी! मैं तेलंगाना का आपका किसान साथी (KisanSaathi) AI सहायक हूँ। मुझसे एनाममुला व बोवेनपल्ली मंडी के ताजा भाव, जैविक कीटनाशक, रायथू बंधु, या वारंगल व अन्य जिलों में मृदा परीक्षण के बारे में पूछें।`
+        : `Namaste ${farmerGreetingName}! I am your KisanSaathi AI Assistant for Telangana. Ask me about mandi rates (Enumamula, Bowenpally), organic fertilizers, PMFBY crop insurance, or soil health testing in Warangal and surrounding districts.`;
       appendChatMessage('bot', welcomeMsg);
     }
-
     // Refresh WhatsApp Channel Prompts
     if (typeof window.initOrUpdateWhatsApp === 'function') {
       window.initOrUpdateWhatsApp(lang);
     }
-  };
+  }
+  window.initOrUpdateChat = initOrUpdateChat;
 
   // =========================================================================
   // WHATSAPP AI ASSISTANT CHATBOT CHANNEL INTEGRATION (Bilingual Indian Languages)
@@ -2391,10 +2833,43 @@ function initKisanSaathi() {
   });
 
   // Grievance / Feedback form submit
-  document.getElementById('formFeedback').addEventListener('submit', (e) => {
+  document.getElementById('formFeedback').addEventListener('submit', async (e) => {
     e.preventDefault();
+    const subjectEl = document.querySelector('#formFeedback input[type="text"]');
+    const msgEl = document.querySelector('#formFeedback textarea');
+    const catEl = document.querySelector('#formFeedback select');
+
+    const subject = subjectEl ? subjectEl.value.trim() : 'Mandi / Soil Inquiry';
+    const message = msgEl ? msgEl.value.trim() : 'Grievance submitted by farmer';
+    const category = catEl ? catEl.value : 'mandi_rate';
+    const ticketNo = 'TG-2026-' + Math.floor(1000 + Math.random() * 9000);
+
+    let activeFarmerId = currentFarmerId || 'FARMER-TG-7721';
+    const authData = localStorage.getItem('kisan_auth');
+    if (authData) {
+      try {
+        const sess = JSON.parse(authData);
+        if (sess.farmerId) activeFarmerId = sess.farmerId;
+      } catch (e) {}
+    }
+
+    if (window.supabaseClient) {
+      try {
+        await window.supabaseClient.from('grievance_tickets').insert([{
+          farmer_id: activeFarmerId,
+          ticket_number: ticketNo,
+          subject: subject || 'Farmer Support Ticket',
+          category: category,
+          description: message,
+          status: 'in_review'
+        }]);
+      } catch (err) {
+        console.warn('Grievance ticket sync notice:', err);
+      }
+    }
+
     document.getElementById('formFeedback').reset();
-    showToast('Grievance ticket #TG-2026-881 registered with Agriculture Dept!');
+    showToast(`Grievance ticket #${ticketNo} registered with Agriculture Dept!`);
     navigateTo('inventory');
   });
 
