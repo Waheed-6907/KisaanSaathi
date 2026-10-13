@@ -4199,19 +4199,38 @@ function initKisanSaathi() {
     ]
   };
 
-  function appendChatMessage(sender, text) {
+  function appendChatMessage(sender, text, badgeText) {
     if (!chatMessages) return;
     const isBot = sender === 'bot';
     const msgEl = document.createElement('div');
     msgEl.className = `flex gap-2.5 items-start ${isBot ? '' : 'justify-end'}`;
+
+    // Format markdown-like text safely
+    let formattedText = String(text || '');
+    if (isBot) {
+      formattedText = formattedText
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<strong>$1</strong>')
+        .replace(/`([^`]+)`/g, '<code class="bg-gray-200 px-1 py-0.5 rounded text-[11px] font-mono text-purple-900">$1</code>')
+        .replace(/\n\n/g, '<br/><br/>')
+        .replace(/\n/g, '<br/>');
+    }
+
+    const badgeHtml = badgeText ? `<div class="mb-1.5"><span class="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200 shadow-xs"><i data-lucide="sparkles" class="w-2.5 h-2.5 text-blue-600"></i> ${badgeText}</span></div>` : '';
+
     msgEl.innerHTML = `
-      ${isBot ? '<div class="w-7 h-7 rounded-full bg-purple-700 text-white flex items-center justify-center flex-shrink-0 text-xs">🌾</div>' : ''}
-      <div class="${isBot ? 'bg-purple-50 text-gray-800 rounded-tl-none' : 'bg-purple-700 text-white rounded-tr-none'} p-3 rounded-2xl max-w-[85%] text-xs leading-relaxed shadow-xs">
-        ${text}
+      ${isBot ? '<div class="w-7 h-7 rounded-full bg-purple-700 text-white flex items-center justify-center flex-shrink-0 text-xs shadow-xs">🌾</div>' : ''}
+      <div class="${isBot ? 'bg-purple-50 text-gray-800 rounded-tl-none border border-purple-100' : 'bg-purple-700 text-white rounded-tr-none'} p-3 rounded-2xl max-w-[85%] text-xs leading-relaxed shadow-xs">
+        ${badgeHtml}
+        <div class="chat-text-body">${formattedText}</div>
       </div>
     `;
     chatMessages.appendChild(msgEl);
     chatMessages.scrollTop = chatMessages.scrollHeight;
+    if (window.lucide) lucide.createIcons();
   }
 
   function initOrUpdateChat(lang) {
@@ -4353,8 +4372,152 @@ function initKisanSaathi() {
     });
   });
 
+  // Helper: Check Gemini AI Server & Local Setup Status
+  async function updateGeminiConnectionStatus() {
+    const statusLabel = document.getElementById('geminiConnectionStatusLabel');
+    const chatStatusText = document.getElementById('chatStatusText');
+    const localKey = localStorage.getItem('kisan_gemini_api_key');
+
+    let serverGeminiActive = false;
+    try {
+      const res = await fetch('/api/kisan-ai', { method: 'GET' });
+      if (res.ok) {
+        const info = await res.json();
+        serverGeminiActive = Boolean(info?.gemini?.configured);
+      }
+    } catch (_e) {}
+
+    const isConnected = Boolean(localKey || serverGeminiActive);
+
+    if (statusLabel) {
+      statusLabel.textContent = isConnected ? 'Gemini 1.5 Active' : 'Connect Gemini';
+    }
+
+    if (chatStatusText) {
+      if (isConnected) {
+        chatStatusText.textContent = currentLanguage === 'hi'
+          ? '● ऑनलाइन | Google Gemini 1.5 Flash सक्रिय'
+          : '● Online | Google Gemini 1.5 Flash Active';
+        chatStatusText.className = 'text-[10px] text-blue-600 font-bold';
+      } else {
+        chatStatusText.textContent = currentLanguage === 'hi'
+          ? '● ऑनलाइन | तेलंगाना कृषि विशेषज्ञ ज्ञान'
+          : '● Online | Telangana Agriculture Knowledge';
+        chatStatusText.className = 'text-[10px] text-emerald-600 font-semibold';
+      }
+    }
+  }
+
+  // Gemini Modal Handlers
+  const btnOpenGeminiModal = document.getElementById('btnOpenGeminiModal');
+  const btnCloseGeminiModal = document.getElementById('btnCloseGeminiModal');
+  const modalGeminiConfig = document.getElementById('modalGeminiConfig');
+  const inputGeminiApiKey = document.getElementById('inputGeminiApiKey');
+  const btnSaveGeminiKey = document.getElementById('btnSaveGeminiKey');
+  const btnClearGeminiKey = document.getElementById('btnClearGeminiKey');
+  const geminiKeyStatusMessage = document.getElementById('geminiKeyStatusMessage');
+
+  if (btnOpenGeminiModal && modalGeminiConfig) {
+    btnOpenGeminiModal.addEventListener('click', () => {
+      if (inputGeminiApiKey) {
+        inputGeminiApiKey.value = localStorage.getItem('kisan_gemini_api_key') || '';
+      }
+      if (geminiKeyStatusMessage) {
+        geminiKeyStatusMessage.classList.add('hidden');
+      }
+      modalGeminiConfig.classList.add('open');
+    });
+  }
+
+  if (btnCloseGeminiModal && modalGeminiConfig) {
+    btnCloseGeminiModal.addEventListener('click', () => {
+      modalGeminiConfig.classList.remove('open');
+    });
+  }
+
+  if (btnSaveGeminiKey) {
+    btnSaveGeminiKey.addEventListener('click', async () => {
+      const keyVal = inputGeminiApiKey ? inputGeminiApiKey.value.trim() : '';
+      if (!keyVal) {
+        alert('Please enter a valid Gemini API Key starting with AIzaSy...');
+        return;
+      }
+
+      btnSaveGeminiKey.disabled = true;
+      btnSaveGeminiKey.innerHTML = '<div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> Testing Connection...';
+
+      try {
+        const testRes = await fetch('/api/kisan-ai', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: 'Hello, what are today\'s paddy rates in Telangana?',
+            apiKey: keyVal,
+            language: currentLanguage || 'en'
+          })
+        });
+
+        const data = await testRes.json();
+        if (data.success && data.geminiConnected) {
+          localStorage.setItem('kisan_gemini_api_key', keyVal);
+          if (geminiKeyStatusMessage) {
+            geminiKeyStatusMessage.className = 'text-xs p-2.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 block';
+            geminiKeyStatusMessage.innerHTML = '✔ Connected successfully to <strong>Google Gemini 1.5 Flash</strong>!';
+          }
+          showToast('Google Gemini 1.5 Flash Connected!');
+          updateGeminiConnectionStatus();
+          setTimeout(() => {
+            modalGeminiConfig.classList.remove('open');
+          }, 1200);
+        } else {
+          // Fallback notice
+          localStorage.setItem('kisan_gemini_api_key', keyVal);
+          if (geminiKeyStatusMessage) {
+            geminiKeyStatusMessage.className = 'text-xs p-2.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 block';
+            geminiKeyStatusMessage.innerHTML = '✔ Key saved! (Using Core Knowledge fallback if quota exceeded)';
+          }
+          updateGeminiConnectionStatus();
+          setTimeout(() => {
+            modalGeminiConfig.classList.remove('open');
+          }, 1500);
+        }
+      } catch (err) {
+        localStorage.setItem('kisan_gemini_api_key', keyVal);
+        if (geminiKeyStatusMessage) {
+          geminiKeyStatusMessage.className = 'text-xs p-2.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 block';
+          geminiKeyStatusMessage.innerHTML = '✔ Gemini API Key saved to browser session!';
+        }
+        updateGeminiConnectionStatus();
+        setTimeout(() => {
+          modalGeminiConfig.classList.remove('open');
+        }, 1200);
+      } finally {
+        btnSaveGeminiKey.disabled = false;
+        btnSaveGeminiKey.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i><span>Save & Test Connection</span>';
+        if (window.lucide) lucide.createIcons();
+      }
+    });
+  }
+
+  if (btnClearGeminiKey) {
+    btnClearGeminiKey.addEventListener('click', () => {
+      localStorage.removeItem('kisan_gemini_api_key');
+      if (inputGeminiApiKey) inputGeminiApiKey.value = '';
+      if (geminiKeyStatusMessage) {
+        geminiKeyStatusMessage.className = 'text-xs p-2.5 rounded-xl bg-gray-100 text-gray-700 block';
+        geminiKeyStatusMessage.textContent = 'Custom API Key cleared. Using default server configuration.';
+      }
+      updateGeminiConnectionStatus();
+      showToast('Custom key cleared');
+    });
+  }
+
+  // Initialize status on load
+  setTimeout(updateGeminiConnectionStatus, 1000);
+
+  // Chat Form Submission
   if (chatForm) {
-    chatForm.addEventListener('submit', (e) => {
+    chatForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const msg = chatInput ? chatInput.value.trim() : '';
       if (!msg) return;
@@ -4362,20 +4525,72 @@ function initKisanSaathi() {
       appendChatMessage('user', msg);
       if (chatInput) chatInput.value = '';
 
-      // Bot Processing
-      setTimeout(() => {
+      // Append animated thinking indicator
+      const thinkingId = 'thinking-' + Date.now();
+      const thinkingEl = document.createElement('div');
+      thinkingEl.id = thinkingId;
+      thinkingEl.className = 'flex gap-2.5 items-start';
+      thinkingEl.innerHTML = `
+        <div class="w-7 h-7 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center shrink-0 mt-0.5">
+          <i data-lucide="bot" class="w-4 h-4 animate-spin"></i>
+        </div>
+        <div class="p-3 rounded-2xl bg-purple-50/70 border border-purple-100 text-xs text-purple-800 flex items-center gap-2">
+          <span class="inline-block w-2 h-2 bg-purple-600 rounded-full animate-ping"></span>
+          <span>KisanSaathi AI is formulating advisory...</span>
+        </div>
+      `;
+      chatMessages.appendChild(thinkingEl);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      if (window.lucide) lucide.createIcons();
+
+      let botReply = '';
+      let badgeLabel = null;
+      let usedGemini = false;
+
+      // 1. Try calling Serverless / Local /api/kisan-ai Endpoint
+      try {
+        const storedKey = localStorage.getItem('kisan_gemini_api_key') || '';
+        const headers = { 'Content-Type': 'application/json' };
+        if (storedKey) headers['x-gemini-key'] = storedKey;
+
+        const res = await fetch('/api/kisan-ai', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            message: msg,
+            language: currentLanguage || 'en',
+            profileName: currentFarmerName || 'Farmer',
+            apiKey: storedKey
+          })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.reply) {
+            botReply = data.reply;
+            usedGemini = Boolean(data.geminiConnected);
+            badgeLabel = usedGemini ? '✨ Powered by Gemini 1.5 Flash' : '🌱 Kisan Knowledge Engine';
+          }
+        }
+      } catch (networkErr) {
+        console.warn('[KisanAI] Live endpoint fetch note:', networkErr.message);
+      }
+
+      // Remove thinking indicator
+      const toRemove = document.getElementById(thinkingId);
+      if (toRemove) toRemove.remove();
+
+      // 2. Client-side Knowledge Base Fallback if network call did not provide reply
+      if (!botReply) {
         const lower = msg.toLowerCase();
-        
-        // Detect English query: English characters or currently active English language
         const isAsciiOnly = /^[\x00-\x7F\s.,?!'"-:;()0-9]+$/.test(msg);
         const queryLang = isAsciiOnly ? (currentLanguage || 'en') : 'hi';
         const knowledge = botKnowledge[queryLang] || botKnowledge[currentLanguage] || botKnowledge.en;
-        
-        let botReply = queryLang === 'hi'
-          ? 'धन्यवाद! आपके प्रश्न का उत्तर तैयार किया जा रहा है। तेलंगाना कृषि विशेषज्ञ सलाह के लिए आप किसान कॉल सेंटर टोल-फ्री 1800-180-1551 पर भी सीधे संपर्क कर सकते हैं।'
-          : 'Thank you! For expert agricultural advisories in Telangana, you can also reach the Kisan Call Center toll-free at 1800-180-1551 or the Warangal District Agriculture Office.';
 
-        // Search in primary knowledge base
+        botReply = queryLang === 'hi'
+          ? 'धन्यवाद! तेलंगाना कृषि विशेषज्ञ सलाह के लिए आप किसान कॉल सेंटर टोल-फ्री 1800-180-1551 पर भी सीधे संपर्क कर सकते हैं।'
+          : 'Thank you! For expert agricultural advisories in Telangana, you can reach the Kisan Call Center toll-free at 1800-180-1551.';
+
         let found = false;
         for (const item of knowledge) {
           if (item.keywords.some(k => lower.includes(k.toLowerCase()))) {
@@ -4385,10 +4600,9 @@ function initKisanSaathi() {
           }
         }
 
-        // If not found, cross-search other language keywords
         if (!found) {
           const altLang = queryLang === 'en' ? 'hi' : 'en';
-          const altKnowledge = botKnowledge[altLang];
+          const altKnowledge = botKnowledge[altLang] || [];
           for (const item of altKnowledge) {
             if (item.keywords.some(k => lower.includes(k.toLowerCase()))) {
               botReply = item.reply;
@@ -4397,15 +4611,18 @@ function initKisanSaathi() {
           }
         }
 
-        appendChatMessage('bot', botReply);
+        badgeLabel = '🌱 Kisan Knowledge Engine';
+      }
 
-        // Speech synthesis voice
-        if (voiceEnabled && 'speechSynthesis' in window) {
-          const utter = new SpeechSynthesisUtterance(botReply);
-          utter.lang = queryLang === 'hi' ? 'hi-IN' : 'en-IN';
-          window.speechSynthesis.speak(utter);
-        }
-      }, 500);
+      appendChatMessage('bot', botReply, badgeLabel);
+
+      // Speech synthesis voice playback
+      if (voiceEnabled && 'speechSynthesis' in window) {
+        const cleanSpeechText = botReply.replace(/[*#_`]/g, '').slice(0, 300);
+        const utter = new SpeechSynthesisUtterance(cleanSpeechText);
+        utter.lang = currentLanguage === 'hi' ? 'hi-IN' : (currentLanguage === 'te' ? 'te-IN' : 'en-IN');
+        window.speechSynthesis.speak(utter);
+      }
     });
   }
 

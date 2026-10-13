@@ -291,7 +291,7 @@ function isGreeting(text) {
 /**
  * Optional: Call Google Gemini API if GEMINI_API_KEY is configured
  */
-function callGeminiAPI(apiKey, prompt, lang, profileName) {
+function callGeminiAPI(apiKey, prompt, lang, profileName, model = 'gemini-1.5-flash') {
   return new Promise((resolve, reject) => {
     const systemPrompt = `You are KisanSaathi AI, an expert agricultural assistant specifically dedicated to Telangana farmers (districts: Warangal, Hyderabad, Secunderabad, Medchal, Nizamabad).
 The farmer's name is "${profileName || 'Farmer'}".
@@ -306,11 +306,11 @@ Key Knowledge:
 - Soil Health Card labs: Warangal RARS, PJTSAU Rajendranagar, Kandlakoi AMC.
 - Rythu Bharosa / Rythu Bandhu: ₹10,000/acre/year DBT.
 Format instructions:
-- Output in WhatsApp markdown (*bold*, bullet points).
-- Keep response under 1200 characters.
+- Output with clear headings, bullet points, and practical steps.
+- Keep response helpful, concise and well structured (under 1200 characters).
 - Tone: Respectful, practical, clear, encouraging.
 - Language: Respond in ${lang === 'te' ? 'Telugu (తెలుగు)' : (lang === 'hi' ? 'Hindi (Devanagari)' : 'English')}.
-- End with Kisan Call Center Helpline: 1800-180-1551.`;
+- Always end with Kisan Call Center Helpline: 1800-180-1551.`;
 
     const payload = JSON.stringify({
       contents: [
@@ -322,7 +322,7 @@ Format instructions:
         }
       ],
       generationConfig: {
-        maxOutputTokens: 600,
+        maxOutputTokens: 800,
         temperature: 0.3
       }
     });
@@ -330,13 +330,13 @@ Format instructions:
     const options = {
       hostname: 'generativelanguage.googleapis.com',
       port: 443,
-      path: `/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
+      path: `/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Content-Length': Buffer.byteLength(payload)
       },
-      timeout: 7000
+      timeout: 10000
     };
 
     const req = https.request(options, (res) => {
@@ -351,7 +351,7 @@ Format instructions:
               return resolve(text.trim());
             }
           }
-          reject(new Error(`Gemini API returned status ${res.statusCode}`));
+          reject(new Error(`Gemini API (${model}) returned status ${res.statusCode}: ${data.slice(0, 150)}`));
         } catch (e) {
           reject(e);
         }
@@ -360,12 +360,29 @@ Format instructions:
 
     req.on('timeout', () => {
       req.destroy();
-      reject(new Error('Gemini API request timed out'));
+      reject(new Error(`Gemini API (${model}) request timed out`));
     });
     req.on('error', reject);
     req.write(payload);
     req.end();
   });
+}
+
+/**
+ * Call Gemini with automatic model fallback (gemini-1.5-flash -> gemini-2.0-flash)
+ */
+async function callGeminiWithFallback(apiKey, prompt, lang, profileName) {
+  try {
+    return await callGeminiAPI(apiKey, prompt, lang, profileName, 'gemini-1.5-flash');
+  } catch (err1) {
+    console.warn('[KisanAI] gemini-1.5-flash note:', err1.message, '- retrying with gemini-2.0-flash');
+    try {
+      return await callGeminiAPI(apiKey, prompt, lang, profileName, 'gemini-2.0-flash');
+    } catch (err2) {
+      console.warn('[KisanAI] gemini-2.0-flash note:', err2.message);
+      throw err2;
+    }
+  }
 }
 
 /**
@@ -431,12 +448,40 @@ Respond in ${lang === 'te' ? 'Telugu' : (lang === 'hi' ? 'Hindi' : 'English')} w
 }
 
 /**
- * Primary KisanSaathi AI Response Generator
- * Resolves farmer queries using Telangana Knowledge Engine with optional LLM enhancement
+ * Parse incoming HTTP request body safely
  */
-async function getKisanAiResponse(rawMessage, { profileName = '', fromNumber = '' } = {}) {
+async function parseRequestBody(req) {
+  if (req.body && typeof req.body === 'object' && !Buffer.isBuffer(req.body)) {
+    return req.body;
+  }
+  if (typeof req.body === 'string') {
+    try {
+      return JSON.parse(req.body);
+    } catch (_e) {
+      return {};
+    }
+  }
+  return new Promise((resolve) => {
+    let rawData = '';
+    req.on('data', chunk => { rawData += chunk; });
+    req.on('end', () => {
+      try {
+        resolve(rawData ? JSON.parse(rawData) : {});
+      } catch (_e) {
+        resolve({});
+      }
+    });
+    req.on('error', () => resolve({}));
+  });
+}
+
+/**
+ * Primary KisanSaathi AI Response Generator
+ * Resolves farmer queries using Telangana Knowledge Engine with optional Gemini LLM enhancement
+ */
+async function getKisanAiResponse(rawMessage, { profileName = '', fromNumber = '', customApiKey = '', preferredLanguage = '' } = {}) {
   const query = (rawMessage || '').trim();
-  const lang = detectLanguage(query);
+  const lang = preferredLanguage || detectLanguage(query);
 
   // 1. Check for greetings or menu commands
   if (!query || isGreeting(query)) {
@@ -444,10 +489,11 @@ async function getKisanAiResponse(rawMessage, { profileName = '', fromNumber = '
     return greetingFunc(profileName);
   }
 
-  // 2. Check for optional external LLM enhancement if environment variable exists
-  if (process.env.GEMINI_API_KEY) {
+  // 2. Check for optional Gemini LLM enhancement (customApiKey or process.env.GEMINI_API_KEY)
+  const geminiKey = customApiKey || process.env.GEMINI_API_KEY;
+  if (geminiKey) {
     try {
-      const geminiReply = await callGeminiAPI(process.env.GEMINI_API_KEY, query, lang, profileName);
+      const geminiReply = await callGeminiWithFallback(geminiKey, query, lang, profileName);
       if (geminiReply) return geminiReply;
     } catch (err) {
       console.warn('[KisanAI] Gemini API failed, falling back to core knowledge engine:', err.message);
@@ -484,9 +530,111 @@ async function getKisanAiResponse(rawMessage, { profileName = '', fromNumber = '
   return fallback;
 }
 
-module.exports = {
-  getKisanAiResponse,
-  detectLanguage,
-  isGreeting,
-  KISAN_KNOWLEDGE
-};
+/**
+ * Vercel Serverless Function & Local Dev Handler
+ * Route: /api/kisan-ai
+ * Methods: GET (Health & Status), POST (Farmer Query with Gemini AI)
+ */
+async function kisanAiHandler(req, res) {
+  // CORS & Security headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-gemini-key');
+
+  if (req.method === 'OPTIONS') {
+    res.statusCode = 204;
+    return res.end();
+  }
+
+  const serverGeminiConfigured = Boolean(process.env.GEMINI_API_KEY);
+
+  // 1. GET: Status and diagnostic endpoint
+  if (req.method === 'GET') {
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    return res.end(JSON.stringify({
+      status: 'active',
+      service: 'KisanSaathi AI Assistant API',
+      version: '3.5.0',
+      gemini: {
+        configured: serverGeminiConfigured,
+        model: 'gemini-1.5-flash',
+        fallbackModel: 'gemini-2.0-flash'
+      },
+      supportedLanguages: ['en', 'hi', 'te'],
+      region: 'Telangana',
+      timestamp: new Date().toISOString()
+    }, null, 2));
+  }
+
+  // 2. Only allow POST for queries
+  if (req.method !== 'POST') {
+    res.statusCode = 405;
+    res.setHeader('Content-Type', 'application/json');
+    return res.end(JSON.stringify({ error: 'Method Not Allowed', allowed: ['GET', 'POST'] }));
+  }
+
+  try {
+    const body = await parseRequestBody(req);
+    const message = (body.message || body.query || '').trim();
+    const profileName = body.profileName || body.farmerName || '';
+    const preferredLang = body.language || body.lang || '';
+    const headers = req.headers || {};
+    const customKey = (body.apiKey || headers['x-gemini-key'] || '').trim();
+
+    const activeGeminiKey = customKey || process.env.GEMINI_API_KEY || '';
+
+    let reply = '';
+    let provider = 'knowledge_base';
+
+    if (activeGeminiKey) {
+      const lang = preferredLang || detectLanguage(message);
+      if (!message || isGreeting(message)) {
+        const greetingFunc = GREETINGS[lang] || GREETINGS.en;
+        reply = greetingFunc(profileName);
+        provider = 'greeting';
+      } else {
+        try {
+          reply = await callGeminiWithFallback(activeGeminiKey, message, lang, profileName);
+          provider = 'gemini-1.5-flash';
+        } catch (err) {
+          console.warn('[KisanAI API] Gemini call error:', err.message);
+          reply = await getKisanAiResponse(message, { profileName, preferredLanguage: lang });
+          provider = 'core_knowledge_fallback';
+        }
+      }
+    } else {
+      reply = await getKisanAiResponse(message, { profileName, preferredLanguage: preferredLang });
+      provider = 'core_knowledge';
+    }
+
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    return res.end(JSON.stringify({
+      success: true,
+      reply,
+      provider,
+      geminiConnected: provider.startsWith('gemini'),
+      timestamp: new Date().toISOString()
+    }));
+  } catch (error) {
+    console.error('[KisanAI Handler Error]', error);
+    res.statusCode = 500;
+    res.setHeader('Content-Type', 'application/json');
+    return res.end(JSON.stringify({
+      success: false,
+      error: error.message,
+      reply: 'An error occurred while connecting to KisanSaathi AI. Please contact the Telangana Kisan Call Center: 1800-180-1551.'
+    }));
+  }
+}
+
+// Support both serverless invocation (default export) and module imports
+module.exports = kisanAiHandler;
+module.exports.kisanAiHandler = kisanAiHandler;
+module.exports.getKisanAiResponse = getKisanAiResponse;
+module.exports.detectLanguage = detectLanguage;
+module.exports.isGreeting = isGreeting;
+module.exports.callGeminiAPI = callGeminiAPI;
+module.exports.callGeminiWithFallback = callGeminiWithFallback;
+module.exports.KISAN_KNOWLEDGE = KISAN_KNOWLEDGE;

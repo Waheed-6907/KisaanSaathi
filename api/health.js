@@ -18,6 +18,11 @@ module.exports = (req, res) => {
       keyConfigured: hasKey,
       authProviders: ['google', 'email', 'otp']
     },
+    gemini: {
+      connected: Boolean(process.env.GEMINI_API_KEY),
+      model: 'gemini-1.5-flash',
+      fallbackModel: 'gemini-2.0-flash'
+    },
     timestamp: new Date().toISOString()
   }, null, 2));
 };

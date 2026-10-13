@@ -126,6 +126,17 @@ function handleRequest(req, res) {
     }
   }
 
+  // API Route: /api/kisan-ai (Gemini AI Assistant Engine)
+  if (reqPath === '/api/kisan-ai') {
+    try {
+      const kisanAiHandler = require('./api/kisan-ai.js');
+      return kisanAiHandler(req, res);
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error: 'Kisan AI error', details: err.message }));
+    }
+  }
+
   // Support communication with bound internal service 'web-platform' via WEB_PLATFORM_URL if present
   if (process.env.WEB_PLATFORM_URL && (reqPath.startsWith('/platform') || reqPath.startsWith('/api/platform'))) {
     try {
