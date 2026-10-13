@@ -222,6 +222,18 @@ module.exports = async function handler(req, res) {
   const marketId = urlObj.searchParams.get('marketId') || '';
   const search = (urlObj.searchParams.get('q') || '').toLowerCase();
 
+  // Day, Date, Year preference filter
+  let dateQuery = urlObj.searchParams.get('date') || '';
+  const dayQuery = urlObj.searchParams.get('day');
+  const monthQuery = urlObj.searchParams.get('month');
+  const yearQuery = urlObj.searchParams.get('year');
+
+  if (!dateQuery && dayQuery && monthQuery && yearQuery) {
+    const mm = String(monthQuery).padStart(2, '0');
+    const dd = String(dayQuery).padStart(2, '0');
+    dateQuery = `${yearQuery}-${mm}-${dd}`;
+  }
+
   let results = [...dataset.observations];
 
   if (commodityId) results = results.filter(r => r.commodityId === commodityId);
@@ -235,11 +247,45 @@ module.exports = async function handler(req, res) {
     );
   }
 
+  let matchedDate = dateQuery || '2026-10-14';
+  let isExactDate = true;
+
+  if (dateQuery) {
+    const exactMatches = results.filter(r => r.observationDate === dateQuery);
+    if (exactMatches.length > 0) {
+      results = exactMatches;
+      matchedDate = dateQuery;
+      isExactDate = true;
+    } else {
+      // Find closest available observation date in the dataset
+      const allDates = Array.from(new Set(results.map(r => r.observationDate))).sort();
+      if (allDates.length > 0) {
+        // Find nearest date
+        const targetMs = new Date(dateQuery).getTime();
+        let closest = allDates[0];
+        let minDiff = Infinity;
+        for (const d of allDates) {
+          const diff = Math.abs(new Date(d).getTime() - targetMs);
+          if (diff < minDiff) {
+            minDiff = diff;
+            closest = d;
+          }
+        }
+        matchedDate = closest;
+        isExactDate = false;
+        results = results.filter(r => r.observationDate === closest);
+      }
+    }
+  }
+
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/json');
   return res.end(JSON.stringify({
     success: true,
     total: results.length,
+    requestedDate: dateQuery || null,
+    matchedDate: matchedDate,
+    isExactDate: isExactDate,
     records: results,
     sources: dataset.sources,
     commodities: dataset.commodities,
@@ -247,3 +293,4 @@ module.exports = async function handler(req, res) {
     timestamp: new Date().toISOString()
   }));
 };
+

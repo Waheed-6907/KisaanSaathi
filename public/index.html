@@ -497,10 +497,6 @@
             <i data-lucide="navigation" class="w-5 h-5 text-cyan-600"></i>
             <span data-i18n="nav_logistics">Logistics Network</span>
           </a>
-          <a class="drawer-item" data-navigate="marketIntel">
-            <i data-lucide="trending-up" class="w-5 h-5 text-emerald-600"></i>
-            <span>Market Intelligence (Mandi Prices)</span>
-          </a>
           <a class="drawer-item" data-navigate="weather">
             <i data-lucide="cloud-sun" class="w-5 h-5 text-sky-500"></i>
             <span data-i18n="nav_weather">Weather Forecast</span>
@@ -663,6 +659,244 @@
             <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm text-center cursor-pointer hover:border-purple-300 transition" onclick="navigateTo('orders')">
               <span class="text-[11px] text-gray-500 block font-medium" data-i18n="orders_title">Orders</span>
               <span id="quickOrders" class="text-sm md:text-base font-bold text-blue-600">3 Dispatches</span>
+            </div>
+          </div>
+
+          <!-- SECTION 1B: APMC MANDI BENCHMARK & DAY-DATE-YEAR PREFERENCE PRICING WIDGET -->
+          <div id="inventoryMandiWidget" class="bg-white rounded-2xl border border-emerald-200 shadow-sm p-4 space-y-3.5">
+            <!-- Header Row -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-gray-100">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-sm">
+                  <i data-lucide="trending-up" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h3 class="font-bold text-gray-900 text-sm flex items-center gap-2">
+                    <span>APMC Mandi Rate Benchmark</span>
+                    <span id="invPriceLivePill" class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
+                      <span>Real-Time Today</span>
+                    </span>
+                  </h3>
+                  <p class="text-[11px] text-gray-500">Official AGMARKNET trade rates & date preference price finder</p>
+                </div>
+              </div>
+
+              <!-- Quick Date Preset Toggles -->
+              <div class="flex items-center gap-1.5 self-start sm:self-auto">
+                <button type="button" id="btnDatePresetToday" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 transition flex items-center gap-1">
+                  <i data-lucide="zap" class="w-3 h-3"></i> Today
+                </button>
+                <button type="button" id="btnDatePresetYesterday" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition">
+                  Yesterday
+                </button>
+                <button type="button" id="btnToggleCustomDate" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 transition flex items-center gap-1">
+                  <i data-lucide="calendar" class="w-3 h-3"></i> Preference Filter
+                </button>
+              </div>
+            </div>
+
+            <!-- PREFERENCE DATE FILTER (Day / Month / Year & Calendar) -->
+            <div id="invDateFilterContainer" class="bg-gradient-to-r from-emerald-50/60 to-purple-50/40 p-3 rounded-xl border border-emerald-100 space-y-2.5">
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-bold text-gray-700 flex items-center gap-1">
+                  <i data-lucide="calendar-days" class="w-3.5 h-3.5 text-emerald-700"></i>
+                  <span>Price Preference Date Filter (Day &bull; Month &bull; Year):</span>
+                </span>
+                <span id="invDateFilterFeedback" class="text-[11px] font-semibold text-emerald-800">
+                  Trade Date: 14 Oct 2026
+                </span>
+              </div>
+
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <!-- Day Select -->
+                <div>
+                  <label for="invPrefDay" class="block text-[10px] uppercase font-bold text-gray-500 mb-0.5">Day</label>
+                  <select id="invPrefDay" class="w-full px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 bg-white focus:ring-1 focus:ring-emerald-500">
+                    <!-- 01 to 31 populated in app.js -->
+                  </select>
+                </div>
+
+                <!-- Month Select -->
+                <div>
+                  <label for="invPrefMonth" class="block text-[10px] uppercase font-bold text-gray-500 mb-0.5">Month</label>
+                  <select id="invPrefMonth" class="w-full px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 bg-white focus:ring-1 focus:ring-emerald-500">
+                    <option value="01">Jan (January)</option>
+                    <option value="02">Feb (February)</option>
+                    <option value="03">Mar (March)</option>
+                    <option value="04">Apr (April)</option>
+                    <option value="05">May (May)</option>
+                    <option value="06">Jun (June)</option>
+                    <option value="07">Jul (July)</option>
+                    <option value="08">Aug (August)</option>
+                    <option value="09">Sep (September)</option>
+                    <option value="10" selected>Oct (October)</option>
+                    <option value="11">Nov (November)</option>
+                    <option value="12">Dec (December)</option>
+                  </select>
+                </div>
+
+                <!-- Year Select -->
+                <div>
+                  <label for="invPrefYear" class="block text-[10px] uppercase font-bold text-gray-500 mb-0.5">Year</label>
+                  <select id="invPrefYear" class="w-full px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 bg-white focus:ring-1 focus:ring-emerald-500">
+                    <option value="2026" selected>2026 (Current)</option>
+                    <option value="2025">2025 (Historical)</option>
+                    <option value="2024">2024 (Historical)</option>
+                  </select>
+                </div>
+
+                <!-- Or Direct Native Date Picker -->
+                <div>
+                  <label for="invPrefNativeDate" class="block text-[10px] uppercase font-bold text-gray-500 mb-0.5">Calendar Date</label>
+                  <input type="date" id="invPrefNativeDate" value="2026-10-14" class="w-full px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 bg-white focus:ring-1 focus:ring-emerald-500" />
+                </div>
+              </div>
+            </div>
+
+            <!-- COMMODITY & MANDI SELECTION -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-0.5">
+              <div>
+                <label for="invPriceCommoditySelect" class="block text-xs font-bold text-gray-700 mb-1">
+                  Select Crop for Mandi Benchmark:
+                </label>
+                <select id="invPriceCommoditySelect" class="w-full px-3 py-2 text-xs font-bold rounded-xl border border-gray-300 bg-white focus:ring-2 focus:ring-emerald-500">
+                  <option value="PADDY_COMMON">Paddy (Telangana Sona / Common)</option>
+                  <option value="COTTON">Cotton (Kapas - Long Staple)</option>
+                  <option value="TURMERIC">Turmeric (Nizamabad Finger)</option>
+                  <option value="CHILLI_RED">Chilli Red (Teja Dry)</option>
+                  <option value="MAIZE">Maize (Makka)</option>
+                  <option value="BENGAL_GRAM">Bengal Gram (Desi Chana)</option>
+                  <option value="TOMATO">Tomato (Hybrid / Local)</option>
+                  <option value="ONION">Onion (Common Red)</option>
+                </select>
+              </div>
+
+              <div>
+                <label for="invPriceMandiSelect" class="block text-xs font-bold text-gray-700 mb-1">
+                  APMC Market Yard (Telangana):
+                </label>
+                <select id="invPriceMandiSelect" class="w-full px-3 py-2 text-xs font-bold rounded-xl border border-gray-300 bg-white focus:ring-2 focus:ring-emerald-500">
+                  <option value="TG_MKT_ENUMAMULA">Enumamula (Warangal) - Major Mandi</option>
+                  <option value="TG_MKT_BOWENPALLY">Bowenpally (Secunderabad) - Terminal Yard</option>
+                  <option value="TG_MKT_NIZAMABAD">Nizamabad APMC Yard</option>
+                  <option value="TG_MKT_KHAMMAM">Khammam Mandi</option>
+                  <option value="TG_MKT_SURYAPET">Suryapet APMC Yard</option>
+                  <option value="TG_MKT_BADEPALLY">Badepally (Jadcherla)</option>
+                  <option value="TG_MKT_KARIMNAGAR">Karimnagar APMC</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- ACTIVE PRICE DISPLAY CARD -->
+            <div id="invPriceResultCard" class="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-3">
+              <!-- Rates row -->
+              <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span id="invPriceCropBadge" class="font-extrabold text-sm text-gray-900">Telangana Sona Paddy</span>
+                    <span id="invPriceVarietyBadge" class="text-[10px] text-gray-500 bg-white px-2 py-0.5 rounded border border-gray-200">FAQ Grade</span>
+                  </div>
+                  <div class="flex items-baseline gap-2 mt-1">
+                    <span id="invPriceModalRate" class="text-2xl sm:text-3xl font-extrabold text-emerald-800">₹2,742</span>
+                    <span class="text-xs text-gray-500 font-semibold">/ Quintal</span>
+                    <span id="invPricePerKg" class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
+                      ₹27.42 / Kg
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Range and Arrivals -->
+                <div class="text-right sm:text-right border-t sm:border-t-0 pt-2 sm:pt-0 border-gray-200 space-y-0.5">
+                  <div class="text-xs text-gray-600">
+                    Range: <span id="invPriceMinMax" class="font-bold text-gray-800">₹2,671 - ₹2,802</span> /Qtl
+                  </div>
+                  <div class="text-xs text-gray-600">
+                    Arrivals: <span id="invPriceArrivals" class="font-bold text-gray-800">3,450 Quintals</span>
+                  </div>
+                  <div id="invPriceMspBadge" class="text-[11px] font-bold text-emerald-700">
+                    🟢 +₹442 (+19.2%) Above MSP (₹2,300/Qtl)
+                  </div>
+                </div>
+              </div>
+
+              <!-- Official Authority & Date Provenance Footnote -->
+              <div class="pt-2 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center text-[10px] text-gray-500 gap-1">
+                <div class="flex items-center gap-1.5">
+                  <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-600"></i>
+                  <span id="invPriceProvenanceText">Source: AGMARKNET Bulletin &bull; DMI, Ministry of Agriculture GoI</span>
+                </div>
+                <div id="invPriceObservationDateText" class="font-semibold text-gray-700">
+                  Observed Date: 2026-10-14 (Real-time feed)
+                </div>
+              </div>
+            </div>
+
+            <!-- EXPANDABLE ACTION TOOLS (Inter-Mandi Spread & Net Payout Calculator) -->
+            <div class="pt-1 flex flex-wrap gap-2 text-xs">
+              <button type="button" id="btnToggleMandiSpread" class="px-3 py-1.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 font-semibold flex items-center gap-1.5 transition">
+                <i data-lucide="arrow-left-right" class="w-3.5 h-3.5 text-purple-600"></i>
+                <span>Compare Other Telangana Mandis</span>
+              </button>
+              <button type="button" id="btnToggleNetCalculator" class="px-3 py-1.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 font-semibold flex items-center gap-1.5 transition">
+                <i data-lucide="calculator" class="w-3.5 h-3.5 text-emerald-600"></i>
+                <span>Calculate Net Realization from My Stock</span>
+              </button>
+              <button type="button" id="btnSyncWithInventoryPrice" class="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold flex items-center gap-1.5 shadow-sm transition ml-auto">
+                <i data-lucide="check-check" class="w-3.5 h-3.5"></i>
+                <span>Apply Benchmark to My Crop</span>
+              </button>
+            </div>
+
+            <!-- MANDI SPREAD CONTAINER (Hidden by default) -->
+            <div id="invMandiSpreadContainer" class="hidden bg-gray-50 p-3 rounded-xl border border-gray-200 space-y-2 text-xs">
+              <div class="flex items-center justify-between font-bold text-gray-800">
+                <span>Inter-Mandi Price Comparison for Selected Date</span>
+                <span id="invSpreadBadge" class="text-[11px] text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">Top spread: ₹180/Qtl</span>
+              </div>
+              <div id="invMandiSpreadList" class="space-y-1.5">
+                <!-- Dynamically populated -->
+              </div>
+              <p class="text-[10px] text-gray-500 italic pt-1">
+                💡 Tip: If transport cost to another yard exceeds the price spread, selling at your nearest APMC yard gives higher net returns.
+              </p>
+            </div>
+
+            <!-- NET RETURN CALCULATOR CONTAINER (Hidden by default) -->
+            <div id="invNetCalcContainer" class="hidden bg-gradient-to-br from-slate-900 to-emerald-950 text-white p-4 rounded-2xl shadow space-y-3 text-xs">
+              <div class="flex justify-between items-center">
+                <h4 class="font-bold text-sm text-emerald-300 flex items-center gap-1.5">
+                  <i data-lucide="wallet" class="w-4 h-4"></i>
+                  <span>Net Take-Home Harvest Realization</span>
+                </h4>
+                <span class="text-[10px] text-slate-300">Deterministic Net Payout</span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-slate-900">
+                <div>
+                  <label class="block text-[10px] font-bold text-slate-300 mb-0.5">Produce Quantity (Quintals):</label>
+                  <input type="number" id="invCalcQuantity" value="50" min="1" class="w-full px-2.5 py-1.5 rounded-lg text-xs font-bold" />
+                </div>
+                <div>
+                  <label class="block text-[10px] font-bold text-slate-300 mb-0.5">Transport Haulage (₹/Qtl):</label>
+                  <input type="number" id="invCalcTransport" value="45" min="0" class="w-full px-2.5 py-1.5 rounded-lg text-xs font-bold" />
+                </div>
+                <div>
+                  <label class="block text-[10px] font-bold text-slate-300 mb-0.5">Bagging & Labor (₹/Qtl):</label>
+                  <input type="number" id="invCalcBagging" value="25" min="0" class="w-full px-2.5 py-1.5 rounded-lg text-xs font-bold" />
+                </div>
+              </div>
+
+              <div id="invCalcFinancialSummary" class="bg-white/10 backdrop-blur-sm p-3 rounded-xl space-y-2 border border-white/10">
+                <div class="flex justify-between items-center">
+                  <span class="text-xs text-slate-200">Estimated Net Payout (in hand):</span>
+                  <span id="invCalcNetTotal" class="text-xl sm:text-2xl font-black text-emerald-400">₹1,30,830</span>
+                </div>
+                <div class="flex justify-between text-[11px] text-slate-300 pt-1 border-t border-white/10">
+                  <span>Gross Mandi Value: <strong id="invCalcGrossVal" class="text-white">₹1,37,100</strong></span>
+                  <span class="text-red-300">Total Deductions: <strong id="invCalcDeductionsVal">-₹6,270</strong></span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -1543,277 +1777,6 @@
                 <p class="text-[11px] leading-relaxed">
                   Have a complaint or notice an outdated contact number? Farmers can flag records directly to the Telangana Agricultural Extension Helpdesk or administrator review queue.
                 </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- SECTION 11B: KISAN SATHI MARKET INTELLIGENCE (Verified Mandi Pricing & Net Return Calculator) -->
-        <section id="sectionMarketIntel" class="app-section hidden space-y-4">
-          <!-- Hero Header Card with Verification Credentials -->
-          <div class="bg-gradient-to-r from-emerald-900 via-slate-900 to-emerald-950 text-white p-5 rounded-2xl shadow-md space-y-3 relative overflow-hidden">
-            <div class="flex items-start justify-between">
-              <div>
-                <div class="inline-flex items-center gap-1.5 bg-emerald-500/20 text-emerald-300 text-[11px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-400/30">
-                  <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i>
-                  <span>Zero Hallucination | Official Government Mandi Prices</span>
-                </div>
-                <h2 class="text-xl font-extrabold tracking-tight mt-1">Kisan Saathi Market Intelligence</h2>
-                <p class="text-xs text-emerald-100 max-w-xl mt-0.5">
-                  Verified Daily APMC Mandi Rates, Inter-Mandi Arbitrage, Deterministic Net Return Calculations & Grounded AI Pricing Advisory.
-                </p>
-              </div>
-              <span class="text-xs bg-white/20 text-white font-mono px-2.5 py-1 rounded-xl backdrop-blur-sm border border-white/20 hidden sm:inline-block">
-                AGMARKNET & OGD
-              </span>
-            </div>
-
-            <!-- Key Metric Counters -->
-            <div class="grid grid-cols-4 gap-2 pt-2 border-t border-white/10 text-center">
-              <div class="bg-white/10 rounded-xl p-2 backdrop-blur-sm">
-                <span class="text-xs text-emerald-200 block">Tracked Crops</span>
-                <span class="text-base font-extrabold text-white">6 Commodities</span>
-              </div>
-              <div class="bg-white/10 rounded-xl p-2 backdrop-blur-sm">
-                <span class="text-xs text-emerald-200 block">APMC Mandis</span>
-                <span class="text-base font-extrabold text-white">7 Yards</span>
-              </div>
-              <div class="bg-white/10 rounded-xl p-2 backdrop-blur-sm">
-                <span class="text-xs text-emerald-200 block">Data Status</span>
-                <span class="text-base font-extrabold text-emerald-300">Live Official</span>
-              </div>
-              <div class="bg-white/10 rounded-xl p-2 backdrop-blur-sm">
-                <span class="text-xs text-emerald-200 block">AI Grounding</span>
-                <span class="text-base font-extrabold text-white">Strict Read-Only</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Multi-Module Navigation Tabs (Horizontal Scrollable Pills) -->
-          <div class="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar border-b border-gray-200 text-xs font-semibold">
-            <button class="market-tab-btn active px-3 py-2 rounded-xl bg-emerald-700 text-white flex items-center gap-1.5 transition flex-shrink-0" data-markettab="overview">
-              <i data-lucide="layers" class="w-3.5 h-3.5"></i>
-              <span>Market Highlights</span>
-            </button>
-            <button class="market-tab-btn px-3 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center gap-1.5 transition flex-shrink-0" data-markettab="prices">
-              <i data-lucide="sprout" class="w-3.5 h-3.5"></i>
-              <span>Live Mandi Directory</span>
-            </button>
-            <button class="market-tab-btn px-3 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center gap-1.5 transition flex-shrink-0" data-markettab="compare">
-              <i data-lucide="scale" class="w-3.5 h-3.5"></i>
-              <span>Compare Mandis</span>
-            </button>
-            <button class="market-tab-btn px-3 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center gap-1.5 transition flex-shrink-0" data-markettab="calculator">
-              <i data-lucide="calculator" class="w-3.5 h-3.5"></i>
-              <span>Net Return Calculator</span>
-            </button>
-            <button class="market-tab-btn px-3 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center gap-1.5 transition flex-shrink-0" data-markettab="agent">
-              <i data-lucide="bot" class="w-3.5 h-3.5"></i>
-              <span>Ask Pricing AI</span>
-            </button>
-            <button class="market-tab-btn px-3 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center gap-1.5 transition flex-shrink-0" data-markettab="sources">
-              <i data-lucide="database" class="w-3.5 h-3.5"></i>
-              <span>Official Sources</span>
-            </button>
-          </div>
-
-          <!-- TAB 1: MARKET HIGHLIGHTS (OVERVIEW) -->
-          <div id="markettabContentOverview" class="market-tab-panel space-y-3">
-            <div class="flex items-center justify-between text-xs text-gray-600">
-              <span class="font-bold text-gray-900">Key Telangana Mandi Auction Rates (Today)</span>
-              <span class="text-emerald-700 font-semibold flex items-center gap-1">
-                <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> 100% Grounded in Official Records
-              </span>
-            </div>
-            <div id="marketOverviewGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <!-- Dynamically populated -->
-            </div>
-          </div>
-
-          <!-- TAB 2: LIVE MANDI PRICES TABLE -->
-          <div id="markettabContentPrices" class="market-tab-panel hidden space-y-3">
-            <div class="bg-white p-3.5 rounded-2xl border border-gray-200 shadow-sm space-y-2.5 text-xs">
-              <div class="relative">
-                <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-2.5"></i>
-                <input type="text" id="marketPriceSearch" placeholder="Search crop, mandi, district or variety..." class="w-full pl-9 pr-3 py-2 border rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
-              </div>
-
-              <div class="grid grid-cols-2 gap-2">
-                <div>
-                  <label class="block text-[11px] font-semibold text-gray-600 mb-0.5">Filter by Crop</label>
-                  <select id="marketCommodityFilter" class="w-full px-2.5 py-1.5 border rounded-xl bg-white focus:ring-2 focus:ring-emerald-500 text-xs">
-                    <option value="">All Commodities</option>
-                    <option value="PADDY_COMMON">Telangana Sona Paddy (Common)</option>
-                    <option value="COTTON">Cotton (Kapas)</option>
-                    <option value="TURMERIC">Turmeric (Raw/Finger)</option>
-                    <option value="CHILLI_RED">Chilli Red (Dry)</option>
-                    <option value="MAIZE">Maize (Makka)</option>
-                    <option value="BENGAL_GRAM">Bengal Gram (Chana)</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-[11px] font-semibold text-gray-600 mb-0.5">Filter by Mandi Yard</label>
-                  <select id="marketYardFilter" class="w-full px-2.5 py-1.5 border rounded-xl bg-white focus:ring-2 focus:ring-emerald-500 text-xs">
-                    <option value="">All Telangana Mandis</option>
-                    <option value="TG_MKT_ENUMAMULA">Enumamula (Warangal)</option>
-                    <option value="TG_MKT_BOWENPALLY">Bowenpally (Secunderabad)</option>
-                    <option value="TG_MKT_NIZAMABAD">Nizamabad APMC</option>
-                    <option value="TG_MKT_KHAMMAM">Khammam Mandi</option>
-                    <option value="TG_MKT_SURYAPET">Suryapet Yard</option>
-                    <option value="TG_MKT_BADEPALLY">Badepally (Jadcherla)</option>
-                    <option value="TG_MKT_KARIMNAGAR">Karimnagar APMC</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <div id="marketPriceList" class="space-y-2.5">
-              <!-- Dynamically populated price cards -->
-            </div>
-          </div>
-
-          <!-- TAB 3: COMPARE MANDIS (ARBITRAGE & SPREAD) -->
-          <div id="markettabContentCompare" class="market-tab-panel hidden space-y-3">
-            <div class="bg-white p-3.5 rounded-2xl border border-gray-200 shadow-sm space-y-2.5 text-xs">
-              <label class="block text-xs font-semibold text-gray-700">Select Crop for Inter-Mandi Comparison:</label>
-              <select id="marketCompareCropSelect" class="w-full px-3 py-2 border rounded-xl bg-white focus:ring-2 focus:ring-emerald-500 font-semibold text-xs">
-                <option value="PADDY_COMMON">Telangana Sona Paddy (Common)</option>
-                <option value="COTTON">Cotton (Kapas)</option>
-                <option value="TURMERIC">Turmeric (Raw/Finger)</option>
-                <option value="CHILLI_RED">Chilli Red (Dry)</option>
-                <option value="MAIZE">Maize (Makka)</option>
-              </select>
-            </div>
-
-            <div id="marketCompareResultsContainer" class="space-y-3">
-              <!-- Dynamically populated comparison stats & table -->
-            </div>
-          </div>
-
-          <!-- TAB 4: DETERMINISTIC NET RETURN CALCULATOR -->
-          <div id="markettabContentCalculator" class="market-tab-panel hidden space-y-3">
-            <div class="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm space-y-3.5 text-xs">
-              <h3 class="font-bold text-gray-900 text-sm flex items-center gap-1.5">
-                <i data-lucide="calculator" class="w-4 h-4 text-emerald-600"></i>
-                <span>Harvest Payout & Cost Deduction Calculator</span>
-              </h3>
-
-              <div class="grid grid-cols-2 gap-2">
-                <div>
-                  <label class="block font-semibold text-gray-600 mb-1">Crop:</label>
-                  <select id="calcCropSelect" class="w-full px-2.5 py-1.5 border rounded-xl bg-white text-xs">
-                    <option value="PADDY_COMMON">Telangana Sona Paddy</option>
-                    <option value="COTTON">Cotton (Kapas)</option>
-                    <option value="TURMERIC">Turmeric</option>
-                    <option value="CHILLI_RED">Chilli Red</option>
-                    <option value="MAIZE">Maize</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block font-semibold text-gray-600 mb-1">Target Mandi:</label>
-                  <select id="calcMandiSelect" class="w-full px-2.5 py-1.5 border rounded-xl bg-white text-xs">
-                    <option value="TG_MKT_ENUMAMULA">Enumamula (Warangal)</option>
-                    <option value="TG_MKT_BOWENPALLY">Bowenpally (Secunderabad)</option>
-                    <option value="TG_MKT_NIZAMABAD">Nizamabad APMC</option>
-                    <option value="TG_MKT_KHAMMAM">Khammam Mandi</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label class="block font-semibold text-gray-600 mb-1">Quantity (Quintals):</label>
-                <input type="number" id="calcQuantityInput" value="50" min="1" class="w-full px-3 py-2 border rounded-xl text-xs font-bold" />
-              </div>
-
-              <div class="space-y-2 pt-2 border-t border-gray-100">
-                <div class="flex justify-between items-center text-gray-600">
-                  <span>Transport Cost (₹/Quintal):</span>
-                  <span id="labelCalcTransport" class="font-bold text-gray-900">₹45/qtl</span>
-                </div>
-                <input type="range" id="sliderCalcTransport" min="0" max="150" step="5" value="45" class="w-full accent-emerald-600" />
-
-                <div class="flex justify-between items-center text-gray-600">
-                  <span>Bagging & Labor (₹/Quintal):</span>
-                  <span id="labelCalcBagging" class="font-bold text-gray-900">₹25/qtl</span>
-                </div>
-                <input type="range" id="sliderCalcBagging" min="0" max="80" step="5" value="25" class="w-full accent-emerald-600" />
-              </div>
-
-              <button id="btnRunNetReturnCalc" type="button" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow transition text-xs flex items-center justify-center gap-1.5">
-                <i data-lucide="check-circle" class="w-4 h-4"></i>
-                <span>Compute Net Take-Home Payout</span>
-              </button>
-            </div>
-
-            <div id="calcResultDisplay" class="hidden">
-              <!-- Dynamically populated financial summary -->
-            </div>
-          </div>
-
-          <!-- TAB 5: ASK PRICING AI AGENT -->
-          <div id="markettabContentAgent" class="market-tab-panel hidden space-y-3">
-            <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 space-y-3">
-              <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-white">
-                  <i data-lucide="bot" class="w-4 h-4"></i>
-                </div>
-                <div>
-                  <h4 class="font-bold text-gray-900 text-xs">Kisan Sathi Grounded Pricing AI</h4>
-                  <p class="text-[10px] text-gray-500">Strict zero-hallucination agent with tool execution inspector</p>
-                </div>
-              </div>
-
-              <div class="flex flex-wrap gap-1.5 pt-1">
-                <button class="agent-quick-btn text-[11px] bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-full transition" data-q="What is current Telangana Sona paddy rate at Enumamula?">
-                  Paddy rate at Enumamula?
-                </button>
-                <button class="agent-quick-btn text-[11px] bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-full transition" data-q="I have 50 quintals of cotton, calculate my net return">
-                  50 Qtl cotton net return?
-                </button>
-                <button class="agent-quick-btn text-[11px] bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-full transition" data-q="Compare turmeric prices across Telangana mandis">
-                  Compare turmeric mandis
-                </button>
-              </div>
-
-              <!-- Chat Message Thread -->
-              <div id="marketAgentChatThread" class="max-h-72 overflow-y-auto space-y-2.5 p-3 bg-gray-50 rounded-xl border border-gray-200 text-xs">
-                <div class="p-2.5 bg-white border border-gray-200 rounded-xl text-gray-800">
-                  Namaste! Ask me about current mandi rates, inter-mandi price spreads, or harvest net returns. I verify all answers against official AGMARKNET wholesale records.
-                </div>
-              </div>
-
-              <!-- Input form -->
-              <div class="flex items-center gap-2">
-                <input type="text" id="marketAgentInput" placeholder="Ask about crop prices, mandis, or net returns..." class="flex-1 px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
-                <button id="btnMarketAgentSend" type="button" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center gap-1 shadow">
-                  <i data-lucide="send" class="w-3.5 h-3.5"></i>
-                  <span>Ask</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- TAB 6: OFFICIAL SOURCES -->
-          <div id="markettabContentSources" class="market-tab-panel hidden space-y-3 text-xs">
-            <div class="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm space-y-2.5">
-              <span class="font-bold text-gray-900 block text-sm">Official Government Agricultural Authorities</span>
-              <div class="space-y-2 text-gray-600">
-                <div class="p-2.5 bg-gray-50 rounded-xl border border-gray-100">
-                  <span class="font-bold text-gray-900 block">1. AGMARKNET (agmarknet.gov.in)</span>
-                  Directorate of Marketing & Inspection (DMI), Ministry of Agriculture & Farmers Welfare, GoI.
-                </div>
-                <div class="p-2.5 bg-gray-50 rounded-xl border border-gray-100">
-                  <span class="font-bold text-gray-900 block">2. Open Government Data Platform (data.gov.in)</span>
-                  National Informatics Centre (NIC) / MeitY daily mandi price API.
-                </div>
-                <div class="p-2.5 bg-gray-50 rounded-xl border border-gray-100">
-                  <span class="font-bold text-gray-900 block">3. e-NAM National Agriculture Market (enam.gov.in)</span>
-                  Small Farmers Agribusiness Consortium (SFAC).
-                </div>
-                <div class="p-2.5 bg-gray-50 rounded-xl border border-gray-100">
-                  <span class="font-bold text-gray-900 block">4. Telangana Agricultural Marketing Dept (tgmarketing.gov.in)</span>
-                  Official state APMC committee market yard bulletins.
-                </div>
               </div>
             </div>
           </div>

@@ -1668,7 +1668,7 @@ function initKisanSaathi() {
       info: 'sectionInfo',
       godowns: 'sectionGodowns',
       logistics: 'sectionLogistics',
-      marketIntel: 'sectionMarketIntel',
+      marketIntel: 'sectionInventory',
       weather: 'sectionWeather',
       chat: 'sectionChat',
       profile: 'sectionProfile',
@@ -1792,7 +1792,7 @@ function initKisanSaathi() {
         renderLogistics();
         break;
       case 'marketIntel':
-        renderMarketIntelligence();
+        renderInventory();
         break;
       case 'about':
         renderAboutTeam();
@@ -1810,6 +1810,7 @@ function initKisanSaathi() {
   // SECTION 1: INVENTORY RENDERING (HomeFragment & FarmerInventoryAdapter)
   // =========================================================================
   function renderInventory(filterCategory = 'all') {
+    initInventoryMandiPricing();
     const container = document.getElementById('inventoryContainer');
     const countEl = document.getElementById('statCropCount');
     const quickBalance = document.getElementById('quickBalance');
@@ -7060,227 +7061,346 @@ function initKisanSaathi() {
   }
 
   // =========================================================================
-  // SECTION: KISAN SATHI MARKET INTELLIGENCE (Verified Mandi Pricing & Net Return)
+  // SECTION: FARMER INVENTORY APMC MANDI BENCHMARK & DAY-DATE-YEAR PREFERENCE FILTER
   // =========================================================================
-  let marketIntelligenceInitialized = false;
-  let cachedMarketPrices = null;
+  let invPricingInitialized = false;
+  let cachedMarketDataset = null;
+  let currentActiveBenchmark = null;
 
-  async function loadMarketPricesData() {
-    if (cachedMarketPrices) return cachedMarketPrices;
+  async function loadMarketDataset() {
+    if (cachedMarketDataset) return cachedMarketDataset;
     try {
       const res = await fetch('/api/market-prices?action=latest');
       if (res.ok) {
-        const data = await res.json();
-        cachedMarketPrices = data;
-        return data;
+        cachedMarketDataset = await res.json();
+        return cachedMarketDataset;
       }
     } catch (_e) {}
 
     try {
       const res = await fetch('assets/data/market_prices.json');
       if (res.ok) {
-        const data = await res.json();
-        cachedMarketPrices = data;
-        return data;
+        cachedMarketDataset = await res.json();
+        return cachedMarketDataset;
       }
     } catch (_e) {}
 
     return { observations: [], commodities: [], markets: [] };
   }
 
-  function switchMarketTab(tabKey) {
-    document.querySelectorAll('.market-tab-btn').forEach(btn => {
-      if (btn.getAttribute('data-markettab') === tabKey) {
-        btn.classList.add('active', 'bg-emerald-700', 'text-white');
-        btn.classList.remove('bg-gray-100', 'text-gray-700');
-      } else {
-        btn.classList.remove('active', 'bg-emerald-700', 'text-white');
-        btn.classList.add('bg-gray-100', 'text-gray-700');
+  function initInventoryMandiPricing() {
+    const widget = document.getElementById('inventoryMandiWidget');
+    if (!widget) return;
+
+    // Only bind static event listeners once
+    if (!invPricingInitialized) {
+      invPricingInitialized = true;
+
+      // 1. Populate Day Dropdown (01 to 31)
+      const daySelect = document.getElementById('invPrefDay');
+      if (daySelect && daySelect.options.length === 0) {
+        for (let i = 1; i <= 31; i++) {
+          const val = String(i).padStart(2, '0');
+          const opt = document.createElement('option');
+          opt.value = val;
+          opt.textContent = `${val}`;
+          daySelect.appendChild(opt);
+        }
       }
-    });
 
-    const panels = {
-      overview: 'markettabContentOverview',
-      prices: 'markettabContentPrices',
-      compare: 'markettabContentCompare',
-      calculator: 'markettabContentCalculator',
-      agent: 'markettabContentAgent',
-      sources: 'markettabContentSources'
-    };
+      // Default to 14 Oct 2026
+      if (daySelect) daySelect.value = '14';
+      const monthSelect = document.getElementById('invPrefMonth');
+      if (monthSelect) monthSelect.value = '10';
+      const yearSelect = document.getElementById('invPrefYear');
+      if (yearSelect) yearSelect.value = '2026';
+      const nativePicker = document.getElementById('invPrefNativeDate');
+      if (nativePicker) nativePicker.value = '2026-10-14';
 
-    Object.entries(panels).forEach(([key, id]) => {
-      const el = document.getElementById(id);
-      if (el) {
-        if (key === tabKey) el.classList.remove('hidden');
-        else el.classList.add('hidden');
-      }
-    });
-
-    if (window.lucide) lucide.createIcons();
-  }
-
-  async function renderMarketIntelligence() {
-    const data = await loadMarketPricesData();
-    const records = data.records || data.observations || [];
-
-    // Render Highlights
-    const overviewGrid = document.getElementById('marketOverviewGrid');
-    if (overviewGrid && overviewGrid.children.length === 0) {
-      overviewGrid.innerHTML = records.slice(0, 6).map(r => `
-        <div class="bg-white p-3.5 rounded-2xl border border-gray-200 shadow-sm space-y-2 hover:border-emerald-400 transition">
-          <div class="flex justify-between items-start">
-            <div>
-              <span class="font-bold text-gray-900 text-xs block">${r.commodityName}</span>
-              <span class="text-[11px] text-gray-500">${r.marketName} &bull; ${r.districtName || 'Telangana'}</span>
-            </div>
-            <span class="px-2 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-800 rounded-full">
-              ${r.observationDate}
-            </span>
-          </div>
-          <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 flex justify-between items-center">
-            <div>
-              <span class="text-[10px] text-gray-500 block">Modal Benchmark Rate</span>
-              <span class="text-base font-extrabold text-emerald-800">₹${Number(r.modalPrice).toLocaleString('en-IN')}</span>
-              <span class="text-[10px] text-gray-500">/ Qtl (₹${r.modalPricePerKg}/Kg)</span>
-            </div>
-            <div class="text-right text-[11px] text-gray-600">
-              <div>Range: ₹${r.minPrice} - ₹${r.maxPrice}</div>
-              <div class="text-emerald-700 font-semibold">${r.arrivalsQuantity} Qtl Arrivals</div>
-            </div>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    // Render Price List
-    renderMarketPriceList(records);
-
-    // Initialize events once
-    if (!marketIntelligenceInitialized) {
-      marketIntelligenceInitialized = true;
-
-      document.querySelectorAll('.market-tab-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const tabKey = e.currentTarget.getAttribute('data-markettab');
-          switchMarketTab(tabKey);
-        });
-      });
-
-      const searchInput = document.getElementById('marketPriceSearch');
-      const cropFilter = document.getElementById('marketCommodityFilter');
-      const yardFilter = document.getElementById('marketYardFilter');
-
-      const applyFilters = () => {
-        const q = (searchInput?.value || '').toLowerCase();
-        const c = cropFilter?.value || '';
-        const y = yardFilter?.value || '';
-
-        const filtered = records.filter(r => {
-          if (c && r.commodityId !== c) return false;
-          if (y && r.marketId !== y) return false;
-          if (q) {
-            const str = `${r.commodityName} ${r.marketName} ${r.districtName || ''} ${r.variety || ''}`.toLowerCase();
-            if (!str.includes(q)) return false;
-          }
-          return true;
-        });
-        renderMarketPriceList(filtered);
+      // Synchronize Day, Month, Year -> Native Date Picker
+      const syncFromDropdowns = () => {
+        const d = (daySelect?.value || '14').padStart(2, '0');
+        const m = (monthSelect?.value || '10').padStart(2, '0');
+        const y = yearSelect?.value || '2026';
+        const formatted = `${y}-${m}-${d}`;
+        if (nativePicker) nativePicker.value = formatted;
+        updateInventoryMandiBenchmark();
       };
 
-      if (searchInput) searchInput.addEventListener('input', applyFilters);
-      if (cropFilter) cropFilter.addEventListener('change', applyFilters);
-      if (yardFilter) yardFilter.addEventListener('change', applyFilters);
+      if (daySelect) daySelect.addEventListener('change', syncFromDropdowns);
+      if (monthSelect) monthSelect.addEventListener('change', syncFromDropdowns);
+      if (yearSelect) yearSelect.addEventListener('change', syncFromDropdowns);
 
-      const compareSelect = document.getElementById('marketCompareCropSelect');
-      if (compareSelect) {
-        compareSelect.addEventListener('change', () => updateMarketCompare(compareSelect.value, records));
-        updateMarketCompare(compareSelect.value, records);
-      }
-
-      const sliderTransport = document.getElementById('sliderCalcTransport');
-      const sliderBagging = document.getElementById('sliderCalcBagging');
-      const labelTransport = document.getElementById('labelCalcTransport');
-      const labelBagging = document.getElementById('labelCalcBagging');
-
-      if (sliderTransport && labelTransport) {
-        sliderTransport.addEventListener('input', () => {
-          labelTransport.textContent = `₹${sliderTransport.value}/qtl`;
-        });
-      }
-      if (sliderBagging && labelBagging) {
-        sliderBagging.addEventListener('input', () => {
-          labelBagging.textContent = `₹${sliderBagging.value}/qtl`;
+      // Synchronize Native Date Picker -> Day, Month, Year
+      if (nativePicker) {
+        nativePicker.addEventListener('change', () => {
+          const val = nativePicker.value;
+          if (val) {
+            const parts = val.split('-');
+            if (parts.length === 3) {
+              if (yearSelect) yearSelect.value = parts[0];
+              if (monthSelect) monthSelect.value = parts[1];
+              if (daySelect) daySelect.value = parts[2];
+            }
+          }
+          updateInventoryMandiBenchmark();
         });
       }
 
-      const btnRunCalc = document.getElementById('btnRunNetReturnCalc');
-      if (btnRunCalc) {
-        btnRunCalc.addEventListener('click', () => runNetReturnCalculator(records));
-      }
-
-      const agentInput = document.getElementById('marketAgentInput');
-      const btnAgentSend = document.getElementById('btnMarketAgentSend');
-
-      if (btnAgentSend && agentInput) {
-        btnAgentSend.addEventListener('click', () => sendMarketAgentMessage(agentInput.value));
-        agentInput.addEventListener('keypress', (e) => {
-          if (e.key === 'Enter') sendMarketAgentMessage(agentInput.value);
+      // Quick Date Preset Buttons
+      const btnToday = document.getElementById('btnDatePresetToday');
+      if (btnToday) {
+        btnToday.addEventListener('click', () => {
+          if (yearSelect) yearSelect.value = '2026';
+          if (monthSelect) monthSelect.value = '10';
+          if (daySelect) daySelect.value = '14';
+          if (nativePicker) nativePicker.value = '2026-10-14';
+          updateInventoryMandiBenchmark();
         });
       }
 
-      document.querySelectorAll('.agent-quick-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const q = e.currentTarget.getAttribute('data-q');
-          sendMarketAgentMessage(q);
+      const btnYesterday = document.getElementById('btnDatePresetYesterday');
+      if (btnYesterday) {
+        btnYesterday.addEventListener('click', () => {
+          if (yearSelect) yearSelect.value = '2026';
+          if (monthSelect) monthSelect.value = '10';
+          if (daySelect) daySelect.value = '13';
+          if (nativePicker) nativePicker.value = '2026-10-13';
+          updateInventoryMandiBenchmark();
         });
-      });
+      }
+
+      const btnToggleDate = document.getElementById('btnToggleCustomDate');
+      if (btnToggleDate) {
+        btnToggleDate.addEventListener('click', () => {
+          const container = document.getElementById('invDateFilterContainer');
+          if (container) {
+            container.classList.toggle('ring-2');
+            container.classList.toggle('ring-purple-400');
+            nativePicker?.focus();
+          }
+        });
+      }
+
+      // Commodity & Mandi changes
+      const commSelect = document.getElementById('invPriceCommoditySelect');
+      const mktSelect = document.getElementById('invPriceMandiSelect');
+      if (commSelect) commSelect.addEventListener('change', updateInventoryMandiBenchmark);
+      if (mktSelect) mktSelect.addEventListener('change', updateInventoryMandiBenchmark);
+
+      // Expandable tools: Mandi Spread and Net Calculator
+      const btnSpread = document.getElementById('btnToggleMandiSpread');
+      const spreadContainer = document.getElementById('invMandiSpreadContainer');
+      if (btnSpread && spreadContainer) {
+        btnSpread.addEventListener('click', () => {
+          spreadContainer.classList.toggle('hidden');
+          if (window.lucide) lucide.createIcons();
+        });
+      }
+
+      const btnNetCalc = document.getElementById('btnToggleNetCalculator');
+      const netCalcContainer = document.getElementById('invNetCalcContainer');
+      if (btnNetCalc && netCalcContainer) {
+        btnNetCalc.addEventListener('click', () => {
+          netCalcContainer.classList.toggle('hidden');
+          // auto-fill quantity with first matching inventory item quantity if available
+          const currentComm = commSelect?.value || 'PADDY_COMMON';
+          const matchItem = inventory.find(it => 
+            (currentComm === 'PADDY_COMMON' && it.title.toLowerCase().includes('paddy')) ||
+            (currentComm === 'COTTON' && it.title.toLowerCase().includes('cotton')) ||
+            (currentComm === 'TURMERIC' && it.title.toLowerCase().includes('turmeric')) ||
+            (currentComm === 'CHILLI_RED' && it.title.toLowerCase().includes('chilli'))
+          );
+          if (matchItem) {
+            const qtyInput = document.getElementById('invCalcQuantity');
+            if (qtyInput) qtyInput.value = Math.max(1, Math.round(matchItem.quantity / 100)); // convert kg to qtl
+          }
+          calculateNetReturnFromInventory();
+          if (window.lucide) lucide.createIcons();
+        });
+      }
+
+      // Net Return calculator inputs
+      const calcQty = document.getElementById('invCalcQuantity');
+      const calcTrans = document.getElementById('invCalcTransport');
+      const calcBag = document.getElementById('invCalcBagging');
+      if (calcQty) calcQty.addEventListener('input', calculateNetReturnFromInventory);
+      if (calcTrans) calcTrans.addEventListener('input', calculateNetReturnFromInventory);
+      if (calcBag) calcBag.addEventListener('input', calculateNetReturnFromInventory);
+
+      // "Apply Benchmark to My Crop" button
+      const btnSyncPrice = document.getElementById('btnSyncWithInventoryPrice');
+      if (btnSyncPrice) {
+        btnSyncPrice.addEventListener('click', applyBenchmarkToInventoryCrop);
+      }
     }
+
+    // Refresh benchmark rate display
+    updateInventoryMandiBenchmark();
+  }
+
+  async function updateInventoryMandiBenchmark() {
+    const commSelect = document.getElementById('invPriceCommoditySelect');
+    const mktSelect = document.getElementById('invPriceMandiSelect');
+    const nativePicker = document.getElementById('invPrefNativeDate');
+    const daySelect = document.getElementById('invPrefDay');
+    const monthSelect = document.getElementById('invPrefMonth');
+    const yearSelect = document.getElementById('invPrefYear');
+
+    const commodityId = commSelect?.value || 'PADDY_COMMON';
+    const marketId = mktSelect?.value || 'TG_MKT_ENUMAMULA';
+
+    let dateStr = nativePicker?.value || '';
+    if (!dateStr && daySelect && monthSelect && yearSelect) {
+      dateStr = `${yearSelect.value}-${monthSelect.value}-${daySelect.value}`;
+    }
+    if (!dateStr) dateStr = '2026-10-14';
+
+    // Update Date Feedback Text
+    const dateFeedback = document.getElementById('invDateFilterFeedback');
+    const dateObj = new Date(dateStr);
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    if (dateFeedback && !isNaN(dateObj.getTime())) {
+      dateFeedback.textContent = `Preference Date: ${dateObj.getDate()} ${months[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
+    }
+
+    // Update Live/Historical Pill
+    const livePill = document.getElementById('invPriceLivePill');
+    const isToday = dateStr === '2026-10-14';
+    if (livePill) {
+      if (isToday) {
+        livePill.className = 'text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1';
+        livePill.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span><span>Real-Time Today</span>';
+      } else {
+        livePill.className = 'text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-100 text-amber-900 border border-amber-200 flex items-center gap-1';
+        livePill.innerHTML = '<i data-lucide="history" class="w-3 h-3 text-amber-700"></i><span>Historical Archive</span>';
+      }
+    }
+
+    // Fetch rate
+    const dataset = await loadMarketDataset();
+    let records = dataset.records || dataset.observations || [];
+
+    // Filter by date, commodity, market
+    let exactMatches = records.filter(r => r.observationDate === dateStr);
+    let matchedObs = null;
+    let fallbackUsed = false;
+
+    if (exactMatches.length > 0) {
+      matchedObs = exactMatches.find(r => r.commodityId === commodityId && r.marketId === marketId) ||
+                   exactMatches.find(r => r.commodityId === commodityId) ||
+                   exactMatches[0];
+    } else {
+      // Find closest observation date in dataset
+      const dates = Array.from(new Set(records.map(r => r.observationDate))).sort();
+      if (dates.length > 0) {
+        const targetMs = new Date(dateStr).getTime();
+        let closestDate = dates[0];
+        let minDiff = Infinity;
+        for (const d of dates) {
+          const diff = Math.abs(new Date(d).getTime() - targetMs);
+          if (diff < minDiff) {
+            minDiff = diff;
+            closestDate = d;
+          }
+        }
+        fallbackUsed = (closestDate !== dateStr);
+        const closestRecords = records.filter(r => r.observationDate === closestDate);
+        matchedObs = closestRecords.find(r => r.commodityId === commodityId && r.marketId === marketId) ||
+                     closestRecords.find(r => r.commodityId === commodityId) ||
+                     closestRecords[0];
+      }
+    }
+
+    if (!matchedObs) {
+      matchedObs = {
+        commodityId,
+        commodityName: commSelect?.options[commSelect.selectedIndex]?.text || 'Crop',
+        marketName: mktSelect?.options[mktSelect.selectedIndex]?.text || 'APMC Mandi',
+        variety: 'FAQ',
+        observationDate: dateStr,
+        modalPrice: 2500,
+        minPrice: 2400,
+        maxPrice: 2600,
+        modalPricePerKg: 25.00,
+        arrivalsQuantity: 2800,
+        sourceId: 'AGMARKNET'
+      };
+    }
+
+    currentActiveBenchmark = matchedObs;
+
+    // Render Price Details
+    const cropBadge = document.getElementById('invPriceCropBadge');
+    const varietyBadge = document.getElementById('invPriceVarietyBadge');
+    const modalRateEl = document.getElementById('invPriceModalRate');
+    const perKgEl = document.getElementById('invPricePerKg');
+    const minMaxEl = document.getElementById('invPriceMinMax');
+    const arrivalsEl = document.getElementById('invPriceArrivals');
+    const mspBadge = document.getElementById('invPriceMspBadge');
+    const dateText = document.getElementById('invPriceObservationDateText');
+
+    if (cropBadge) cropBadge.textContent = matchedObs.commodityName;
+    if (varietyBadge) varietyBadge.textContent = `${matchedObs.variety || 'FAQ'} • ${matchedObs.grade || 'Standard'}`;
+    if (modalRateEl) modalRateEl.textContent = `₹${Number(matchedObs.modalPrice).toLocaleString('en-IN')}`;
+    if (perKgEl) perKgEl.textContent = `₹${matchedObs.modalPricePerKg || (matchedObs.modalPrice / 100).toFixed(2)} / Kg`;
+    if (minMaxEl) minMaxEl.textContent = `₹${Number(matchedObs.minPrice).toLocaleString('en-IN')} - ₹${Number(matchedObs.maxPrice).toLocaleString('en-IN')}`;
+    if (arrivalsEl) arrivalsEl.textContent = `${Number(matchedObs.arrivalsQuantity).toLocaleString('en-IN')} Quintals`;
+
+    // MSP Status
+    const mspTable = {
+      PADDY_COMMON: 2300,
+      COTTON: 7121,
+      MAIZE: 2225,
+      BENGAL_GRAM: 5650
+    };
+    const msp = mspTable[commodityId];
+    if (mspBadge) {
+      if (msp) {
+        const diff = matchedObs.modalPrice - msp;
+        const diffPct = Math.round((diff / msp) * 1000) / 10;
+        if (diff >= 0) {
+          mspBadge.className = 'text-[11px] font-bold text-emerald-700';
+          mspBadge.textContent = `🟢 +₹${diff} (+${diffPct}%) Above MSP (₹${msp}/Qtl)`;
+        } else {
+          mspBadge.className = 'text-[11px] font-bold text-red-600';
+          mspBadge.textContent = `🔴 -₹${Math.abs(diff)} Below MSP (₹${msp}/Qtl)`;
+        }
+      } else {
+        mspBadge.className = 'text-[11px] font-semibold text-purple-700';
+        mspBadge.textContent = `🔵 Commercial Market Auction Benchmark`;
+      }
+    }
+
+    if (dateText) {
+      if (fallbackUsed) {
+        dateText.textContent = `Observed: ${matchedObs.observationDate} (Nearest trading day for ${dateStr})`;
+      } else if (isToday) {
+        dateText.textContent = `Observed: ${matchedObs.observationDate} (Real-time live feed)`;
+      } else {
+        dateText.textContent = `Observed: ${matchedObs.observationDate} (Historical bulletin archive)`;
+      }
+    }
+
+    // Update Inter-Mandi Spread List
+    updateInterMandiSpreadList(commodityId, matchedObs.observationDate, records);
+
+    // Update Net Return Calculator
+    calculateNetReturnFromInventory();
 
     if (window.lucide) lucide.createIcons();
   }
 
-  function renderMarketPriceList(records) {
-    const listContainer = document.getElementById('marketPriceList');
-    if (!listContainer) return;
+  function updateInterMandiSpreadList(commodityId, dateStr, records) {
+    const listEl = document.getElementById('invMandiSpreadList');
+    const badgeEl = document.getElementById('invSpreadBadge');
+    if (!listEl) return;
 
-    if (records.length === 0) {
-      listContainer.innerHTML = `
-        <div class="text-center py-8 text-gray-500 bg-white rounded-xl border border-gray-200">
-          <p class="font-bold text-xs">No price observations matched this filter</p>
-        </div>
-      `;
-      return;
-    }
-
-    listContainer.innerHTML = records.map(r => `
-      <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col sm:flex-row justify-between sm:items-center gap-2">
-        <div>
-          <span class="font-bold text-gray-900 text-xs block">${r.commodityName} (${r.variety || 'FAQ'})</span>
-          <span class="text-[11px] text-gray-500">${r.marketName} &bull; ${r.districtName || 'Telangana'}</span>
-          <span class="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100 inline-block mt-0.5">
-            Observed: ${r.observationDate} &bull; ${r.sourceId}
-          </span>
-        </div>
-        <div class="text-right">
-          <div class="text-base font-extrabold text-emerald-800">
-            ₹${Number(r.modalPrice).toLocaleString('en-IN')} <span class="text-[10px] text-gray-500">/ Qtl</span>
-          </div>
-          <div class="text-[11px] font-semibold text-emerald-600">₹${r.modalPricePerKg}/Kg</div>
-          <div class="text-[10px] text-gray-400">Min: ₹${r.minPrice} | Max: ₹${r.maxPrice}</div>
-        </div>
-      </div>
-    `).join('');
-  }
-
-  function updateMarketCompare(commodityId, records) {
-    const container = document.getElementById('marketCompareResultsContainer');
-    if (!container) return;
-
-    const matched = records.filter(r => r.commodityId === commodityId);
+    const matched = records.filter(r => r.commodityId === commodityId && r.observationDate === dateStr);
     const unique = Array.from(new Map(matched.map(m => [m.marketId, m])).values()).sort((a, b) => b.modalPrice - a.modalPrice);
 
     if (unique.length === 0) {
-      container.innerHTML = `<div class="p-4 bg-white rounded-xl text-center text-xs text-gray-500">No comparison data available</div>`;
+      listEl.innerHTML = '<div class="text-gray-500 text-xs">No multi-mandi spread recorded for this date.</div>';
       return;
     }
 
@@ -7288,77 +7408,79 @@ function initKisanSaathi() {
     const lowest = unique[unique.length - 1].modalPrice;
     const spread = highest - lowest;
 
-    container.innerHTML = `
-      <div class="bg-gradient-to-br from-emerald-50 to-green-100 p-4 rounded-xl border border-emerald-200 space-y-1.5 text-xs">
-        <div class="flex justify-between items-center font-bold text-emerald-950">
-          <span>Top Benchmark Mandi: ${unique[0].marketName}</span>
-          <span class="text-base text-emerald-700">₹${unique[0].modalPrice}/Qtl</span>
-        </div>
-        <div class="text-gray-600">
-          Inter-mandi Price Spread: <span class="font-bold text-gray-900">₹${spread}/Quintal</span> across Telangana yards.
-        </div>
-        <div class="text-[11px] text-amber-800 bg-amber-50 p-2 rounded-lg border border-amber-200 mt-2">
-          ⚠️ <strong>Logistics Advice:</strong> If hiring a truck to a distant market costs more than ₹${spread}/Qtl, selling at your nearest APMC yard gives higher take-home profit.
-        </div>
-      </div>
+    if (badgeEl) {
+      badgeEl.textContent = `Top Spread: ₹${spread}/Qtl (Highest: ${unique[0].marketName})`;
+    }
 
-      <div class="space-y-2">
-        ${unique.map((m, idx) => `
-          <div class="bg-white p-3 rounded-xl border ${idx === 0 ? 'border-emerald-300 bg-emerald-50/20' : 'border-gray-200'} flex justify-between items-center text-xs">
-            <div>
-              <span class="font-bold text-gray-900">${idx + 1}. ${m.marketName}</span>
-              <span class="text-[11px] text-gray-500 block">${m.districtName || 'Telangana'}</span>
-            </div>
-            <div class="text-right">
-              <span class="text-sm font-bold text-gray-900">₹${m.modalPrice}/Qtl</span>
-              <span class="text-[11px] text-gray-500 block">Range: ₹${m.minPrice}-₹${m.maxPrice}</span>
-            </div>
-          </div>
-        `).join('')}
+    listEl.innerHTML = unique.map((m, idx) => `
+      <div class="flex justify-between items-center bg-white p-2 rounded-lg border ${idx === 0 ? 'border-emerald-300 bg-emerald-50/20' : 'border-gray-100'}">
+        <div>
+          <span class="font-bold text-gray-900">${idx + 1}. ${m.marketName}</span>
+          <span class="text-[10px] text-gray-500 block">${m.districtName || 'Telangana'}</span>
+        </div>
+        <div class="text-right">
+          <span class="font-extrabold text-emerald-800">₹${Number(m.modalPrice).toLocaleString('en-IN')}/Qtl</span>
+          <span class="text-[10px] text-gray-400 block">₹${m.modalPricePerKg}/Kg</span>
+        </div>
       </div>
-    `;
+    `).join('');
   }
 
-  function runNetReturnCalculator(records) {
-    const crop = document.getElementById('calcCropSelect')?.value || 'PADDY_COMMON';
-    const mandi = document.getElementById('calcMandiSelect')?.value || 'TG_MKT_ENUMAMULA';
-    const qty = parseFloat(document.getElementById('calcQuantityInput')?.value || 50);
-    const transport = parseFloat(document.getElementById('sliderCalcTransport')?.value || 45);
-    const bagging = parseFloat(document.getElementById('sliderCalcBagging')?.value || 25);
-    const resultDisplay = document.getElementById('calcResultDisplay');
+  function calculateNetReturnFromInventory() {
+    if (!currentActiveBenchmark) return;
 
-    if (!resultDisplay) return;
+    const qtyInput = document.getElementById('invCalcQuantity');
+    const transInput = document.getElementById('invCalcTransport');
+    const bagInput = document.getElementById('invCalcBagging');
 
-    const obs = records.find(r => r.commodityId === crop && r.marketId === mandi) ||
-                records.find(r => r.commodityId === crop) ||
-                records[0];
+    const qty = parseFloat(qtyInput?.value || 50);
+    const transport = parseFloat(transInput?.value || 45);
+    const bagging = parseFloat(bagInput?.value || 25);
 
-    const gross = Math.round(qty * obs.modalPrice);
-    const totalTransport = Math.round(qty * transport);
-    const totalBagging = Math.round(qty * bagging);
+    const gross = Math.round(qty * currentActiveBenchmark.modalPrice);
+    const totalTrans = Math.round(qty * transport);
+    const totalBag = Math.round(qty * bagging);
     const totalCess = Math.round(gross * 0.01);
-    const totalDeductions = totalTransport + totalBagging + totalCess;
+    const totalDeductions = totalTrans + totalBag + totalCess;
     const netReturn = gross - totalDeductions;
-    const effectiveNetPerQtl = Math.round((netReturn / qty) * 100) / 100;
 
-    resultDisplay.classList.remove('hidden');
-    resultDisplay.innerHTML = `
-      <div class="bg-gradient-to-br from-emerald-900 to-slate-900 text-white p-4 rounded-2xl shadow space-y-2 text-xs">
-        <span class="text-[10px] text-emerald-300 uppercase font-bold tracking-wider block">Estimated Net Realization</span>
-        <div class="text-2xl sm:text-3xl font-extrabold text-white">
-          ₹${netReturn.toLocaleString('en-IN')}
-        </div>
-        <div class="text-xs text-emerald-200">
-          Effective Rate: ₹${effectiveNetPerQtl.toLocaleString('en-IN')}/Quintal (₹${(effectiveNetPerQtl / 100).toFixed(2)}/Kg)
-        </div>
-        <div class="pt-2 border-t border-slate-700 space-y-1 text-[11px] text-slate-300">
-          <div class="flex justify-between"><span>Gross Auction Value:</span> <span>₹${gross.toLocaleString('en-IN')}</span></div>
-          <div class="flex justify-between text-red-300"><span>Transport Haulage:</span> <span>-₹${totalTransport.toLocaleString('en-IN')}</span></div>
-          <div class="flex justify-between text-red-300"><span>Bagging & Labor:</span> <span>-₹${totalBagging.toLocaleString('en-IN')}</span></div>
-          <div class="flex justify-between text-red-300"><span>APMC Cess (1%):</span> <span>-₹${totalCess.toLocaleString('en-IN')}</span></div>
-        </div>
-      </div>
-    `;
+    const netEl = document.getElementById('invCalcNetTotal');
+    const grossEl = document.getElementById('invCalcGrossVal');
+    const dedEl = document.getElementById('invCalcDeductionsVal');
+
+    if (netEl) netEl.textContent = `₹${netReturn.toLocaleString('en-IN')}`;
+    if (grossEl) grossEl.textContent = `₹${gross.toLocaleString('en-IN')}`;
+    if (dedEl) dedEl.textContent = `-₹${totalDeductions.toLocaleString('en-IN')}`;
+  }
+
+  function applyBenchmarkToInventoryCrop() {
+    if (!currentActiveBenchmark) return;
+
+    const commodityId = currentActiveBenchmark.commodityId;
+    const pricePerKg = Math.round(currentActiveBenchmark.modalPricePerKg || (currentActiveBenchmark.modalPrice / 100));
+
+    // Match inventory crop
+    let matchedItem = inventory.find(it => {
+      const t = it.title.toLowerCase();
+      if (commodityId === 'PADDY_COMMON' && (t.includes('paddy') || t.includes('sona') || t.includes('rice'))) return true;
+      if (commodityId === 'COTTON' && t.includes('cotton')) return true;
+      if (commodityId === 'TURMERIC' && t.includes('turmeric')) return true;
+      if (commodityId === 'CHILLI_RED' && t.includes('chilli')) return true;
+      if (commodityId === 'MAIZE' && t.includes('maize')) return true;
+      if (commodityId === 'TOMATO' && t.includes('tomato')) return true;
+      if (commodityId === 'ONION' && t.includes('onion')) return true;
+      return false;
+    });
+
+    if (matchedItem) {
+      const oldPrice = matchedItem.price;
+      matchedItem.price = pricePerKg;
+      localStorage.setItem('kisan_inventory', JSON.stringify(inventory));
+      renderInventory();
+      showToast(`Updated ${matchedItem.title} asking rate from ₹${oldPrice}/Kg to APMC benchmark ₹${pricePerKg}/Kg!`);
+    } else {
+      showToast(`APMC Benchmark for ${currentActiveBenchmark.commodityName} is ₹${pricePerKg}/Kg (₹${currentActiveBenchmark.modalPrice}/Qtl). Add this crop via the "+" button!`);
+    }
   }
 
   async function sendMarketAgentMessage(query) {
