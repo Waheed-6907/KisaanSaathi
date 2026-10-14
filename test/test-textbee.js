@@ -18,11 +18,11 @@ const {
   verifyWebhookSignature,
   processKisanSaathiCommand,
   sendSms
-} = require('../api/textbee-service');
+} = require('../api/_textbee-service');
 
-const webhookHandler = require('../api/textbee-webhook');
-const statusHandler = require('../api/textbee-status');
-const pollHandler = require('../api/textbee-poll');
+const webhookHandler = require('../api/_textbee-webhook');
+const statusHandler = require('../api/_textbee-status');
+const pollHandler = require('../api/_textbee-poll');
 
 function mockReqRes(options) {
   const req = {

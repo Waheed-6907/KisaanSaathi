@@ -59,10 +59,10 @@ const jsFiles = [
   'api/credit-assessment.js',
   'api/crop-vision.js',
   'api/daily-market-prices.js',
-  'api/textbee-service.js',
-  'api/textbee-webhook.js',
-  'api/textbee-poll.js',
-  'api/textbee-status.js',
+  'api/_textbee-service.js',
+  'api/_textbee-webhook.js',
+  'api/_textbee-poll.js',
+  'api/_textbee-status.js',
   'api/textbee.js'
 ];
 for (const jsFile of jsFiles) {

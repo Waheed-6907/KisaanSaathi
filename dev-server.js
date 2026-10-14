@@ -195,18 +195,6 @@ function handleRequest(req, res) {
   // API Routes: TextBee Android SMS Gateway (Webhook, Status, Polling)
   if (reqPath === '/api/textbee' || reqPath === '/api/textbee-webhook' || reqPath === '/api/textbee-status' || reqPath === '/api/textbee-poll') {
     try {
-      if (reqPath === '/api/textbee-webhook') {
-        const webhookHandler = require('./api/textbee-webhook.js');
-        return webhookHandler(req, res);
-      }
-      if (reqPath === '/api/textbee-status') {
-        const statusHandler = require('./api/textbee-status.js');
-        return statusHandler(req, res);
-      }
-      if (reqPath === '/api/textbee-poll') {
-        const pollHandler = require('./api/textbee-poll.js');
-        return pollHandler(req, res);
-      }
       const textbeeHandler = require('./api/textbee.js');
       return textbeeHandler(req, res);
     } catch (err) {

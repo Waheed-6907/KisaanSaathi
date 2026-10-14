@@ -14,7 +14,7 @@ const {
   fetchIncomingMessages,
   sendSms,
   processKisanSaathiCommand
-} = require('./textbee-service');
+} = require('./_textbee-service');
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');

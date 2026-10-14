@@ -14,7 +14,7 @@ const {
   verifyWebhookSignature,
   sendSms,
   processKisanSaathiCommand
-} = require('./textbee-service');
+} = require('./_textbee-service');
 
 /**
  * Extracts raw body buffer from request for HMAC-SHA256 verification
