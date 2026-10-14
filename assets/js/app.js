@@ -5225,87 +5225,84 @@ window.getCropTranslation = getCropTranslation;
         (o.buyer?.phone === nego.buyer?.phone && o.items?.[0]?.name === nego.itemTitle && !o.completed)
       );
 
-      if (existingOrder) {
-        showToast('An active delivery order already exists for this accepted deal.');
-        nego.status = 'accepted';
-        localStorage.setItem('kisan_negotiations', JSON.stringify(negotiations));
-        renderNegotiations();
-        return;
-      }
-
       nego.status = 'accepted';
       nego.note = `Accepted at ₹${nego.proposedPrice}/Kg. Out for shipment to: ${decidedLocation}`;
-
-      // Phase 1: Auto generate single delivery order in 'Out for Shipment' phase
-      const totalAmount = nego.proposedPrice * nego.quantity;
-      const orderTempId = `ORD-${Date.now().toString().slice(-5)}`;
-      const newOrder = {
-        id: orderTempId,
-        negotiation_id: nego.id,
-        receiptNumber: `KS-TG-2026-${Math.floor(Math.random() * 90000 + 10000)}`,
-        date: new Date().toLocaleDateString('en-GB'),
-        amount: totalAmount,
-        completed: false,
-        status: 'Out for Shipment', // Phase 1 of 3
-        delivery_location: decidedLocation,
-        buyer: {
-          first_name: nego.buyer?.name || 'Verified Agro Buyer',
-          phone: nego.buyer?.phone || '+91 98480 33412',
-          address: decidedLocation
-        },
-        items: [
-          { name: nego.itemTitle, quantity: nego.quantity, pricePerKg: nego.proposedPrice, total: totalAmount }
-        ],
-        route: {
-          origin: "Geesugonda, Warangal (17.9689, 79.5941)",
-          destination: `${decidedLocation} (17.4770, 78.4870)`,
-          distanceKm: 148,
-          logisticsPartner: "VRL Telangana Agri-Freight"
-        }
-      };
-      orders.unshift(newOrder);
-      orders = deduplicateOrders(orders);
-
-      // 1. Deduct payment from consumer escrow vault
-      const prevEscrow = Number(localStorage.getItem('kisan_consumer_escrow')) || (currentConsumerEscrow || 150000);
-      currentConsumerEscrow = Math.max(0, prevEscrow - totalAmount);
-      localStorage.setItem('kisan_consumer_escrow', currentConsumerEscrow);
-
-      // Record debit transaction in consumer escrow ledger
-      let consumerTxns = JSON.parse(localStorage.getItem('kisan_consumer_escrow_txns')) || [];
-      consumerTxns.unshift({
-        title: `Payment to Farmer for ${nego.itemTitle} (${nego.quantity} Kg)`,
-        type: 'release',
-        amount: totalAmount,
-        tx: '0x' + Array.from({length: 8}, () => Math.floor(Math.random()*16).toString(16)).join(''),
-        time: 'Just now',
-        status: 'Settled to Farmer DBT'
-      });
-      localStorage.setItem('kisan_consumer_escrow_txns', JSON.stringify(consumerTxns));
-
-      // 2. Add payment received from consumer to farmer's Payment Tracking System
-      wallet.balance += totalAmount;
-      const paymentTxn = {
-        id: `PAY-${Date.now().toString().slice(-4)}`,
-        buyer: nego.buyer?.company || nego.buyer?.name || 'Verified Consumer',
-        amount: totalAmount,
-        type: "credit",
-        time: new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }),
-        cropName: nego.itemTitle,
-        quantity: nego.quantity,
-        ratePerKg: nego.proposedPrice,
-        deliveryLocation: decidedLocation,
-        status: "Payment Received (DBT Credited)",
-        desc: `Direct payment from ${nego.buyer?.company || nego.buyer?.name} for ${nego.quantity} Kg ${nego.itemTitle}`
-      };
-      wallet.transactions.unshift(paymentTxn);
-
-      localStorage.setItem('kisan_orders', JSON.stringify(orders));
-      localStorage.setItem('kisan_wallet', JSON.stringify(wallet));
       localStorage.setItem('kisan_negotiations', JSON.stringify(negotiations));
 
-      renderWallet();
-      if (typeof renderConsumerWallet === 'function') renderConsumerWallet();
+      const totalAmount = nego.proposedPrice * nego.quantity;
+      let newOrder = null;
+
+      if (existingOrder) {
+        showToast('An active delivery order already exists for this accepted deal.');
+      } else {
+        // Phase 1: Auto generate single delivery order in 'Out for Shipment' phase
+        const orderTempId = `ORD-${Date.now().toString().slice(-5)}`;
+        newOrder = {
+          id: orderTempId,
+          negotiation_id: nego.id,
+          receiptNumber: `KS-TG-2026-${Math.floor(Math.random() * 90000 + 10000)}`,
+          date: new Date().toLocaleDateString('en-GB'),
+          amount: totalAmount,
+          completed: false,
+          status: 'Out for Shipment', // Phase 1 of 3
+          delivery_location: decidedLocation,
+          buyer: {
+            first_name: nego.buyer?.name || 'Verified Agro Buyer',
+            phone: nego.buyer?.phone || '+91 98480 33412',
+            address: decidedLocation
+          },
+          items: [
+            { name: nego.itemTitle, quantity: nego.quantity, pricePerKg: nego.proposedPrice, total: totalAmount }
+          ],
+          route: {
+            origin: "Geesugonda, Warangal (17.9689, 79.5941)",
+            destination: `${decidedLocation} (17.4770, 78.4870)`,
+            distanceKm: 148,
+            logisticsPartner: "VRL Telangana Agri-Freight"
+          }
+        };
+        orders.unshift(newOrder);
+        orders = deduplicateOrders(orders);
+        localStorage.setItem('kisan_orders', JSON.stringify(orders));
+
+        // 1. Deduct payment from consumer escrow vault
+        const prevEscrow = Number(localStorage.getItem('kisan_consumer_escrow')) || (currentConsumerEscrow || 150000);
+        currentConsumerEscrow = Math.max(0, prevEscrow - totalAmount);
+        localStorage.setItem('kisan_consumer_escrow', currentConsumerEscrow);
+
+        // Record debit transaction in consumer escrow ledger
+        let consumerTxns = JSON.parse(localStorage.getItem('kisan_consumer_escrow_txns')) || [];
+        consumerTxns.unshift({
+          title: `Payment to Farmer for ${nego.itemTitle} (${nego.quantity} Kg)`,
+          type: 'release',
+          amount: totalAmount,
+          tx: '0x' + Array.from({length: 8}, () => Math.floor(Math.random()*16).toString(16)).join(''),
+          time: 'Just now',
+          status: 'Settled to Farmer DBT'
+        });
+        localStorage.setItem('kisan_consumer_escrow_txns', JSON.stringify(consumerTxns));
+
+        // 2. Add payment received from consumer to farmer's Payment Tracking System
+        wallet.balance += totalAmount;
+        const paymentTxn = {
+          id: `PAY-${Date.now().toString().slice(-4)}`,
+          buyer: nego.buyer?.company || nego.buyer?.name || 'Verified Consumer',
+          amount: totalAmount,
+          type: "credit",
+          time: new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }),
+          cropName: nego.itemTitle,
+          quantity: nego.quantity,
+          ratePerKg: nego.proposedPrice,
+          deliveryLocation: decidedLocation,
+          status: "Payment Received (DBT Credited)",
+          desc: `Direct payment from ${nego.buyer?.company || nego.buyer?.name} for ${nego.quantity} Kg ${nego.itemTitle}`
+        };
+        wallet.transactions.unshift(paymentTxn);
+        localStorage.setItem('kisan_wallet', JSON.stringify(wallet));
+
+        renderWallet();
+        if (typeof renderConsumerWallet === 'function') renderConsumerWallet();
+      }
 
       // 3. Sync with Supabase negotiations, orders, profiles, and wallet_transactions tables
       if (window.supabaseClient) {
@@ -5332,50 +5329,67 @@ window.getCropTranslation = getCropTranslation;
             if (nRes && nRes.length > 0) updatedInDB = true;
           }
           if (!updatedInDB && nego.itemTitle) {
-            await window.supabaseClient
+            // Match by crop_name and optionally buyer_name
+            let q = window.supabaseClient
               .from('negotiations')
               .update({ status: 'accepted' })
-              .eq('crop_name', nego.itemTitle)
-              .eq('status', 'pending');
+              .eq('crop_name', nego.itemTitle);
+            if (nego.buyer?.name) {
+              q = q.eq('buyer_name', nego.buyer.name);
+            }
+            const { data: nRes2 } = await q.select();
+            if (nRes2 && nRes2.length > 0) {
+              updatedInDB = true;
+            } else {
+              // Fallback: match by crop prefix
+              const cropPrefix = nego.itemTitle.split(' ')[0];
+              await window.supabaseClient
+                .from('negotiations')
+                .update({ status: 'accepted' })
+                .ilike('crop_name', `%${cropPrefix}%`)
+                .eq('status', 'pending');
+            }
           }
 
-          // B. Insert single order with Phase 1: 'Out for Shipment'
-          const { data: insOrder } = await window.supabaseClient.from('orders').insert([{
-            farmer_id: activeFarmerId,
-            crop_name: nego.itemTitle,
-            buyer_name: nego.buyer.name,
-            buyer_phone: nego.buyer.phone || '9848033412',
-            quantity_kg: nego.quantity,
-            price_per_kg: nego.proposedPrice,
-            total_amount: totalAmount,
-            delivery_location: decidedLocation,
-            delivery_status: 'Out for Shipment',
-            escrow_status: 'escrow_locked',
-            blockchain_tx_hash: txHash,
-            freight_savings_percent: 38.0,
-            dbt_payout_within_hours: 24
-          }]).select();
+          if (!existingOrder) {
+            // B. Insert single order with Phase 1: 'Out for Shipment'
+            const { data: insOrder } = await window.supabaseClient.from('orders').insert([{
+              farmer_id: activeFarmerId,
+              crop_name: nego.itemTitle,
+              buyer_name: nego.buyer.name,
+              buyer_phone: nego.buyer.phone || '9848033412',
+              quantity_kg: nego.quantity,
+              price_per_kg: nego.proposedPrice,
+              total_amount: totalAmount,
+              delivery_location: decidedLocation,
+              delivery_status: 'Out for Shipment',
+              escrow_status: 'escrow_locked',
+              blockchain_tx_hash: txHash,
+              freight_savings_percent: 38.0,
+              dbt_payout_within_hours: 24
+            }]).select();
 
-          if (insOrder && insOrder[0]?.id) {
-            newOrder.id = insOrder[0].id;
-            localStorage.setItem('kisan_orders', JSON.stringify(orders));
+            if (newOrder && insOrder && insOrder[0]?.id) {
+              newOrder.id = insOrder[0].id;
+              localStorage.setItem('kisan_orders', JSON.stringify(orders));
+            }
+
+            // C. Sync new balance to profiles table
+            await window.supabaseClient.from('profiles').update({
+              wallet_balance: wallet.balance,
+              updated_at: new Date().toISOString()
+            }).eq('farmer_id', activeFarmerId);
+
+            // D. Sync credit transaction to wallet_transactions
+            await window.supabaseClient.from('wallet_transactions').insert([{
+              farmer_id: activeFarmerId,
+              title: `Escrow Sale: ${nego.itemTitle}`,
+              type: 'credit',
+              amount: totalAmount,
+              status: 'completed',
+              tx_hash: txHash
+            }]);
           }
-
-          // C. Sync new balance to profiles table
-          await window.supabaseClient.from('profiles').update({
-            wallet_balance: wallet.balance,
-            updated_at: new Date().toISOString()
-          }).eq('farmer_id', activeFarmerId);
-
-          // D. Sync credit transaction to wallet_transactions
-          await window.supabaseClient.from('wallet_transactions').insert([{
-            farmer_id: activeFarmerId,
-            title: `Escrow Sale: ${nego.itemTitle}`,
-            type: 'credit',
-            amount: totalAmount,
-            status: 'completed',
-            tx_hash: txHash
-          }]);
         } catch (e) {
           console.warn('Supabase order/wallet sync notice:', e);
         }
@@ -5383,10 +5397,17 @@ window.getCropTranslation = getCropTranslation;
 
       // Broadcast update across open tabs/windows
       if (typeof broadcastLiveUpdate === 'function') {
-        broadcastLiveUpdate('NEGOTIATION_ACCEPTED', { negoId, crop: nego.itemTitle, status: 'accepted' });
+        broadcastLiveUpdate('NEGOTIATION_ACCEPTED', { 
+          negoId: nego.id, 
+          crop: nego.itemTitle, 
+          status: 'accepted',
+          buyer: nego.buyer?.name 
+        });
       }
 
-      showToast(`Offer accepted! Produce marked as 'Out for Shipment' for ${decidedLocation}.`);
+      if (!existingOrder) {
+        showToast(`Offer accepted! Produce marked as 'Out for Shipment' for ${decidedLocation}.`);
+      }
     } else {
       nego.status = 'rejected';
       nego.note = `Declined offer. Asking price maintained.`;
@@ -10512,6 +10533,42 @@ window.getCropTranslation = getCropTranslation;
       }));
     }
 
+    // Merge/overlay local negotiations state so that newly accepted or updated offers reflect immediately
+    const localNegotiations = JSON.parse(localStorage.getItem('kisan_negotiations') || '[]');
+    const allLocal = [...negotiations, ...localNegotiations];
+    if (allLocal.length > 0) {
+      // 1. Overlay any local status updates (e.g. accepted/rejected) onto Supabase fetched offers
+      userOffers.forEach(o => {
+        const localMatch = allLocal.find(n => 
+          n.id === o.id || 
+          (n.itemTitle && o.crop_name && (n.itemTitle === o.crop_name || n.itemTitle.includes(o.crop_name) || o.crop_name.includes(n.itemTitle)) &&
+           (n.buyer?.name === o.buyer_name || Number(n.proposedPrice) === Number(o.offer_price_per_kg)))
+        );
+        if (localMatch) {
+          if (localMatch.status === 'accepted') o.status = 'accepted';
+          else if (localMatch.status === 'rejected') o.status = 'rejected';
+        }
+      });
+
+      // 2. Add any local negotiations not yet present in userOffers
+      localNegotiations.forEach(n => {
+        const exists = userOffers.some(o => o.id === n.id || (o.crop_name === n.itemTitle && o.buyer_name === n.buyer?.name));
+        if (!exists) {
+          userOffers.unshift({
+            id: n.id,
+            crop_name: n.itemTitle,
+            buyer_name: n.buyer?.name || 'You',
+            buyer_phone: n.buyer?.phone || '',
+            mandi_location: n.buyer?.location || '',
+            offer_price_per_kg: n.proposedPrice,
+            offered_quantity_kg: n.quantity,
+            status: n.status || 'pending',
+            created_at: new Date().toISOString()
+          });
+        }
+      });
+    }
+
     if (userOffers.length === 0) {
       container.innerHTML = `
         <div class="bg-white p-6 rounded-2xl border text-center space-y-3">
@@ -10970,6 +11027,10 @@ window.getCropTranslation = getCropTranslation;
 
           if (!insertRes.error) {
             console.log('✔ Offer synced successfully to Supabase negotiations table!');
+            if (insertRes.data && insertRes.data[0]?.id) {
+              newNego.id = insertRes.data[0].id;
+              localStorage.setItem('kisan_negotiations', JSON.stringify(negotiations));
+            }
           }
         } catch (err) {
           console.warn('Negotiation sync notice:', err);
@@ -11117,7 +11178,7 @@ window.getCropTranslation = getCropTranslation;
         if (event.key === 'kisan_negotiations') {
           negotiations = JSON.parse(event.newValue || '[]');
           if (activeSection === 'negotiate') renderNegotiations();
-          if (activeSection === 'consumer' && activeConsumerTab === 'offers') renderConsumerOffers();
+          if (typeof renderConsumerOffers === 'function' && document.getElementById('consumerOffersList')) renderConsumerOffers();
         }
         if (event.key === 'kisan_orders') {
           orders = deduplicateOrders(JSON.parse(event.newValue || '[]'));
@@ -11147,12 +11208,11 @@ window.getCropTranslation = getCropTranslation;
     if (!msg || !msg.type) return;
     if (window.supabaseClient) {
       await syncLiveStateFromSupabase();
-    } else {
-      if (activeSection === 'negotiate') renderNegotiations();
-      if (activeSection === 'orders') renderOrders();
-      if (activeSection === 'consumer' && activeConsumerTab === 'offers') renderConsumerOffers();
-      if (activeSection === 'consumer-orders') renderConsumerOrders();
     }
+    if (activeSection === 'negotiate' && typeof renderNegotiations === 'function') renderNegotiations();
+    if (activeSection === 'orders' && typeof renderOrders === 'function') renderOrders();
+    if (typeof renderConsumerOffers === 'function' && document.getElementById('consumerOffersList')) renderConsumerOffers();
+    if (typeof renderConsumerOrders === 'function' && document.getElementById('consumerOrdersContainer')) renderConsumerOrders();
   }
 
   let lastKnownNegotiationsHash = '';
@@ -11191,7 +11251,7 @@ window.getCropTranslation = getCropTranslation;
           }));
           localStorage.setItem('kisan_negotiations', JSON.stringify(negotiations));
           if (activeSection === 'negotiate') renderNegotiations();
-          if (activeSection === 'consumer' && activeConsumerTab === 'offers') renderConsumerOffers();
+          if (typeof renderConsumerOffers === 'function' && document.getElementById('consumerOffersList')) renderConsumerOffers();
           fetchConsumerMetrics();
         }
       }
