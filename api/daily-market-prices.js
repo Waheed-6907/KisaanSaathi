@@ -26,59 +26,6 @@ function getCropCatalogue90() {
   return { crops: [] };
 }
 
-// Comprehensive Extended Vegetable Catalogue covering all 5 categories from the master chart
-const EXTENDED_VEGETABLES = [
-  { id: "VEG_SWEET_POTATO", slug: "sweet_potato", canonicalName: "Sweet Potato (Shakarkandi)", teluguName: "చిలగడదుంప", hindiName: "शकरकंद (Shakarkandi)", benchmarkPrice: 34.0, mandi: "Bowenpally Market Yard (Secunderabad)", aliases: ["sweet potato", "shakarkand", "shakarkandi", "sweetpotato", "chilagada dumpa", "aaloo shakarkand"] },
-  { id: "VEG_GINGER", slug: "ginger", canonicalName: "Ginger (Adrak)", teluguName: "అల్లం", hindiName: "अदरक (Adrak)", benchmarkPrice: 136.0, mandi: "Enumamula APMC Mandi (Warangal)", aliases: ["ginger", "adrak", "allam", "inji", "fresh ginger"] },
-  { id: "VEG_GARLIC", slug: "garlic", canonicalName: "Garlic (Lehsan)", teluguName: "వెల్లుల్లి", hindiName: "लहसुन (Lehsan)", benchmarkPrice: 143.0, mandi: "Malakpet Wholesale Market (Hyderabad)", aliases: ["garlic", "lehsun", "lehsan", "lahsun", "vellulli", "poondu"] },
-  { id: "VEG_TARO_ARBI", slug: "taro_arbi", canonicalName: "Taro / Arum (Arbi / Colocasia)", teluguName: "చేమదుంప", hindiName: "अरबी (Arbi)", benchmarkPrice: 38.0, mandi: "Bowenpally Market Yard (Secunderabad)", aliases: ["taro", "arum", "arbi", "colocasia", "ghuiyan", "chamadumpa", "arvi"] },
-  { id: "VEG_ELEPHANT_YAM", slug: "elephant_yam", canonicalName: "Elephant Yam (Suran / Jimikand)", teluguName: "కందగడ్డ", hindiName: "सूरन (Suran)", benchmarkPrice: 36.0, mandi: "Bowenpally Market Yard (Secunderabad)", aliases: ["elephant yam", "yam", "suran", "jimikand", "kandagadda", "chenai"] },
-  { id: "VEG_TURNIP", slug: "turnip", canonicalName: "Turnip (Shaljam)", teluguName: "టర్నిప్", hindiName: "शलजम (Shaljam)", benchmarkPrice: 30.0, mandi: "Bowenpally Market Yard (Secunderabad)", aliases: ["turnip", "shaljam", "shalgam", "saljam"] },
-  { id: "VEG_MUSTARD_LEAVES", slug: "mustard_leaves", canonicalName: "Mustard Leaves (Sarson)", teluguName: "ఆవ ఆకులు", hindiName: "सरसों (Sarson)", benchmarkPrice: 18.0, mandi: "Bowenpally Market Yard (Secunderabad)", aliases: ["mustard greens", "mustard leaves", "sarson", "sarson ka saag"] },
-  { id: "VEG_LETTUCE", slug: "lettuce", canonicalName: "Lettuce (Salad Patta)", teluguName: "లెట్యూస్", hindiName: "सलाद पत्ता (Lettuce)", benchmarkPrice: 45.0, mandi: "Bowenpally Market Yard (Secunderabad)", aliases: ["lettuce", "salad patta", "iceberg", "romaine", "salad leaves"] },
-  { id: "VEG_KALE", slug: "kale", canonicalName: "Kale", teluguName: "కేల్", hindiName: "केल (Kale)", benchmarkPrice: 65.0, mandi: "Bowenpally Market Yard (Secunderabad)", aliases: ["kale", "curly kale", "tuscan kale"] },
-  { id: "VEG_MINT", slug: "mint", canonicalName: "Mint (Pudina)", teluguName: "పుదీనా", hindiName: "पुदीना (Pudina)", benchmarkPrice: 28.0, mandi: "Bowenpally Market Yard (Secunderabad)", aliases: ["mint", "pudina", "mint leaves", "pudhina"] },
-  { id: "VEG_CURRY_LEAVES", slug: "curry_leaves", canonicalName: "Curry Leaves (Kadi Patta)", teluguName: "కరివేపాకు", hindiName: "कढ़ी पत्ता (Kadi Patta)", benchmarkPrice: 35.0, mandi: "Enumamula APMC Mandi (Warangal)", aliases: ["curry leaves", "curry leaf", "kadi patta", "karivepaku", "curry patta", "karipatta"] },
-  { id: "VEG_BOK_CHOY", slug: "bok_choy", canonicalName: "Bok Choy", teluguName: "బాక్ చోయ్", hindiName: "बोक चोय (Bok Choy)", benchmarkPrice: 55.0, mandi: "Bowenpally Market Yard (Secunderabad)", aliases: ["bok choy", "pak choi", "bokchoy", "chinese cabbage"] },
-  { id: "VEG_ZUCCHINI", slug: "zucchini", canonicalName: "Zucchini", teluguName: "జుకిని", hindiName: "ज़ुकिनी (Zucchini)", benchmarkPrice: 40.0, mandi: "Bowenpally Market Yard (Secunderabad)", aliases: ["zucchini", "courgette", "green zucchini", "yellow zucchini"] },
-  { id: "VEG_ROUND_GOURD_TINDA", slug: "round_gourd_tinda", canonicalName: "Round Gourd / Apple Gourd (Tinda)", teluguName: "టిండా", hindiName: "टिंडा (Tinda)", benchmarkPrice: 32.0, mandi: "Bowenpally Market Yard (Secunderabad)", aliases: ["tinda", "round gourd", "apple gourd", "dhemse"] },
-  { id: "VEG_BROCCOLI", slug: "broccoli", canonicalName: "Broccoli", teluguName: "బ్రోకలీ", hindiName: "ब्रोकोली (Broccoli)", benchmarkPrice: 58.0, mandi: "Bowenpally Market Yard (Secunderabad)", aliases: ["broccoli", "green cauliflower", "brocoli", "calabrese", "hari gobhi"] },
-  { id: "VEG_BRUSSELS_SPROUTS", slug: "brussels_sprouts", canonicalName: "Brussels Sprouts", teluguName: "బ్రస్సెల్స్ మొలకలు", hindiName: "ब्रसेल्स स्प्राउट्स (Brussels Sprouts)", benchmarkPrice: 75.0, mandi: "Bowenpally Market Yard (Secunderabad)", aliases: ["brussels sprouts", "brussel sprout", "mini cabbage"] },
-  { id: "VEG_KOHLRABI", slug: "kohlrabi", canonicalName: "Kohlrabi (Ganth Gobhi / Noolkol)", teluguName: "నౌల్కోల్", hindiName: "गांठ गोभी (Ganth Gobhi)", benchmarkPrice: 28.0, mandi: "Bowenpally Market Yard (Secunderabad)", aliases: ["kohlrabi", "ganth gobhi", "noolkol", "knol khol", "naval gol"] }
-];
-
-const EXTRA_HINDI_ALIASES = {
-  "aaloo": "VEG_POTATO", "aloo": "VEG_POTATO", "alu": "VEG_POTATO", "batata": "VEG_POTATO",
-  "tamatar": "VEG_TOMATO", "tomato": "VEG_TOMATO",
-  "baingan": "VEG_BRINJAL", "baigan": "VEG_BRINJAL", "eggplant": "VEG_BRINJAL", "aubergine": "VEG_BRINJAL",
-  "bhindi": "VEG_OKRA", "bhendi": "VEG_OKRA", "lady finger": "VEG_OKRA", "ladies finger": "VEG_OKRA",
-  "matar": "VEG_GREEN_PEAS", "muttar": "VEG_GREEN_PEAS", "peas": "VEG_GREEN_PEAS",
-  "french beans": "VEG_FRENCH_BEANS", "green beans": "VEG_FRENCH_BEANS", "sem fali": "VEG_FRENCH_BEANS",
-  "shimla mirch": "VEG_CAPSICUM", "bell pepper": "VEG_CAPSICUM", "capsicum": "VEG_CAPSICUM",
-  "hari mirch": "VEG_GREEN_CHILLI", "green chili": "VEG_GREEN_CHILLI", "green chilli": "VEG_GREEN_CHILLI",
-  "kheera": "VEG_CUCUMBER", "kakdi": "VEG_CUCUMBER", "cucumber": "VEG_CUCUMBER",
-  "makai": "VEG_SWEET_CORN", "bhutta": "VEG_SWEET_CORN", "corn": "VEG_SWEET_CORN", "sweet corn": "VEG_SWEET_CORN",
-  "lauki": "VEG_BOTTLE_GOURD", "doodhi": "VEG_BOTTLE_GOURD", "ghia": "VEG_BOTTLE_GOURD", "bottle gourd": "VEG_BOTTLE_GOURD",
-  "karela": "VEG_BITTER_GOURD", "bitter gourd": "VEG_BITTER_GOURD",
-  "torai": "VEG_RIDGE_GOURD", "tori": "VEG_RIDGE_GOURD", "ridge gourd": "VEG_RIDGE_GOURD",
-  "gilki": "VEG_SPONGE_GOURD", "sponge gourd": "VEG_SPONGE_GOURD",
-  "chichinda": "VEG_SNAKE_GOURD", "snake gourd": "VEG_SNAKE_GOURD",
-  "safed petha": "VEG_ASH_GOURD", "petha": "VEG_ASH_GOURD", "ash gourd": "VEG_ASH_GOURD",
-  "kaddu": "VEG_PUMPKIN", "sitaphal": "VEG_PUMPKIN", "pumpkin": "VEG_PUMPKIN",
-  "phool gobhi": "VEG_CAULIFLOWER", "phool gobi": "VEG_CAULIFLOWER", "cauliflower": "VEG_CAULIFLOWER",
-  "patta gobhi": "VEG_CABBAGE", "patta gobi": "VEG_CABBAGE", "bandha gobhi": "VEG_CABBAGE", "cabbage": "VEG_CABBAGE",
-  "palak": "VEG_SPINACH", "spinach": "VEG_SPINACH",
-  "methi": "VEG_FENUGREEK_LEAVES", "methi patta": "VEG_FENUGREEK_LEAVES", "fenugreek": "VEG_FENUGREEK_LEAVES",
-  "dhania": "VEG_CORIANDER_LEAVES", "dhaniya": "VEG_CORIANDER_LEAVES", "coriander": "VEG_CORIANDER_LEAVES", "cilantro": "VEG_CORIANDER_LEAVES",
-  "gajar": "VEG_CARROT", "carrot": "VEG_CARROT", "carrots": "VEG_CARROT",
-  "mooli": "VEG_RADISH", "muli": "VEG_RADISH", "radish": "VEG_RADISH",
-  "chukandar": "VEG_BEETROOT", "chukander": "VEG_BEETROOT", "beetroot": "VEG_BEETROOT",
-  "pyaaz": "VEG_ONION", "pyaz": "VEG_ONION", "onion": "VEG_ONION",
-  "sahjan": "VEG_DRUMSTICK", "moringa": "VEG_DRUMSTICK", "drumstick": "VEG_DRUMSTICK",
-  "guar": "VEG_CLUSTER_BEANS", "gawar": "VEG_CLUSTER_BEANS", "cluster beans": "VEG_CLUSTER_BEANS",
-  "sem": "VEG_BROAD_BEANS", "chikkudu": "VEG_BROAD_BEANS", "broad beans": "VEG_BROAD_BEANS"
-};
-
 // In-memory cache
 let memoryCache = null;
 let lastCacheTimestamp = 0;
@@ -261,42 +208,6 @@ function buildAgmarknetDailyItems(agmarknetDataset) {
     });
   });
 
-  // Append Extended Vegetables from Master Catalogue
-  EXTENDED_VEGETABLES.forEach(v => {
-    const wholesalePrice = v.benchmarkPrice || 32.0;
-    const prevWholesalePrice = wholesalePrice;
-    const retailMin = Math.round(wholesalePrice * 1.25);
-    const retailMax = Math.round(wholesalePrice * 1.45);
-
-    items.push({
-      id: v.slug,
-      canonicalId: v.id,
-      name: v.canonicalName,
-      teluguName: v.teluguName || '',
-      category: 'vegetable',
-      subtype: 'vegetable',
-      variety: 'Standard / Desi',
-      wholesalePrice,
-      retailPrice: `₹${retailMin} - ${retailMax}`,
-      retailMin,
-      retailMax,
-      units: '1kg',
-      prevWholesalePrice,
-      priceChange: 0,
-      percentChange: 0,
-      trend: 'stable',
-      observationDate: today,
-      prevObservationDate: yesterday,
-      sourceId: 'APMC_BENCHMARK',
-      sourceName: 'Telangana APMC Mandi Benchmark (Bowenpally / Warangal)',
-      portalUrl: 'https://vegetablemarketprice.com/market/telangana/today',
-      market: v.mandi || 'Bowenpally Market Yard (Secunderabad)',
-      district: 'Telangana',
-      mspInrPerQuintal: null,
-      isStale: false
-    });
-  });
-
   return items;
 }
 
@@ -465,23 +376,8 @@ function findMatchingCrop(queryName, catalogItems) {
     return null;
   }
 
-  const normalizedQ = q.replace(/[_\s-]+/g, ' ');
-  let match = null;
-
-  // 0. Check Hindi & Common Aliases across all 42 vegetables
-  const aliasTargetId = EXTRA_HINDI_ALIASES[q] || EXTRA_HINDI_ALIASES[normalizedQ];
-  if (aliasTargetId) {
-    const cleanTarget = aliasTargetId.replace(/^VEG_/, '').replace(/_/g, '').toLowerCase();
-    match = catalogItems.find(i => 
-      (i.canonicalId && (i.canonicalId.toUpperCase() === aliasTargetId.toUpperCase() || i.canonicalId.toLowerCase() === cleanTarget)) ||
-      (i.id && (i.id.toUpperCase() === aliasTargetId.toUpperCase() || i.id.toLowerCase() === cleanTarget)) ||
-      (i.name && i.name.toLowerCase().replace(/[\s_()/-]/g, '').includes(cleanTarget))
-    );
-    if (match) return match;
-  }
-
   // 1. Exact ID match
-  match = catalogItems.find(i => i.id && i.id.toLowerCase() === q);
+  let match = catalogItems.find(i => i.id && i.id.toLowerCase() === q);
   if (match) return match;
 
   // 2. Canonical ID match
@@ -501,6 +397,7 @@ function findMatchingCrop(queryName, catalogItems) {
 
   // 4. Match against 90-crop master catalogue aliases and transliterations
   const catalogue = getCropCatalogue90();
+  const normalizedQ = q.replace(/[_\s-]+/g, ' ');
   for (const c of (catalogue.crops || [])) {
     const names = [c.slug, c.canonicalName.toLowerCase(), ...(c.aliases || []).map(a => a.toLowerCase())];
     if (names.some(n => n === q || n === normalizedQ || n.replace(/[_\s-]+/g, ' ') === normalizedQ)) {
@@ -508,19 +405,6 @@ function findMatchingCrop(queryName, catalogItems) {
         (i.id && i.id.toLowerCase() === c.slug.toLowerCase()) || 
         (i.canonicalId && i.canonicalId.toUpperCase() === c.id.toUpperCase()) || 
         (i.name && i.name.toLowerCase() === c.canonicalName.toLowerCase())
-      );
-      if (match) return match;
-    }
-  }
-
-  // 4b. Match against Extended Vegetables from chart
-  for (const v of EXTENDED_VEGETABLES) {
-    const names = [v.slug, v.canonicalName.toLowerCase(), ...(v.aliases || []).map(a => a.toLowerCase())];
-    if (names.some(n => n === q || n === normalizedQ || n.replace(/[_\s-]+/g, ' ') === normalizedQ)) {
-      match = catalogItems.find(i => 
-        (i.id && i.id.toLowerCase() === v.slug.toLowerCase()) || 
-        (i.canonicalId && i.canonicalId.toUpperCase() === v.id.toUpperCase()) || 
-        (i.name && i.name.toLowerCase() === v.canonicalName.toLowerCase())
       );
       if (match) return match;
     }
