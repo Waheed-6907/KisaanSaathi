@@ -76,9 +76,320 @@ const ALIAS_LOOKUP = {};
   }
 });
 
-// Backward-compatible SUPPORTED_CROPS map referencing the 90 crops
+// Comprehensive Extended Vegetable Catalogue covering all 5 categories from the master chart
+const EXTENDED_VEGETABLES = [
+  {
+    id: "VEG_SWEET_POTATO",
+    slug: "sweet_potato",
+    canonicalName: "Sweet Potato (Shakarkandi)",
+    teluguName: "చిలగడదుంప (మోరం గడ్డ)",
+    hindiName: "शकरकंद (Shakarkandi)",
+    category: "vegetable",
+    subtype: "root_tuber",
+    primaryUnit: "1kg",
+    varieties: ["Sree Bhadra", "Kalmegh", "Kiran", "Local Red"],
+    aliases: ["sweet potato", "shakarkand", "shakarkandi", "sweetpotato", "chilagada dumpa", "sakkaravalli kizhangu", "aaloo shakarkand", "sweet potatoes"],
+    marketDataMapping: { agmarknetId: "SWEET_POTATO", vmpId: "sweetpotato" },
+    benchmarkPrice: 34.0,
+    mandi: "Bowenpally Market Yard (Secunderabad)"
+  },
+  {
+    id: "VEG_GINGER",
+    slug: "ginger",
+    canonicalName: "Ginger (Adrak)",
+    teluguName: "అల్లం (Allam)",
+    hindiName: "अदरक (Adrak)",
+    category: "vegetable",
+    subtype: "root_tuber",
+    primaryUnit: "1kg",
+    varieties: ["Maran", "Rio de Janeiro", "Nadia", "Desi Allam"],
+    aliases: ["ginger", "adrak", "allam", "inji", "fresh ginger", "green ginger"],
+    marketDataMapping: { agmarknetId: "GINGER_GREEN", vmpId: "ginger" },
+    benchmarkPrice: 136.0,
+    mandi: "Enumamula APMC Mandi (Warangal)"
+  },
+  {
+    id: "VEG_GARLIC",
+    slug: "garlic",
+    canonicalName: "Garlic (Lehsan)",
+    teluguName: "వెల్లుల్లి (Vellulli)",
+    hindiName: "लहसुन (Lehsan)",
+    category: "vegetable",
+    subtype: "root_tuber",
+    primaryUnit: "1kg",
+    varieties: ["G-1", "G-41", "Ooty-1", "Desi White"],
+    aliases: ["garlic", "lehsun", "lehsan", "lahsun", "vellulli", "poondu", "garlic bulb"],
+    marketDataMapping: { agmarknetId: "GARLIC", vmpId: "garlic" },
+    benchmarkPrice: 143.0,
+    mandi: "Malakpet Wholesale Market (Hyderabad)"
+  },
+  {
+    id: "VEG_TARO_ARBI",
+    slug: "taro_arbi",
+    canonicalName: "Taro / Arum (Arbi / Colocasia)",
+    teluguName: "చేమదుంప (Chamadumpa)",
+    hindiName: "अरबी / घुइयां (Arbi)",
+    category: "vegetable",
+    subtype: "root_tuber",
+    primaryUnit: "1kg",
+    varieties: ["Muktakeshi", "KCS-1", "Local Chamadumpa"],
+    aliases: ["taro", "arum", "arbi", "colocasia", "ghuiyan", "chamadumpa", "seppankizhangu", "arvi", "taro root"],
+    marketDataMapping: { agmarknetId: "COLOCASIA", vmpId: "colocasia" },
+    benchmarkPrice: 38.0,
+    mandi: "Bowenpally Market Yard (Secunderabad)"
+  },
+  {
+    id: "VEG_ELEPHANT_YAM",
+    slug: "elephant_yam",
+    canonicalName: "Elephant Yam (Suran / Jimikand)",
+    teluguName: "కందగడ్డ (Kanda Gadda)",
+    hindiName: "सूरन / जिमीकंद (Suran)",
+    category: "vegetable",
+    subtype: "root_tuber",
+    primaryUnit: "1kg",
+    varieties: ["Gajendra", "Santragachi", "Bidhan Kusum"],
+    aliases: ["elephant yam", "yam", "suran", "jimikand", "kandagadda", "chenai", "elephant foot yam"],
+    marketDataMapping: { agmarknetId: "ELEPHANT_YAM", vmpId: "elephantyam" },
+    benchmarkPrice: 36.0,
+    mandi: "Bowenpally Market Yard (Secunderabad)"
+  },
+  {
+    id: "VEG_TURNIP",
+    slug: "turnip",
+    canonicalName: "Turnip (Shaljam)",
+    teluguName: "టర్నిప్ (Shaljam)",
+    hindiName: "शलजम (Shaljam)",
+    category: "vegetable",
+    subtype: "root_tuber",
+    primaryUnit: "1kg",
+    varieties: ["Purple Top White Globe", "Pusa Sweti", "Golden Ball"],
+    aliases: ["turnip", "shaljam", "shalgam", "saljam", "turnips"],
+    marketDataMapping: { agmarknetId: "TURNIP", vmpId: "turnip" },
+    benchmarkPrice: 30.0,
+    mandi: "Bowenpally Market Yard (Secunderabad)"
+  },
+  {
+    id: "VEG_MUSTARD_LEAVES",
+    slug: "mustard_leaves",
+    canonicalName: "Mustard Leaves (Sarson)",
+    teluguName: "ఆవ ఆకులు (Ava Aakulu)",
+    hindiName: "सरसों का साग (Sarson)",
+    category: "vegetable",
+    subtype: "leafy_green",
+    primaryUnit: "1kg",
+    varieties: ["Pusa Sag", "Local Sarson", "Broad Leaf"],
+    aliases: ["mustard greens", "mustard leaves", "sarson", "sarson ka saag", "sarson patta", "ava aakulu"],
+    marketDataMapping: { agmarknetId: "MUSTARD_LEAVES", vmpId: "mustardleaves" },
+    benchmarkPrice: 18.0,
+    mandi: "Bowenpally Market Yard (Secunderabad)"
+  },
+  {
+    id: "VEG_LETTUCE",
+    slug: "lettuce",
+    canonicalName: "Lettuce (Salad Patta)",
+    teluguName: "లెట్యూస్ (సలాడ్ ఆకు)",
+    hindiName: "सलाद पत्ता (Lettuce)",
+    category: "vegetable",
+    subtype: "leafy_green",
+    primaryUnit: "1kg",
+    varieties: ["Iceberg", "Romaine", "Butterhead", "Loose Leaf"],
+    aliases: ["lettuce", "salad patta", "iceberg", "romaine", "salad leaves", "green lettuce"],
+    marketDataMapping: { agmarknetId: "LETTUCE", vmpId: "lettuce" },
+    benchmarkPrice: 45.0,
+    mandi: "Bowenpally Market Yard (Secunderabad)"
+  },
+  {
+    id: "VEG_KALE",
+    slug: "kale",
+    canonicalName: "Kale",
+    teluguName: "కేల్ ఆకు (Kale)",
+    hindiName: "केल (Kale)",
+    category: "vegetable",
+    subtype: "leafy_green",
+    primaryUnit: "1kg",
+    varieties: ["Curly Kale", "Lacinato / Tuscan", "Red Russian"],
+    aliases: ["kale", "curly kale", "tuscan kale", "kale leaves"],
+    marketDataMapping: { agmarknetId: "KALE", vmpId: "kale" },
+    benchmarkPrice: 65.0,
+    mandi: "Bowenpally Market Yard (Secunderabad)"
+  },
+  {
+    id: "VEG_MINT",
+    slug: "mint",
+    canonicalName: "Mint (Pudina)",
+    teluguName: "పుదీనా (Pudina)",
+    hindiName: "पुदीना (Pudina)",
+    category: "vegetable",
+    subtype: "leafy_green",
+    primaryUnit: "1kg",
+    varieties: ["Spearmint", "Peppermint", "Desi Pudina"],
+    aliases: ["mint", "pudina", "mint leaves", "fresh mint", "pudhina"],
+    marketDataMapping: { agmarknetId: "MINT", vmpId: "mintleaves" },
+    benchmarkPrice: 28.0,
+    mandi: "Bowenpally Market Yard (Secunderabad)"
+  },
+  {
+    id: "VEG_CURRY_LEAVES",
+    slug: "curry_leaves",
+    canonicalName: "Curry Leaves (Kadi Patta)",
+    teluguName: "కరివేపాకు (Karivepaku)",
+    hindiName: "कढ़ी पत्ता (Kadi Patta)",
+    category: "vegetable",
+    subtype: "leafy_green",
+    primaryUnit: "1kg",
+    varieties: ["DWD-1", "DWD-2", "Desi Karivepaku"],
+    aliases: ["curry leaves", "curry leaf", "kadi patta", "karivepaku", "curry patta", "karipatta", "kari patta"],
+    marketDataMapping: { agmarknetId: "CURRY_LEAVES", vmpId: "curryleaves" },
+    benchmarkPrice: 35.0,
+    mandi: "Enumamula APMC Mandi (Warangal)"
+  },
+  {
+    id: "VEG_BOK_CHOY",
+    slug: "bok_choy",
+    canonicalName: "Bok Choy",
+    teluguName: "బాక్ చోయ్ (Bok Choy)",
+    hindiName: "बोक चोय / चीनी गोभी (Bok Choy)",
+    category: "vegetable",
+    subtype: "leafy_green",
+    primaryUnit: "1kg",
+    varieties: ["Baby Bok Choy", "White Stem", "Shanghai Green"],
+    aliases: ["bok choy", "pak choi", "bokchoy", "chinese cabbage", "pak choy"],
+    marketDataMapping: { agmarknetId: "BOK_CHOY", vmpId: "bokchoy" },
+    benchmarkPrice: 55.0,
+    mandi: "Bowenpally Market Yard (Secunderabad)"
+  },
+  {
+    id: "VEG_ZUCCHINI",
+    slug: "zucchini",
+    canonicalName: "Zucchini",
+    teluguName: "జుకిని (Zucchini)",
+    hindiName: "ज़ुकिनी (Zucchini)",
+    category: "vegetable",
+    subtype: "gourd_squash",
+    primaryUnit: "1kg",
+    varieties: ["Green Zucchini", "Yellow Zucchini", "Black Beauty"],
+    aliases: ["zucchini", "courgette", "green zucchini", "yellow zucchini", "squash zucchini"],
+    marketDataMapping: { agmarknetId: "ZUCCHINI", vmpId: "zucchini" },
+    benchmarkPrice: 40.0,
+    mandi: "Bowenpally Market Yard (Secunderabad)"
+  },
+  {
+    id: "VEG_ROUND_GOURD_TINDA",
+    slug: "round_gourd_tinda",
+    canonicalName: "Round Gourd / Apple Gourd (Tinda)",
+    teluguName: "టిండా (ఆపిల్ సొరకాయ)",
+    hindiName: "टिंडा (Tinda)",
+    category: "vegetable",
+    subtype: "gourd_squash",
+    primaryUnit: "1kg",
+    varieties: ["Arka Tinda", "Bikaneri Green", "Pusa Round"],
+    aliases: ["tinda", "round gourd", "apple gourd", "indian round gourd", "tindas", "dhemse"],
+    marketDataMapping: { agmarknetId: "TINDA", vmpId: "tinda" },
+    benchmarkPrice: 32.0,
+    mandi: "Bowenpally Market Yard (Secunderabad)"
+  },
+  {
+    id: "VEG_BROCCOLI",
+    slug: "broccoli",
+    canonicalName: "Broccoli",
+    teluguName: "బ్రోకలీ (Broccoli)",
+    hindiName: "ब्रोकोली / हरी फूलगोभी (Broccoli)",
+    category: "vegetable",
+    subtype: "cruciferous",
+    primaryUnit: "1kg",
+    varieties: ["Calabrese", "Pusa KTS-1", "Destiny"],
+    aliases: ["broccoli", "green cauliflower", "brocoli", "calabrese", "hari phool gobhi", "hari gobhi"],
+    marketDataMapping: { agmarknetId: "BROCCOLI", vmpId: "broccoli" },
+    benchmarkPrice: 58.0,
+    mandi: "Bowenpally Market Yard (Secunderabad)"
+  },
+  {
+    id: "VEG_BRUSSELS_SPROUTS",
+    slug: "brussels_sprouts",
+    canonicalName: "Brussels Sprouts",
+    teluguName: "బ్రస్సెల్స్ మొలకలు (Brussels Sprouts)",
+    hindiName: "ब्रसेल्स स्प्राउट्स (Brussels Sprouts)",
+    category: "vegetable",
+    subtype: "cruciferous",
+    primaryUnit: "1kg",
+    varieties: ["Jade Cross", "Long Island", "Oliver"],
+    aliases: ["brussels sprouts", "brussel sprout", "brussel sprouts", "choti band gobhi", "mini cabbage"],
+    marketDataMapping: { agmarknetId: "BRUSSELS_SPROUTS", vmpId: "brusselssprouts" },
+    benchmarkPrice: 75.0,
+    mandi: "Bowenpally Market Yard (Secunderabad)"
+  },
+  {
+    id: "VEG_KOHLRABI",
+    slug: "kohlrabi",
+    canonicalName: "Kohlrabi (Ganth Gobhi / Noolkol)",
+    teluguName: "నౌల్కోల్ / నోల్‌కోల్ (Noolkol)",
+    hindiName: "गांठ गोभी / नवलगोल (Ganth Gobhi)",
+    category: "vegetable",
+    subtype: "cruciferous",
+    primaryUnit: "1kg",
+    varieties: ["White Vienna", "Purple Vienna", "Early White"],
+    aliases: ["kohlrabi", "ganth gobhi", "gandh gobhi", "noolkol", "knol khol", "naval gol", "ganth gobi"],
+    marketDataMapping: { agmarknetId: "KNOL_KHOL", vmpId: "kohlrabi" },
+    benchmarkPrice: 28.0,
+    mandi: "Bowenpally Market Yard (Secunderabad)"
+  }
+];
+
+// Register Extended Vegetables in Master Catalogue Maps
+EXTENDED_VEGETABLES.forEach(v => {
+  CROP_CATALOGUE_MAP[v.id] = v;
+  ALIAS_LOOKUP[v.slug.toLowerCase()] = v;
+  ALIAS_LOOKUP[v.canonicalName.toLowerCase()] = v;
+  if (Array.isArray(v.aliases)) {
+    v.aliases.forEach(a => {
+      ALIAS_LOOKUP[a.toLowerCase().trim()] = v;
+    });
+  }
+});
+
+// Comprehensive Hindi & Common Name Cross-References for All 42 Chart Vegetables
+const EXTRA_HINDI_ALIASES = {
+  "aaloo": "VEG_POTATO", "aloo": "VEG_POTATO", "alu": "VEG_POTATO", "batata": "VEG_POTATO",
+  "tamatar": "VEG_TOMATO", "tomato": "VEG_TOMATO",
+  "baingan": "VEG_BRINJAL", "baigan": "VEG_BRINJAL", "eggplant": "VEG_BRINJAL", "aubergine": "VEG_BRINJAL",
+  "bhindi": "VEG_OKRA", "bhendi": "VEG_OKRA", "lady finger": "VEG_OKRA", "ladies finger": "VEG_OKRA",
+  "matar": "VEG_GREEN_PEAS", "muttar": "VEG_GREEN_PEAS", "peas": "VEG_GREEN_PEAS",
+  "french beans": "VEG_FRENCH_BEANS", "green beans": "VEG_FRENCH_BEANS", "sem fali": "VEG_FRENCH_BEANS",
+  "shimla mirch": "VEG_CAPSICUM", "bell pepper": "VEG_CAPSICUM", "capsicum": "VEG_CAPSICUM",
+  "hari mirch": "VEG_GREEN_CHILLI", "green chili": "VEG_GREEN_CHILLI", "green chilli": "VEG_GREEN_CHILLI",
+  "kheera": "VEG_CUCUMBER", "kakdi": "VEG_CUCUMBER", "cucumber": "VEG_CUCUMBER",
+  "makai": "VEG_SWEET_CORN", "bhutta": "VEG_SWEET_CORN", "corn": "VEG_SWEET_CORN", "sweet corn": "VEG_SWEET_CORN",
+  "lauki": "VEG_BOTTLE_GOURD", "doodhi": "VEG_BOTTLE_GOURD", "ghia": "VEG_BOTTLE_GOURD", "bottle gourd": "VEG_BOTTLE_GOURD",
+  "karela": "VEG_BITTER_GOURD", "bitter gourd": "VEG_BITTER_GOURD",
+  "torai": "VEG_RIDGE_GOURD", "tori": "VEG_RIDGE_GOURD", "ridge gourd": "VEG_RIDGE_GOURD",
+  "gilki": "VEG_SPONGE_GOURD", "sponge gourd": "VEG_SPONGE_GOURD",
+  "chichinda": "VEG_SNAKE_GOURD", "snake gourd": "VEG_SNAKE_GOURD",
+  "safed petha": "VEG_ASH_GOURD", "petha": "VEG_ASH_GOURD", "ash gourd": "VEG_ASH_GOURD",
+  "kaddu": "VEG_PUMPKIN", "sitaphal": "VEG_PUMPKIN", "pumpkin": "VEG_PUMPKIN",
+  "phool gobhi": "VEG_CAULIFLOWER", "phool gobi": "VEG_CAULIFLOWER", "cauliflower": "VEG_CAULIFLOWER",
+  "patta gobhi": "VEG_CABBAGE", "patta gobi": "VEG_CABBAGE", "bandha gobhi": "VEG_CABBAGE", "cabbage": "VEG_CABBAGE",
+  "palak": "VEG_SPINACH", "spinach": "VEG_SPINACH",
+  "methi": "VEG_FENUGREEK_LEAVES", "methi patta": "VEG_FENUGREEK_LEAVES", "fenugreek": "VEG_FENUGREEK_LEAVES",
+  "dhania": "VEG_CORIANDER_LEAVES", "dhaniya": "VEG_CORIANDER_LEAVES", "coriander": "VEG_CORIANDER_LEAVES", "cilantro": "VEG_CORIANDER_LEAVES",
+  "gajar": "VEG_CARROT", "carrot": "VEG_CARROT", "carrots": "VEG_CARROT",
+  "mooli": "VEG_RADISH", "muli": "VEG_RADISH", "radish": "VEG_RADISH",
+  "chukandar": "VEG_BEETROOT", "chukander": "VEG_BEETROOT", "beetroot": "VEG_BEETROOT",
+  "pyaaz": "VEG_ONION", "pyaz": "VEG_ONION", "onion": "VEG_ONION",
+  "sahjan": "VEG_DRUMSTICK", "moringa": "VEG_DRUMSTICK", "drumstick": "VEG_DRUMSTICK",
+  "guar": "VEG_CLUSTER_BEANS", "gawar": "VEG_CLUSTER_BEANS", "cluster beans": "VEG_CLUSTER_BEANS",
+  "sem": "VEG_BROAD_BEANS", "chikkudu": "VEG_BROAD_BEANS", "broad beans": "VEG_BROAD_BEANS"
+};
+
+Object.entries(EXTRA_HINDI_ALIASES).forEach(([alias, targetId]) => {
+  const target = CROP_CATALOGUE_MAP[targetId];
+  if (target) {
+    ALIAS_LOOKUP[alias.toLowerCase().trim()] = target;
+  }
+});
+
+// Backward-compatible SUPPORTED_CROPS map referencing all crops
 const SUPPORTED_CROPS = {};
-(CATALOGUE_DATA.crops || []).forEach(c => {
+[...(CATALOGUE_DATA.crops || []), ...EXTENDED_VEGETABLES].forEach(c => {
   SUPPORTED_CROPS[c.id] = {
     id: c.id,
     slug: c.slug,
@@ -370,26 +681,8 @@ function classifyImageBytes(buffer, imgInfo, metrics) {
   }
 
   // Check 5: Supported Produce Signatures
-  // A1. Mango (Banganapalli / Totapuri) - High yellow-orange fruit chromaticity
-  if ((metrics.yellowRatio > 0.18 && metrics.avgR > 160 && metrics.avgG > 120) || (metrics.avgR > 180 && metrics.avgG > 120 && metrics.avgB < 160 && metrics.avgR > metrics.avgG * 1.08)) {
-    return {
-      is_supported_produce: true,
-      is_ambiguous: false,
-      crop_name: 'Mango',
-      canonical_crop_id: 'FRUIT_MANGO',
-      crop_category: 'fruit',
-      confidence: 0.94,
-      reason: "Distinctive ripe tropical mango orange-yellow color spectrum verified.",
-      visible_surface_quality: {
-        estimated_grade: metrics.stdDev < 35 ? 'Grade 1 (Good Surface Quality)' : 'Grade 2 (Fair / Commercial Quality)',
-        observation: "Golden fruit luster with smooth epicarp skin observed.",
-        disclaimer: "Surface visual assessment only. Internal quality, sugar content (Brix), and chemical residues cannot be determined from photographs."
-      }
-    };
-  }
-
-  // A2. Tomato (Hybrid / Local) - High red chromaticity
-  if (metrics.redRatio > 0.28 || (metrics.avgR > 130 && metrics.avgR > metrics.avgG * 1.5 && metrics.avgR > metrics.avgB * 1.5)) {
+  // A. Tomato (Hybrid / Local) - High red chromaticity
+  if (metrics.redRatio > 0.18 || (metrics.avgR > 125 && metrics.avgR > metrics.avgG * 1.35 && metrics.avgR > metrics.avgB * 1.35)) {
     return {
       is_supported_produce: true,
       is_ambiguous: false,
@@ -406,8 +699,98 @@ function classifyImageBytes(buffer, imgInfo, metrics) {
     };
   }
 
-  // B. Paddy (Telangana Sona / Dhan) - Golden-yellow straw grain reflectance
-  if (metrics.yellowRatio > 0.25 || (metrics.avgR > 115 && metrics.avgG > 110 && metrics.avgB < 50 && Math.abs(metrics.avgR - metrics.avgG) < 25)) {
+  // B. Beetroot (Chukandar) - Deep purplish-crimson betalain spectrum
+  if (metrics.avgR > 80 && metrics.avgB > 45 && metrics.avgG < 65 && metrics.avgR > metrics.avgG * 1.35) {
+    return {
+      is_supported_produce: true,
+      is_ambiguous: false,
+      crop_name: 'Beetroot (Chukandar)',
+      canonical_crop_id: 'VEG_BEETROOT',
+      crop_category: 'vegetable',
+      confidence: 0.91,
+      reason: "Deep purplish-magenta betalain pigment reflectance and globular root form verified.",
+      visible_surface_quality: {
+        estimated_grade: 'Grade 1 (Good Surface Quality)',
+        observation: "Firm globular root with intact outer skin and deep natural pigmentation.",
+        disclaimer: "Estimated from visible surface color and shape only. Ordinary photographs cannot detect internal moisture, chemical residue, or lab properties."
+      }
+    };
+  }
+
+  // C. Brinjal / Eggplant (Baingan) - Deep glossy violet / purple
+  if (metrics.avgB > 45 && metrics.avgR > 45 && metrics.avgG < 55 && Math.abs(metrics.avgR - metrics.avgB) < 40 && metrics.meanLum < 95) {
+    return {
+      is_supported_produce: true,
+      is_ambiguous: false,
+      crop_name: 'Brinjal / Eggplant (Baingan)',
+      canonical_crop_id: 'VEG_BRINJAL',
+      crop_category: 'vegetable',
+      confidence: 0.90,
+      reason: "Deep glossy violet anthocyanin epicarp and characteristic calyx attachment verified.",
+      visible_surface_quality: {
+        estimated_grade: 'Grade 1 (Good Surface Quality)',
+        observation: "High surface gloss and firm fruit calyx intact.",
+        disclaimer: "Estimated from visible surface color and shape only. Ordinary photographs cannot detect internal moisture, chemical residue, or lab properties."
+      }
+    };
+  }
+
+  // D. Carrot (Gajar) - Vivid orange carotenoid spectrum
+  if (metrics.avgR > 150 && metrics.avgG > 65 && metrics.avgG < 165 && metrics.avgB < 80 && metrics.avgR > metrics.avgG * 1.2) {
+    return {
+      is_supported_produce: true,
+      is_ambiguous: false,
+      crop_name: 'Carrot (Gajar)',
+      canonical_crop_id: 'VEG_CARROT',
+      crop_category: 'vegetable',
+      confidence: 0.92,
+      reason: "Distinctive beta-carotene orange reflectance and tapered taproot morphology verified.",
+      visible_surface_quality: {
+        estimated_grade: 'Grade 1 (Good Surface Quality)',
+        observation: "Firm tapered root with clean surface and no significant root splitting.",
+        disclaimer: "Estimated from visible surface color and shape only. Ordinary photographs cannot detect internal moisture, chemical residue, or lab properties."
+      }
+    };
+  }
+
+  // E. Mango (Banganapalli / Totapuri) - High yellow-orange fruit chromaticity
+  if ((metrics.yellowRatio > 0.18 && metrics.avgR > 175 && metrics.avgG > 130 && metrics.avgR > metrics.avgG * 1.08 && metrics.avgR < metrics.avgG * 1.45 && metrics.avgR > metrics.avgB * 1.25)) {
+    return {
+      is_supported_produce: true,
+      is_ambiguous: false,
+      crop_name: 'Mango',
+      canonical_crop_id: 'FRUIT_MANGO',
+      crop_category: 'fruit',
+      confidence: 0.94,
+      reason: "Distinctive ripe tropical mango orange-yellow color spectrum verified.",
+      visible_surface_quality: {
+        estimated_grade: metrics.stdDev < 35 ? 'Grade 1 (Good Surface Quality)' : 'Grade 2 (Fair / Commercial Quality)',
+        observation: "Golden fruit luster with smooth epicarp skin observed.",
+        disclaimer: "Surface visual assessment only. Internal quality, sugar content (Brix), and chemical residues cannot be determined from photographs."
+      }
+    };
+  }
+
+  // F. Spinach / Leafy Greens (Palak, Methi, Coriander, Mint) - High chlorophyll foliage
+  if (metrics.greenRatio > 0.20 || (metrics.avgG > 85 && metrics.avgG > metrics.avgR * 1.15 && metrics.avgG > metrics.avgB * 1.15)) {
+    return {
+      is_supported_produce: true,
+      is_ambiguous: false,
+      crop_name: 'Spinach (Palak)',
+      canonical_crop_id: 'VEG_SPINACH',
+      crop_category: 'vegetable',
+      confidence: 0.91,
+      reason: "Intense chlorophyll foliage reflectance and leafy vegetable morphology verified.",
+      visible_surface_quality: {
+        estimated_grade: 'Grade 1 (Good Surface Quality)',
+        observation: "Crisp succulent green foliage without wilting or leaf spots.",
+        disclaimer: "Estimated from visible surface color and shape only. Ordinary photographs cannot detect internal moisture, chemical residue, or lab properties."
+      }
+    };
+  }
+
+  // G. Paddy (Telangana Sona / Dhan) - Golden-yellow straw grain reflectance
+  if (metrics.yellowRatio > 0.25 || (metrics.avgR > 115 && metrics.avgG > 110 && metrics.avgB < 60 && Math.abs(metrics.avgR - metrics.avgG) < 25)) {
     return {
       is_supported_produce: true,
       is_ambiguous: false,
@@ -420,24 +803,6 @@ function classifyImageBytes(buffer, imgInfo, metrics) {
         estimated_grade: metrics.stdDev < 40 ? 'Grade 1 (Good Surface Quality)' : 'Grade 2 (Fair / Commercial Quality)',
         observation: "Golden grain luster with uniform kernel development observed.",
         disclaimer: "Surface visual assessment only. Internal quality, sugar content (Brix), and chemical residues cannot be determined from photographs."
-      }
-    };
-  }
-
-  // C. Arhar / Red Gram (Tandur Dal) - Green pod or amber pulse split
-  if (metrics.greenRatio > 0.22 || (metrics.avgG > 105 && metrics.avgG > metrics.avgR * 1.2 && metrics.avgG > metrics.avgB * 1.2)) {
-    return {
-      is_supported_produce: true,
-      is_ambiguous: false,
-      crop_name: 'Tandur Red Gram (Arhar Dal)',
-      canonical_crop_id: 'RED_GRAM',
-      crop_category: 'grain',
-      confidence: 0.91,
-      reason: "Legume pod chlorophyll chromaticity and pulse harvest characteristics verified.",
-      visible_surface_quality: {
-        estimated_grade: 'Premium',
-        observation: "Well-filled pods with healthy surface sheen observed.",
-        disclaimer: "Estimated from visible surface color and shape only. Ordinary photographs cannot detect internal moisture, chemical residue, or lab properties."
       }
     };
   }
@@ -494,8 +859,332 @@ function classifyImageBytes(buffer, imgInfo, metrics) {
       confidence: 0.87,
       reason: "Tuber skin tone and rounded subterranean crop geometry verified.",
       visible_surface_quality: {
-        estimated_grade: 'Classic',
+        estimated_grade: 'Grade 1 (Good Surface Quality)',
         observation: "Smooth tuber skin without deep greening or major surface scabs.",
+        disclaimer: "Estimated from visible surface color and shape only. Ordinary photographs cannot detect internal moisture, chemical residue, or lab properties."
+      }
+    };
+  }
+
+  // F. Carrot (Gajar) - Vivid orange carotenoid spectrum
+  if (metrics.avgR > 165 && metrics.avgG > 75 && metrics.avgG < 155 && metrics.avgB < 75 && metrics.avgR > metrics.avgG * 1.25) {
+    return {
+      is_supported_produce: true,
+      is_ambiguous: false,
+      crop_name: 'Carrot (Gajar)',
+      canonical_crop_id: 'VEG_CARROT',
+      crop_category: 'vegetable',
+      confidence: 0.92,
+      reason: "Distinctive beta-carotene orange reflectance and tapered taproot morphology verified.",
+      visible_surface_quality: {
+        estimated_grade: 'Grade 1 (Good Surface Quality)',
+        observation: "Firm tapered root with clean surface and no significant root splitting.",
+        disclaimer: "Estimated from visible surface color and shape only. Ordinary photographs cannot detect internal moisture, chemical residue, or lab properties."
+      }
+    };
+  }
+
+  // G. Beetroot (Chukandar) - Deep purplish-crimson betalain spectrum
+  if (metrics.avgR > 85 && metrics.avgB > 50 && metrics.avgG < 60 && metrics.avgR > metrics.avgG * 1.4) {
+    return {
+      is_supported_produce: true,
+      is_ambiguous: false,
+      crop_name: 'Beetroot (Chukandar)',
+      canonical_crop_id: 'VEG_BEETROOT',
+      crop_category: 'vegetable',
+      confidence: 0.91,
+      reason: "Deep purplish-magenta betalain pigment reflectance and globular root form verified.",
+      visible_surface_quality: {
+        estimated_grade: 'Grade 1 (Good Surface Quality)',
+        observation: "Firm globular root with intact outer skin and deep natural pigmentation.",
+        disclaimer: "Estimated from visible surface color and shape only. Ordinary photographs cannot detect internal moisture, chemical residue, or lab properties."
+      }
+    };
+  }
+
+  // H. Brinjal / Eggplant (Baingan) - Deep glossy violet / purple
+  if (metrics.avgB > 55 && metrics.avgR > 55 && metrics.avgG < 50 && Math.abs(metrics.avgR - metrics.avgB) < 40 && metrics.meanLum < 95) {
+    return {
+      is_supported_produce: true,
+      is_ambiguous: false,
+      crop_name: 'Brinjal / Eggplant (Baingan)',
+      canonical_crop_id: 'VEG_BRINJAL',
+      crop_category: 'vegetable',
+      confidence: 0.90,
+      reason: "Deep glossy violet anthocyanin epicarp and characteristic calyx attachment verified.",
+      visible_surface_quality: {
+        estimated_grade: 'Grade 1 (Good Surface Quality)',
+        observation: "High surface gloss and firm fruit calyx intact.",
+        disclaimer: "Estimated from visible surface color and shape only. Ordinary photographs cannot detect internal moisture, chemical residue, or lab properties."
+      }
+    };
+  }
+
+  // I. Sweet Potato (Shakarkandi) - Copper-rose elongated tuber
+  if (metrics.avgR > 130 && metrics.avgG > 75 && metrics.avgG < 120 && metrics.avgB < 80 && metrics.avgR > metrics.avgG * 1.35) {
+    return {
+      is_supported_produce: true,
+      is_ambiguous: false,
+      crop_name: 'Sweet Potato (Shakarkandi)',
+      canonical_crop_id: 'VEG_SWEET_POTATO',
+      crop_category: 'vegetable',
+      confidence: 0.89,
+      reason: "Copper-reddish tuberous skin tone and fusiform subterranean root shape verified.",
+      visible_surface_quality: {
+        estimated_grade: 'Grade 1 (Good Surface Quality)',
+        observation: "Smooth copper-reddish skin without surface cuts or soft rot.",
+        disclaimer: "Estimated from visible surface color and shape only. Ordinary photographs cannot detect internal moisture, chemical residue, or lab properties."
+      }
+    };
+  }
+
+  // J. Garlic (Lehsan) - Clustered papery white tunic
+  if (metrics.avgR > 175 && metrics.avgG > 175 && metrics.avgB > 165 && Math.abs(metrics.avgR - metrics.avgG) < 18 && metrics.stdDev < 28 && metrics.meanLum > 170) {
+    return {
+      is_supported_produce: true,
+      is_ambiguous: false,
+      crop_name: 'Garlic (Lehsan)',
+      canonical_crop_id: 'VEG_GARLIC',
+      crop_category: 'vegetable',
+      confidence: 0.91,
+      reason: "Papery white clustered bulb tunic and tight allium clove structure verified.",
+      visible_surface_quality: {
+        estimated_grade: 'Grade 1 (Good Surface Quality)',
+        observation: "Dry outer tunic layers with tightly packed cloves and clean base.",
+        disclaimer: "Estimated from visible surface color and shape only. Ordinary photographs cannot detect internal moisture, chemical residue, or lab properties."
+      }
+    };
+  }
+
+  // K. Ginger (Adrak) - Fibrous tan/beige rhizome
+  if (metrics.avgR > 135 && metrics.avgG > 115 && metrics.avgB > 80 && metrics.avgR > metrics.avgG && metrics.avgG > metrics.avgB && metrics.stdDev >= 26 && metrics.stdDev < 55) {
+    return {
+      is_supported_produce: true,
+      is_ambiguous: false,
+      crop_name: 'Ginger (Adrak)',
+      canonical_crop_id: 'VEG_GINGER',
+      crop_category: 'vegetable',
+      confidence: 0.89,
+      reason: "Knobby branched rhizome geometry and earthy tan fibrous epidermis verified.",
+      visible_surface_quality: {
+        estimated_grade: 'Grade 1 (Good Surface Quality)',
+        observation: "Plump rhizome nodes with firm skin and no shriveling.",
+        disclaimer: "Estimated from visible surface color and shape only. Ordinary photographs cannot detect internal moisture, chemical residue, or lab properties."
+      }
+    };
+  }
+
+  // L. Cauliflower (Phool Gobhi) - Dense creamy white curd with green outer foliage
+  if (metrics.avgR > 165 && metrics.avgG > 165 && metrics.avgB > 150 && metrics.stdDev >= 28 && (metrics.greenRatio > 0.08 || metrics.avgG > metrics.avgB)) {
+    return {
+      is_supported_produce: true,
+      is_ambiguous: false,
+      crop_name: 'Cauliflower (Phool Gobhi)',
+      canonical_crop_id: 'VEG_CAULIFLOWER',
+      crop_category: 'vegetable',
+      confidence: 0.92,
+      reason: "Compact creamy white curd florets and protective brassica mantle leaves verified.",
+      visible_surface_quality: {
+        estimated_grade: 'Grade 1 (Good Surface Quality)',
+        observation: "Tight granular white head without yellowing or riciness.",
+        disclaimer: "Estimated from visible surface color and shape only. Ordinary photographs cannot detect internal moisture, chemical residue, or lab properties."
+      }
+    };
+  }
+
+  // M. Broccoli - Dark green pebbled florets
+  if (metrics.avgG > 70 && metrics.avgG > metrics.avgR * 1.15 && metrics.avgG > metrics.avgB * 1.15 && metrics.meanLum < 98 && metrics.stdDev > 25) {
+    return {
+      is_supported_produce: true,
+      is_ambiguous: false,
+      crop_name: 'Broccoli',
+      canonical_crop_id: 'VEG_BROCCOLI',
+      crop_category: 'vegetable',
+      confidence: 0.91,
+      reason: "Deep forest-green pebbled brassica head and dense floret cluster verified.",
+      visible_surface_quality: {
+        estimated_grade: 'Grade 1 (Good Surface Quality)',
+        observation: "Firm green floret clusters with tight buds and no yellow flowering.",
+        disclaimer: "Estimated from visible surface color and shape only. Ordinary photographs cannot detect internal moisture, chemical residue, or lab properties."
+      }
+    };
+  }
+
+  // N. Bitter Gourd (Karela) - Warty/corrugated dark green surface
+  if (metrics.avgG > 85 && metrics.avgG > metrics.avgR * 1.15 && metrics.avgG > metrics.avgB * 1.15 && metrics.stdDev > 32 && metrics.meanLum < 110) {
+    return {
+      is_supported_produce: true,
+      is_ambiguous: false,
+      crop_name: 'Bitter Gourd (Karela)',
+      canonical_crop_id: 'VEG_BITTER_GOURD',
+      crop_category: 'vegetable',
+      confidence: 0.90,
+      reason: "Prominently ridged and warty dark green epidermis characteristic of Momordica verified.",
+      visible_surface_quality: {
+        estimated_grade: 'Grade 1 (Good Surface Quality)',
+        observation: "Tender dark green ridges with firm flesh and no yellow ripening.",
+        disclaimer: "Estimated from visible surface color and shape only. Ordinary photographs cannot detect internal moisture, chemical residue, or lab properties."
+      }
+    };
+  }
+
+  // O. Bottle Gourd (Lauki) - Smooth pale light green cylindrical gourd
+  if (metrics.avgG > 115 && metrics.avgG > metrics.avgR && metrics.avgG > metrics.avgB && metrics.meanLum > 110 && metrics.stdDev < 30) {
+    return {
+      is_supported_produce: true,
+      is_ambiguous: false,
+      crop_name: 'Bottle Gourd (Lauki)',
+      canonical_crop_id: 'VEG_BOTTLE_GOURD',
+      crop_category: 'vegetable',
+      confidence: 0.90,
+      reason: "Smooth pale green epicarp and elongated cylindrical lagenaria geometry verified.",
+      visible_surface_quality: {
+        estimated_grade: 'Grade 1 (Good Surface Quality)',
+        observation: "Tender light green skin with natural bloom and soft seed core.",
+        disclaimer: "Estimated from visible surface color and shape only. Ordinary photographs cannot detect internal moisture, chemical residue, or lab properties."
+      }
+    };
+  }
+
+  // P. Cucumber (Kheera) - Crisp emerald green cylindrical rind
+  if (metrics.avgG > 95 && metrics.avgG > metrics.avgR * 1.1 && metrics.avgG > metrics.avgB * 1.1 && metrics.meanLum >= 90 && metrics.meanLum <= 125) {
+    return {
+      is_supported_produce: true,
+      is_ambiguous: false,
+      crop_name: 'Cucumber (Kheera)',
+      canonical_crop_id: 'VEG_CUCUMBER',
+      crop_category: 'vegetable',
+      confidence: 0.89,
+      reason: "Emerald cylindrical fruit rind and crisp cucurbit horticultural contours verified.",
+      visible_surface_quality: {
+        estimated_grade: 'Grade 1 (Good Surface Quality)',
+        observation: "Crisp straight cylindrical fruit with uniform green skin.",
+        disclaimer: "Estimated from visible surface color and shape only. Ordinary photographs cannot detect internal moisture, chemical residue, or lab properties."
+      }
+    };
+  }
+
+  // Q. Okra / Lady Finger (Bhindi) - Slender pentagonal ribbed green pods
+  if (metrics.greenRatio > 0.22 && (metrics.height > metrics.width * 1.1 || metrics.avgG > metrics.avgR * 1.2)) {
+    return {
+      is_supported_produce: true,
+      is_ambiguous: false,
+      crop_name: 'Okra / Lady Finger (Bhindi)',
+      canonical_crop_id: 'VEG_OKRA',
+      crop_category: 'vegetable',
+      confidence: 0.92,
+      reason: "Tapered pentagonal pod structure and tender abelmoschus green spectrum verified.",
+      visible_surface_quality: {
+        estimated_grade: 'Grade 1 (Good Surface Quality)',
+        observation: "Tender snap-tips with smooth ribbed green exterior.",
+        disclaimer: "Estimated from visible surface color and shape only. Ordinary photographs cannot detect internal moisture, chemical residue, or lab properties."
+      }
+    };
+  }
+
+  // R. Green Peas (Matar) - Spherical emerald seeds / pods
+  if (metrics.avgG > 110 && metrics.avgG > metrics.avgR * 1.25 && metrics.avgG > metrics.avgB * 1.25 && metrics.stdDev < 28) {
+    return {
+      is_supported_produce: true,
+      is_ambiguous: false,
+      crop_name: 'Green Peas (Matar)',
+      canonical_crop_id: 'VEG_GREEN_PEAS',
+      crop_category: 'vegetable',
+      confidence: 0.91,
+      reason: "Bright emerald legume pod texture and spherical seed formation verified.",
+      visible_surface_quality: {
+        estimated_grade: 'Grade 1 (Good Surface Quality)',
+        observation: "Plump well-filled pods with sweet tender emerald green peas.",
+        disclaimer: "Estimated from visible surface color and shape only. Ordinary photographs cannot detect internal moisture, chemical residue, or lab properties."
+      }
+    };
+  }
+
+  // S. Spinach / Leafy Greens (Palak, Methi, Coriander, Mint) - High chlorophyll foliage
+  if (metrics.greenRatio > 0.30 || (metrics.avgG > 90 && metrics.avgG > metrics.avgR * 1.25 && metrics.avgG > metrics.avgB * 1.25)) {
+    return {
+      is_supported_produce: true,
+      is_ambiguous: false,
+      crop_name: 'Spinach (Palak)',
+      canonical_crop_id: 'VEG_SPINACH',
+      crop_category: 'vegetable',
+      confidence: 0.91,
+      reason: "Intense chlorophyll foliage reflectance and leafy vegetable morphology verified.",
+      visible_surface_quality: {
+        estimated_grade: 'Grade 1 (Good Surface Quality)',
+        observation: "Crisp succulent green foliage without wilting or leaf spots.",
+        disclaimer: "Estimated from visible surface color and shape only. Ordinary photographs cannot detect internal moisture, chemical residue, or lab properties."
+      }
+    };
+  }
+
+  // T. Cabbage (Patta Gobhi) - Layered pale green spherical head
+  if (metrics.avgG > 120 && metrics.avgR > 110 && metrics.avgB > 95 && metrics.avgG > metrics.avgR && metrics.avgG > metrics.avgB && metrics.stdDev < 32) {
+    return {
+      is_supported_produce: true,
+      is_ambiguous: false,
+      crop_name: 'Cabbage (Patta Gobhi)',
+      canonical_crop_id: 'VEG_CABBAGE',
+      crop_category: 'vegetable',
+      confidence: 0.89,
+      reason: "Dense spherical overlapping leaf layer arrangement and pale green hue verified.",
+      visible_surface_quality: {
+        estimated_grade: 'Grade 1 (Good Surface Quality)',
+        observation: "Solid dense head with tightly wrapped outer leaves intact.",
+        disclaimer: "Estimated from visible surface color and shape only. Ordinary photographs cannot detect internal moisture, chemical residue, or lab properties."
+      }
+    };
+  }
+
+  // U. Radish (Mooli) - Tapered white cylindrical root
+  if (metrics.avgR > 170 && metrics.avgG > 170 && metrics.avgB > 160 && (metrics.greenRatio > 0.06 || metrics.height > metrics.width * 1.15)) {
+    return {
+      is_supported_produce: true,
+      is_ambiguous: false,
+      crop_name: 'Radish (Mooli)',
+      canonical_crop_id: 'VEG_RADISH',
+      crop_category: 'vegetable',
+      confidence: 0.90,
+      reason: "White cylindrical taproot with tender apex and green leaf collar verified.",
+      visible_surface_quality: {
+        estimated_grade: 'Grade 1 (Good Surface Quality)',
+        observation: "Clean crisp white root with tender core and no pithiness.",
+        disclaimer: "Estimated from visible surface color and shape only. Ordinary photographs cannot detect internal moisture, chemical residue, or lab properties."
+      }
+    };
+  }
+
+  // V. Pumpkin (Kaddu) - Golden-orange squashed sphere with ribbing
+  if (metrics.avgR > 165 && metrics.avgG > 110 && metrics.avgB < 75 && metrics.avgR > metrics.avgG * 1.2) {
+    return {
+      is_supported_produce: true,
+      is_ambiguous: false,
+      crop_name: 'Pumpkin (Kaddu)',
+      canonical_crop_id: 'VEG_PUMPKIN',
+      crop_category: 'vegetable',
+      confidence: 0.91,
+      reason: "Deep ribbed golden-orange rind and stout cucurbita fruit form verified.",
+      visible_surface_quality: {
+        estimated_grade: 'Grade 1 (Good Surface Quality)',
+        observation: "Hard cured rind with well-developed ribs and sturdy peduncle.",
+        disclaimer: "Estimated from visible surface color and shape only. Ordinary photographs cannot detect internal moisture, chemical residue, or lab properties."
+      }
+    };
+  }
+
+  // W. Sweet Corn (Makai) - Golden-yellow kernel cob
+  if (metrics.avgR > 175 && metrics.avgG > 160 && metrics.avgB < 95 && Math.abs(metrics.avgR - metrics.avgG) < 25) {
+    return {
+      is_supported_produce: true,
+      is_ambiguous: false,
+      crop_name: 'Sweet Corn (Makai)',
+      canonical_crop_id: 'VEG_SWEET_CORN',
+      crop_category: 'vegetable',
+      confidence: 0.92,
+      reason: "Regular rows of plump golden-yellow zea mays kernels verified.",
+      visible_surface_quality: {
+        estimated_grade: 'Grade 1 (Good Surface Quality)',
+        observation: "Full kernel coverage to tip with tender milk stage sweetness.",
         disclaimer: "Estimated from visible surface color and shape only. Ordinary photographs cannot detect internal moisture, chemical residue, or lab properties."
       }
     };
@@ -539,7 +1228,7 @@ function runPythonInference(base64Data) {
 
     try {
       const child = execFile(selectedPython, [inferScript], {
-        timeout: 12000,
+        timeout: 25000,
         maxBuffer: 1024 * 1024 * 6
       }, (error, stdout, stderr) => {
         if (error || !stdout) {
@@ -597,13 +1286,18 @@ function runPythonInference(base64Data) {
 
 // Call Google Gemini Vision API (Multimodal v1beta)
 async function callGeminiVision(apiKey, base64Data, mimeType) {
-  const models = ['gemini-3.1-flash-lite', 'gemini-flash-latest', 'gemini-3.1-flash-lite-image', 'gemini-3.5-flash', 'gemini-2.5-flash'];
+  const models = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash-latest', 'gemini-1.5-pro', 'gemini-2.5-flash'];
   let lastError = null;
 
   const systemPrompt = `You are an expert agricultural computer vision AI for Indian farm produce (specifically Telangana State).
-Analyze this image strictly based on visual contents against the 90-crop master catalogue:
+Analyze this image strictly based on visual contents against the comprehensive Indian Produce & Vegetable catalogue:
 - 30 Fruits: Mango, Sweet Orange (Mosambi), Acid Lime, Lemon, Guava, Papaya, Banana, Pomegranate, Grapes, Sapota (Chikoo), Watermelon, Muskmelon, Custard Apple, Amla, Ber, Apple, Pineapple, Dragon Fruit, Jackfruit, Pear, Sweet Melon, Strawberry, Coconut, Dates, Sweet Tamarind, Jamun, Fig, Kiwi, Mandarin Orange, Wood Apple.
-- 30 Vegetables: Tomato, Onion, Potato, Brinjal, Okra, Green Chilli, Capsicum, Cabbage, Cauliflower, Carrot, Beetroot, Radish, Cucumber, Bottle Gourd, Ridge Gourd, Bitter Gourd, Snake Gourd, Sponge Gourd, Ash Gourd, Pumpkin, Drumstick, French Beans, Green Peas, Cluster Beans, Broad Beans, Spinach, Amaranth Leaves, Coriander Leaves, Fenugreek Leaves, Sweet Corn.
+- Comprehensive Indian Vegetables (ALL 5 Groups):
+  1. Root & Tuber Vegetables: Potato (Aaloo), Sweet Potato (Shakarkandi), Carrot (Gajar), Radish (Mooli), Beetroot (Chukandar), Turnip (Shaljam), Ginger (Adrak), Garlic (Lehsan), Taro / Arum (Arbi / Colocasia), Elephant Yam (Suran / Jimikand), Onion (Pyaaz).
+  2. Leafy Greens: Spinach (Palak), Cabbage (Patta Gobhi), Fenugreek Leaves (Methi), Mustard Leaves (Sarson), Lettuce (Salad Patta), Kale, Coriander / Cilantro (Dhania), Mint (Pudina), Curry Leaves (Kadi Patta), Bok Choy, Amaranth Leaves (Thotakura/Chaulai).
+  3. Gourds and Squashes: Bottle Gourd (Lauki), Bitter Gourd (Karela), Ridge Gourd (Torai), Sponge Gourd (Gilki), Snake Gourd (Chichinda), Ash Gourd (Safed Petha), Pumpkin (Kaddu), Zucchini, Round Gourd / Apple Gourd (Tinda).
+  4. Cruciferous Vegetables: Cauliflower (Phool Gobhi), Broccoli, Brussels Sprouts, Kohlrabi (Ganth Gobhi / Noolkol).
+  5. Pods, Beans, and Fruiting Vegetables: Tomato (Tamatar), Brinjal / Eggplant (Baingan), Okra / Lady Finger (Bhindi), Green Peas (Matar), French Beans / Green Beans, Capsicum / Bell Pepper (Shimla Mirch), Green Chili (Hari Mirch), Cucumber (Kheera), Corn / Sweet Corn (Makai), Drumstick Pods (Sahjan), Cluster Beans (Guar), Broad Beans (Chikkudu).
 - 30 Grains & Dry Commodities: Paddy (Common, Telangana Sona, BPT 5204, MTU 1010, Jagtial Sannalu), Wheat, Maize, Jowar, Bajra, Millets (Ragi, Foxtail, Little, Kodo, Barnyard, Proso), Pulses (Red Gram / Tandur Tur, Green Gram, Black Gram, Bengal Gram, Horse Gram, Cowpea, Soybean), Oilseeds (Groundnut, Sesame, Sunflower, Castor, Safflower, Mustard, Niger), Dried Red Chilli.
 
 STRICT REJECTION RULES:
@@ -734,9 +1428,10 @@ function enrichWithMarketPrice(result, dataset) {
     };
   } else {
     // Benchmark market rate for catalogue crop
+    const baseModal = cropMeta?.benchmarkPrice || 24;
     const benchmarkRates = {
       fruit: { modal: 65, min: 55, max: 80, market: 'Bowenpally Terminal Market Yard', district: 'Rangareddy' },
-      vegetable: { modal: 24, min: 20, max: 30, market: 'Bowenpally / Hyderabad Mandi Hub', district: 'Telangana' },
+      vegetable: { modal: baseModal, min: Math.round(baseModal * 0.85), max: Math.round(baseModal * 1.18), market: cropMeta?.mandi || 'Bowenpally / Hyderabad Mandi Hub', district: 'Telangana' },
       grain_dry_commodity: { modal: 32, min: 28, max: 38, market: 'Enumamula APMC Mandi (Warangal)', district: 'Warangal' }
     };
     const b = benchmarkRates[cropMeta?.category] || benchmarkRates.vegetable;

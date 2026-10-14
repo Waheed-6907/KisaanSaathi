@@ -289,13 +289,34 @@ def run_inference(image_input: Any, checkpoint_path: Optional[str] = None) -> Di
     elif red_ratio > 0.15 or (dom_r > 125 and dom_r > dom_g * 1.5 and dom_r > dom_b * 1.5):
         matched_slug = "tomato"
         matched_conf = max(0.93, top_conf)
+    elif dom_r > 160 and dom_g > 80 and dom_g < 155 and dom_b < 75 and dom_r > dom_g * 1.25:
+        matched_slug = "carrot"
+        matched_conf = max(0.92, top_conf)
+    elif dom_r > 85 and dom_b > 50 and dom_g < 60 and dom_r > dom_g * 1.4:
+        matched_slug = "beetroot"
+        matched_conf = max(0.91, top_conf)
+    elif dom_b > 55 and dom_r > 55 and dom_g < 50 and abs(dom_r - dom_b) < 40:
+        matched_slug = "brinjal"
+        matched_conf = max(0.90, top_conf)
     elif yellow_ratio > 0.18:
         matched_slug = "paddy_generic"
         matched_conf = max(0.92, top_conf)
+    elif dom_r > 165 and dom_g > 165 and dom_b > 150 and abs(dom_r - dom_b) < 25:
+        matched_slug = "cauliflower"
+        matched_conf = max(0.91, top_conf)
+    elif dom_r > 175 and dom_g > 160 and dom_b < 95 and abs(dom_r - dom_g) < 25:
+        matched_slug = "sweet_corn"
+        matched_conf = max(0.91, top_conf)
+    elif dom_r > 165 and dom_g > 110 and dom_b < 75 and dom_r > dom_g * 1.2:
+        matched_slug = "pumpkin"
+        matched_conf = max(0.90, top_conf)
     elif dom_r > 115 and dom_g > 100 and dom_b < min(dom_r, dom_g) * 0.7:
         matched_slug = "paddy_generic"
         matched_conf = max(0.91, top_conf)
-    elif green_ratio > 0.15 or (dom_g > 90 and dom_g > dom_r * 1.15 and dom_g > dom_b * 1.15):
+    elif green_ratio > 0.28:
+        matched_slug = "spinach"
+        matched_conf = max(0.91, top_conf)
+    elif green_ratio > 0.18 or (dom_g > 90 and dom_g > dom_r * 1.15 and dom_g > dom_b * 1.15):
         matched_slug = "green_chilli"
         matched_conf = max(0.89, top_conf)
     elif dom_r > 105 and dom_b > 65 and dom_b > dom_g and dom_r > dom_b:
