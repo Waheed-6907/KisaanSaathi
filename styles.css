@@ -459,3 +459,97 @@ body {
 .floating-voice-saathi-btn:active {
   transform: translateY(1px) scale(0.95);
 }
+
+/* ==========================================================================
+   TUTORIAL SPOTLIGHT & ANIMATED INTERACTIVE GUIDE STYLES
+   ========================================================================== */
+.tutorial-pulse-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 3px solid #10b981;
+  animation: tutorialRingPulse 1.8s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+  pointer-events: none;
+}
+
+.tutorial-beacon-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 12px #34d399, 0 0 24px #10b981;
+  pointer-events: none;
+}
+
+@keyframes tutorialRingPulse {
+  0% {
+    width: 20px;
+    height: 20px;
+    opacity: 0.9;
+  }
+  100% {
+    width: 64px;
+    height: 64px;
+    opacity: 0;
+  }
+}
+
+.tutorial-avatar-float {
+  animation: avatarFloat 2.6s ease-in-out infinite;
+}
+
+@keyframes avatarFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* Literacy-Friendly Touch Target Sizing (>= 48px) */
+.btn-welcome-lang,
+.btn-touch-accessible,
+.voice-command-chip {
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Urdu Right-To-Left Typography & Flow */
+[dir="rtl"] {
+  text-align: right;
+  direction: rtl;
+}
+
+[dir="rtl"] .drawer-item {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+[dir="rtl"] .drawer-item svg,
+[dir="rtl"] .drawer-item i {
+  margin-left: 0.5rem;
+  margin-right: 0;
+}
+
+[dir="rtl"] #btnTutorialNext svg,
+[dir="rtl"] #btnTutorialPrev svg {
+  transform: scaleX(-1);
+}
+
+/* Reduced Motion Preference for Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .tutorial-pulse-ring,
+  .tutorial-avatar-float,
+  .animate-pulse,
+  .animate-spin,
+  .animate-bounce {
+    animation: none !important;
+  }
+}
+

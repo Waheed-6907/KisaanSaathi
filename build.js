@@ -12,6 +12,8 @@ const requiredFiles = [
   'styles.css',
   'assets/js/data.js',
   'assets/js/app.js',
+  'assets/js/tutorial-engine.js',
+  'assets/js/voice-assistant.js',
   'dev-server.js',
   'vercel.json',
   'assets/data/labs.json',
@@ -49,6 +51,8 @@ console.log('\n[3/5] Validating JavaScript syntax...');
 const jsFiles = [
   'assets/js/app.js', 
   'assets/js/data.js', 
+  'assets/js/tutorial-engine.js',
+  'assets/js/voice-assistant.js',
   'dev-server.js', 
   'api/health.js', 
   'api/labs.js', 

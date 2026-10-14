@@ -6,13 +6,14 @@
 const https = require('https');
 
 // Strict Language Codes Allowed
-const SUPPORTED_LANGUAGES = ['en', 'hi', 'te'];
+const SUPPORTED_LANGUAGES = ['en', 'hi', 'te', 'ur'];
 
 // Spoken Friendly Greetings for Low-Literacy Farmers
 const VOICE_GREETINGS = {
   en: (name) => `Namaste ${name || 'Farmer Friend'}! I am KissanSathi Voice Assistant. Speak your question about crop care, fertilizers, mandi rates, or pest control, and I will guide you.`,
   hi: (name) => `नमस्ते ${name || 'किसान साथी'}! मैं किसान साथी वॉयस सहायक हूँ। फसल की देखभाल, खाद, मंडी भाव या कीट नियंत्रण के बारे में बोलकर पूछें, मैं आपकी मदद करूँगा।`,
-  te: (name) => `నమస్కారం ${name || 'రైతు మిత్రమా'}! నేను కిసాన్ సాథి వాయిస్ సహాయకుడిని. పంటల సంరక్షణ, ఎరువులు, మండి ధరలు లేదా తెగుళ్ల నివారణ గురించి అడగండి, నేను సమాధానం చెబుతాను.`
+  te: (name) => `నమస్కారం ${name || 'రైతు మిత్రమా'}! నేను కిసాన్ సాథి వాయిస్ సహాయకుడిని. పంటల సంరక్షణ, ఎరువులు, మండి ధరలు లేదా తెగుళ్ల నివారణ గురించి అడగండి, నేను సమాధానం చెబుతాను.`,
+  ur: (name) => `السلام علیکم ${name || 'کسان بھائی'}! میں کسان ساتھی وائس اسسٹنٹ ہوں۔ فصل کی دیکھ بھال، کھاد، منڈی کے بھاؤ یا بیماری کے بارے میں بول کر پوچھیں، میں آپ کی رہنمائی کروں گا۔`
 };
 
 // Spoken Fallback Responses for Core Agricultural Topics (Clean Conversational Sentences, No Markdown)
@@ -82,6 +83,28 @@ const VOICE_KNOWLEDGE = {
       keywords: ['రుణం', 'లోన్', 'వడ్డీ', 'క్రెడిట్', 'బ్యాంకు', 'రైతు', 'బంధు', 'భరోసా'],
       reply: "సహకార బ్యాంకు ద్వారా నాలుగు శాతం తక్కువ వడ్డీతో మూడు లక్షల రూపాయల వరకు పంట రుణం లభిస్తుంది. అలాగే రైతు భరోసా ద్వారా ఎకరానికి ఏడాదికి పది వేల రూపాయలు నేరుగా మీ ఖాతాలో జమ అవుతాయి."
     }
+  ],
+  ur: [
+    {
+      keywords: ['بھاؤ', 'rate', 'price', 'mandi', 'ریٹ', 'دھان', 'کپاس', 'منڈی', 'قیمت'],
+      reply: "السلام علیکم کسان بھائی! آج وارنگل کی انامامولا منڈی میں تلنگانہ سونا دھان دو ہزار چھ سو پچاس سے دو ہزار سات سو پچاس روپے فی کوئنٹل بک رہا ہے۔ کسان ساتھی کے ذریعے سیدھا بیچنے پر چوبیس گھنٹے میں ادائیگی آپ کے بینک اکاؤنٹ میں ہو جاتی ہے۔ مزید معلومات کے لیے کسان کال سینٹر 1800-180-1551 پر رابطہ کریں۔"
+    },
+    {
+      keywords: ['کیڑے', 'کیڑے مار', 'pest', 'disease', 'neem', 'بیماری', 'سپرے', 'نیم'],
+      reply: "دھان اور کپاس میں کیڑوں کی روک تھام کے لیے قدرتی نیماسترا بہت مفید ہے۔ پانچ کلو نیم کے پتے، پانچ لیٹر گائے کا پیشاب اور دو کلو دیسی گائے کا گوبر ملا کر دو دن رکھیں، پھر پندرہ لیٹر پمپ میں دو سو ملی لیٹر ملا کر سپرے کریں۔"
+    },
+    {
+      keywords: ['انشورنس', 'بیما', 'claim', 'pmfby', 'نقصان', 'بارش', 'معاوضہ'],
+      reply: "بے وقت بارش یا قدرتی آفت سے فصل کا نقصان ہونے پر بہتر گھنٹے کے اندر اندر پردھان منتری فصل بیما یوجنا میں کلیم درج کرنا ضروری ہے۔ مفت کسان کال سینٹر 1800-180-1551 پر فوری رابطہ کریں۔"
+    },
+    {
+      keywords: ['مٹی', 'soil', 'ٹیسٹ', 'لیب', 'کھاد', 'یوریا'],
+      reply: "مٹی صحت کارڈ اسکیم کے تحت سرکاری لیب میں مٹی کا معائنہ بالکل مفت ہوتا ہے۔ معائنے سے ضرورت کے مطابق کھاد ڈالنے سے اخراجات میں بڑی بچت ہوتی ہے۔"
+    },
+    {
+      keywords: ['قرض', 'قرضہ', 'loan', 'kcc', 'بینک', 'سود', 'رائیتھو'],
+      reply: "کوآپریٹو بینک سے چار فیصد رعایتی شرح سود پر کسان کریڈٹ کارڈ فصلی قرضہ دستیاب ہے۔ تلنگانہ رائیتھو بھروسا کے تحت دس ہزار روپے فی ایکڑ سالانہ براہ راست کسانوں کے کھاتے میں منتقل ہوتے ہیں۔"
+    }
   ]
 };
 
@@ -89,7 +112,8 @@ const VOICE_KNOWLEDGE = {
 const VOICE_FALLBACKS = {
   en: "Namaste! For detailed assistance on your specific crop question, I recommend consulting your local Agricultural Officer or calling the national Kisan Call Center toll-free at 1800-180-1551. How else can I assist your farm today?",
   hi: "नमस्ते! आपकी फसल के इस सवाल के लिए नजदीकी कृषि विस्तार अधिकारी से संपर्क करें या टोल-फ्री किसान कॉल सेंटर अठारह सौ एक सौ अस्सी पंद्रह इक्यावन पर बात करें। क्या मैं किसी अन्य काम में आपकी सहायता कर सकता हूँ?",
-  te: "నమస్కారం! మీ పంటకు సంబంధించిన ఈ ప్రశ్నకు మీ స్థానిక వ్యవసాయ విస్తరణ అధికారిని సంప్రదించండి లేదా జాతీయ కిసాన్ కాల్ సెంటర్ పద్దెనిమిది వందల నూట ఎనభై పదిహేను యాభై ఒకటి కి కాల్ చేయండి."
+  te: "నమస్కారం! మీ పంటకు సంబంధించిన ఈ ప్రశ్నకు మీ స్థానిక వ్యవసాయ విస్తరణ అధికారిని సంప్రదించండి లేదా జాతీయ కిసాన్ కాల్ సెంటర్ పద్దెనిమిది వందల నూట ఎనభై పదిహేను యాభై ఒకటి కి కాల్ చేయండి.",
+  ur: "السلام علیکم! اپنی فصل کے اس سوال کے لیے اپنے مقامی زرعی افسر سے رابطہ کریں یا ٹول فری کسان کال سینٹر اٹھارہ سو ایک سو اسی پندرہ اکیاون پر کال کریں۔ کیا میں کسی اور چیز میں آپ کی مدد کر سکتا ہوں؟"
 };
 
 /**
@@ -116,10 +140,12 @@ function callGeminiVoiceAPI(apiKey, prompt, lang, profileName, model = 'gemini-3
       ? 'Respond strictly in natural, grammatically correct Telugu (తెలుగు) using conversational sentences.'
       : (lang === 'hi'
         ? 'Respond strictly in natural, polite Hindi (हिन्दी, Devanagari script) using simple conversational sentences.'
-        : 'Respond strictly in simple, polite Indian English.');
+        : (lang === 'ur'
+          ? 'Respond strictly in natural, polite Urdu (اردو, Urdu script) using simple conversational sentences.'
+          : 'Respond strictly in simple, polite Indian English.'));
 
     const systemPrompt = `You are KissanSathi, a friendly agricultural assistant for Indian farmers.
-You support English, Hindi, and Telugu only.
+You support English, Hindi, Telugu, and Urdu.
 Reply in the user's selected language: ${langInstructions}
 The farmer's name is "${profileName || 'Farmer Friend'}".
 

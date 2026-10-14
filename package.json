@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node dev-server.js",
     "dev": "node dev-server.js",
-    "test": "node build.js && node test/test-whatsapp.js && node test/test-logistics.js && node test/test-market-prices.js && node test/test-crop-vision.js && node test/test-daily-market-prices.js && node test/test-textbee.js && node test/test-90-crops.js"
+    "test": "node build.js && node test/test-whatsapp.js && node test/test-logistics.js && node test/test-market-prices.js && node test/test-crop-vision.js && node test/test-daily-market-prices.js && node test/test-textbee.js && node test/test-90-crops.js && node test/test-tutorial-and-voice.js"
   },
   "keywords": [
     "agriculture",

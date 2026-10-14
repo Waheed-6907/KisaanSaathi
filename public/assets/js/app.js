@@ -233,6 +233,7 @@ function initKisanSaathi() {
       tagline: "کسان سے براہ راست خریدار تک ویلیو ایڈیشن کے ساتھ",
       nav_inventory: "کسان کی فصلوں کی فہرست",
       nav_upload: "فصل فروخت کیلئے شامل کریں",
+      nav_market_dashboard: "روزانہ منڈی کے بھاؤ",
       nav_quality: "فصل کے معیار کی جانچ (AI)",
       nav_negotiate: "قیمتوں کے مذاکرات",
       nav_orders: "آرڈرز اور ترسیل",
@@ -500,6 +501,12 @@ function initKisanSaathi() {
     // Completely dismiss login screen and redirect to homepage
     hideLoginScreen();
     navigateTo('inventory');
+
+    setTimeout(() => {
+      if (window.KisanTutorial && typeof window.KisanTutorial.showWelcomeModal === 'function') {
+        window.KisanTutorial.showWelcomeModal(false);
+      }
+    }, 700);
 
     // Clean URL query and hash (remove ?code=... or #access_token=...)
     if (window.location.search.includes('code=') || window.location.hash.includes('access_token=')) {
@@ -1576,6 +1583,17 @@ function initKisanSaathi() {
     const appHeaderTitle = document.getElementById('appHeaderTitle');
     if (appHeaderTitle) {
       appHeaderTitle.textContent = dict.app_name;
+    }
+
+    // Set document direction for Urdu (RTL) and typography
+    document.documentElement.setAttribute('dir', lang === 'ur' ? 'rtl' : 'ltr');
+    document.documentElement.setAttribute('lang', lang);
+
+    if (window.KisanTutorial && typeof window.KisanTutorial.setLanguage === 'function') {
+      window.KisanTutorial.setLanguage(lang);
+    }
+    if (window.KisanVoiceAssistant && typeof window.KisanVoiceAssistant.setAssistantLanguage === 'function') {
+      window.KisanVoiceAssistant.setAssistantLanguage(lang);
     }
 
     // Refresh chat language if available
@@ -8769,6 +8787,11 @@ function initKisanSaathi() {
     } else {
       updatePortalRoleUI();
       navigateTo('inventory');
+      setTimeout(() => {
+        if (window.KisanTutorial && typeof window.KisanTutorial.showWelcomeModal === 'function') {
+          window.KisanTutorial.showWelcomeModal(false);
+        }
+      }, 700);
     }
   }
 

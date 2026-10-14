@@ -451,6 +451,14 @@
           <div class="px-3 py-1 text-[10px] uppercase font-bold text-gray-400 tracking-wider">
             Farmer Production & Mandi Hub
           </div>
+          <a class="drawer-item text-emerald-900 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/60 rounded-xl cursor-pointer" onclick="window.KisanTutorial.startTutorial()">
+            <i data-lucide="sparkles" class="w-5 h-5 text-emerald-600"></i>
+            <div class="flex-1 min-w-0">
+              <span class="font-bold text-xs block leading-tight">Interactive Voice Guide</span>
+              <span class="text-[10px] text-emerald-700 block leading-tight">తెలుగు • हिंदी • اردو • English</span>
+            </div>
+            <span class="ml-auto text-[9px] bg-emerald-600 text-white font-extrabold px-1.5 py-0.5 rounded-full uppercase">Guide</span>
+          </a>
           <a class="drawer-item active" data-navigate="inventory">
             <i data-lucide="package" class="w-5 h-5 text-purple-600"></i>
             <span data-i18n="nav_inventory">Farmer's Inventory</span>
@@ -610,6 +618,11 @@
         </div>
 
         <div class="flex items-center gap-2">
+          <!-- Interactive Voice Guide & Tutorial Button -->
+          <button id="btnHeaderHelpTutorial" type="button" class="p-1.5 px-2 bg-white/15 hover:bg-white/25 text-amber-200 hover:text-white rounded-xl transition flex items-center gap-1 font-extrabold text-xs border border-white/20" title="Help & Voice Guide" onclick="window.KisanTutorial.startTutorial()">
+            <i data-lucide="help-circle" class="w-4 h-4 text-amber-300"></i>
+            <span class="hidden sm:inline">Help</span>
+          </button>
           <!-- Search Feature Grid Button -->
           <button id="btnOpenSearch" class="p-2 hover:bg-white/20 rounded-lg transition" title="Search Features">
             <i data-lucide="search" class="w-5 h-5"></i>
@@ -3215,18 +3228,18 @@
     </span>
   </a>
 
-  <!-- FLOATING VOICE SAATHI AI ASSISTANT BUTTON (One-Tap Voice for Farmers) -->
-  <button id="btnFloatingVoiceSaathi" 
+  <!-- FLOATING VOICE ASSISTANT ACCESSIBILITY BUTTON (One-Tap Voice Navigation & Help) -->
+  <button id="btnFloatingVoiceAssistant" 
           type="button" 
-          onclick="openVoiceSaathiDirectly()" 
+          onclick="if(window.KisanVoiceAssistant) { window.KisanVoiceAssistant.openAssistantPanel(); window.KisanVoiceAssistant.startListening(); } else if(typeof openVoiceSaathiDirectly === 'function') { openVoiceSaathiDirectly(); }" 
           class="floating-voice-saathi-btn bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-600 text-white p-3 md:px-4 md:py-3 rounded-full shadow-2xl flex items-center gap-2 border-2 border-white/60 font-extrabold text-xs cursor-pointer group"
-          title="Speak with KisanSaathi Voice Saathi (English, हिन्दी, తెలుగు)">
+          title="Speak with KisanSaathi Voice Assistant (English, हिन्दी, తెలుగు, اردو)">
     <span class="relative flex h-3.5 w-3.5">
       <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-80"></span>
       <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-200"></span>
     </span>
     <i data-lucide="mic" class="w-5 h-5 text-white animate-pulse"></i>
-    <span class="hidden md:inline font-bold text-xs tracking-wide">Voice Saathi (వాయిస్ సాథి)</span>
+    <span class="hidden md:inline font-bold text-xs tracking-wide">Voice Assistant (వాయిస్ సహాయకుడు)</span>
   </button>
 
   <!-- Modal G: Consumer Make Offer to Farmer (Synced to Negotiations Desk) -->
@@ -3558,6 +3571,157 @@
     </div>
   </div>
 
+  <!-- FIRST-LOGIN WELCOME & LANGUAGE SELECTION MODAL (PHASE 1) -->
+  <div id="modalTutorialWelcome" class="modal-overlay z-[9999]">
+    <div id="welcomeModalCard" class="modal-content max-w-lg p-6 space-y-5 rounded-3xl border-2 border-emerald-400 shadow-2xl bg-white text-center">
+      
+      <!-- Animated Farmer Guide Avatar -->
+      <div class="mx-auto w-20 h-20 rounded-full bg-emerald-100 border-4 border-emerald-500 flex items-center justify-center shadow-lg tutorial-avatar-float overflow-hidden">
+        <svg class="w-16 h-16 text-emerald-800" viewBox="0 0 64 64" fill="none">
+          <path d="M16 26C16 16 24 10 32 10C40 10 48 16 48 26C48 27 46 29 44 30C38 32 26 32 20 30C18 29 16 27 16 26Z" fill="#10B981" />
+          <path d="M22 18C28 14 36 14 42 18" stroke="#34D399" stroke-width="2" stroke-linecap="round" />
+          <circle cx="32" cy="33" r="13" fill="#FDE68A" />
+          <circle cx="27" cy="32" r="1.5" fill="#1F2937" />
+          <circle cx="37" cy="32" r="1.5" fill="#1F2937" />
+          <path d="M28 37C29.5 39.5 34.5 39.5 36 37" stroke="#92400E" stroke-width="2" stroke-linecap="round" />
+          <path d="M25 35C28 36 31 34 32 35C33 34 36 36 39 35" stroke="#4B5563" stroke-width="1.8" stroke-linecap="round" />
+          <path d="M20 46C20 46 25 43 32 43C39 43 44 46 44 46L48 60H16L20 46Z" fill="#047857" />
+        </svg>
+      </div>
+
+      <div>
+        <h2 id="welcomeTutorialTitle" class="text-xl sm:text-2xl font-black text-gray-900 leading-snug">
+          రైతు బంధువులకు కిసాన్ సాథికి స్వాగతం!
+        </h2>
+        <p id="welcomeTutorialSubtitle" class="text-xs sm:text-sm text-gray-600 mt-1.5 font-medium leading-relaxed">
+          మీ పంటలకు సరైన మార్కెట్ ధర, నేరుగా కొనుగోలుదారులు మరియు ఉచిత సలహాలు అందించే వేదిక.
+        </p>
+      </div>
+
+      <!-- 4 High-Contrast Language Selection Cards (Touch targets >= 48px) -->
+      <div class="grid grid-cols-2 gap-2.5 sm:gap-3">
+        <button type="button" class="btn-welcome-lang btn-touch-accessible p-3.5 rounded-2xl border-2 border-emerald-500 font-extrabold text-sm shadow-xs transition-all active:scale-95 flex items-center justify-center gap-2" data-lang="te" onclick="window.KisanTutorial.updateWelcomeModalText('te'); if(typeof window.applyLanguage === 'function') window.applyLanguage('te');">
+          <span class="text-lg">🌸</span>
+          <span>తెలుగు</span>
+        </button>
+
+        <button type="button" class="btn-welcome-lang btn-touch-accessible p-3.5 rounded-2xl border-2 border-emerald-500 font-extrabold text-sm shadow-xs transition-all active:scale-95 flex items-center justify-center gap-2" data-lang="hi" onclick="window.KisanTutorial.updateWelcomeModalText('hi'); if(typeof window.applyLanguage === 'function') window.applyLanguage('hi');">
+          <span class="text-lg">🌾</span>
+          <span>हिंदी</span>
+        </button>
+
+        <button type="button" class="btn-welcome-lang btn-touch-accessible p-3.5 rounded-2xl border-2 border-emerald-500 font-extrabold text-sm shadow-xs transition-all active:scale-95 flex items-center justify-center gap-2" data-lang="ur" onclick="window.KisanTutorial.updateWelcomeModalText('ur'); if(typeof window.applyLanguage === 'function') window.applyLanguage('ur');">
+          <span class="text-lg">🌿</span>
+          <span>اردو</span>
+        </button>
+
+        <button type="button" class="btn-welcome-lang btn-touch-accessible p-3.5 rounded-2xl border-2 border-emerald-500 font-extrabold text-sm shadow-xs transition-all active:scale-95 flex items-center justify-center gap-2" data-lang="en" onclick="window.KisanTutorial.updateWelcomeModalText('en'); if(typeof window.applyLanguage === 'function') window.applyLanguage('en');">
+          <span class="text-lg">🌏</span>
+          <span>English</span>
+        </button>
+      </div>
+
+      <!-- Interactive Actions: Start Tutorial, Listen Intro, Skip -->
+      <div class="space-y-2 pt-2">
+        <button type="button" id="btnWelcomeStartTutorial" class="w-full py-3.5 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm shadow-lg shadow-emerald-600/30 transition transform active:scale-95 flex items-center justify-center gap-2" onclick="window.KisanTutorial.startTutorial()">
+          <i data-lucide="play" class="w-5 h-5 fill-current"></i>
+          <span>ట్యుటోరియల్ ప్రారంభించండి</span>
+        </button>
+
+        <div class="flex gap-2">
+          <button type="button" id="btnWelcomeListenIntro" class="flex-1 py-2.5 px-3 rounded-xl border border-emerald-400 font-bold text-xs text-emerald-800 hover:bg-emerald-50 transition flex items-center justify-center gap-1.5 shadow-2xs" onclick="window.KisanTutorial.speakIntro()">
+            <i data-lucide="volume-2" class="w-4 h-4 text-emerald-600"></i>
+            <span>మళ్లీ వినండి</span>
+          </button>
+
+          <button type="button" id="btnWelcomeSkipTutorial" class="flex-1 py-2.5 px-3 rounded-xl border border-gray-300 font-bold text-xs text-gray-600 hover:bg-gray-100 transition shadow-2xs" onclick="window.KisanTutorial.exitTutorial()">
+            <span>దాటవేయండి (స్కిప్)</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PERSISTENT VOICE ASSISTANT BOTTOM SHEET & DIALOG -->
+  <div id="modalVoiceAssistant" class="modal-overlay z-[9980]">
+    <div class="modal-content max-w-lg p-5 sm:p-6 space-y-4 rounded-3xl border-2 border-emerald-400 shadow-2xl bg-white">
+      <!-- Header -->
+      <div class="flex items-center justify-between border-b pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-full bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-700 shadow-inner">
+            <i data-lucide="mic" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-extrabold text-base text-gray-900 leading-tight">KisanSaathi Voice Assistant</h3>
+            <p class="text-[11px] text-gray-500">Natural Speech Navigation in 4 Languages</p>
+          </div>
+        </div>
+        <button type="button" onclick="window.KisanVoiceAssistant.closeAssistantPanel()" class="p-1.5 text-gray-400 hover:text-gray-700 rounded-full hover:bg-gray-100 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Active Language Selection Selector -->
+      <div class="flex items-center gap-1.5 p-1 bg-gray-100 rounded-2xl">
+        <button type="button" class="btn-va-lang flex-1 py-1.5 px-2 rounded-xl text-xs font-bold transition text-center" data-lang="te" onclick="window.KisanVoiceAssistant.setAssistantLanguage('te')">తెలుగు</button>
+        <button type="button" class="btn-va-lang flex-1 py-1.5 px-2 rounded-xl text-xs font-bold transition text-center" data-lang="hi" onclick="window.KisanVoiceAssistant.setAssistantLanguage('hi')">हिंदी</button>
+        <button type="button" class="btn-va-lang flex-1 py-1.5 px-2 rounded-xl text-xs font-bold transition text-center" data-lang="ur" onclick="window.KisanVoiceAssistant.setAssistantLanguage('ur')">اردو</button>
+        <button type="button" class="btn-va-lang flex-1 py-1.5 px-2 rounded-xl text-xs font-bold transition text-center" data-lang="en" onclick="window.KisanVoiceAssistant.setAssistantLanguage('en')">English</button>
+      </div>
+
+      <!-- Central Interactive Microphone -->
+      <div class="text-center py-2 space-y-2">
+        <div class="relative inline-block">
+          <div id="vaSoundWaves" class="hidden absolute -inset-3 rounded-full border-2 border-emerald-400 animate-ping opacity-75 pointer-events-none"></div>
+          <button type="button" id="vaMainMicButton" onclick="window.KisanVoiceAssistant.toggleListening()" class="w-20 h-20 rounded-full bg-gradient-to-tr from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-500 text-white flex items-center justify-center shadow-xl active:scale-95 transition mx-auto border-4 border-emerald-200">
+            <i data-lucide="mic" class="w-9 h-9" id="vaMicIcon"></i>
+          </button>
+        </div>
+        <p id="vaStatusText" class="text-xs font-extrabold text-emerald-900">మాట్లాడటానికి మైక్ నొక్కండి</p>
+      </div>
+
+      <!-- Real-time Speech Transcript Display -->
+      <div class="bg-gray-50 p-3 rounded-2xl border border-gray-200 space-y-1">
+        <div class="flex items-center justify-between text-[10px] text-gray-500 font-bold uppercase tracking-wider">
+          <span>Recognized Speech</span>
+          <span id="vaDetectedLangBadge" class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold">తెలుగు</span>
+        </div>
+        <p id="vaUserTranscript" class="text-sm font-bold text-gray-900 italic">"..."</p>
+      </div>
+
+      <!-- Assistant Spoken Response Display -->
+      <div class="bg-emerald-50/70 p-3 rounded-2xl border border-emerald-200 space-y-1">
+        <div class="flex items-center justify-between text-[10px] text-emerald-800 font-bold uppercase tracking-wider">
+          <span>Assistant Response</span>
+          <div class="flex items-center gap-1">
+            <button type="button" onclick="window.KisanVoiceAssistant.repeatLastResponse()" class="p-1 hover:bg-emerald-200 rounded-md transition text-emerald-800" title="Repeat Voice">
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            </button>
+            <button type="button" id="vaBtnMuteToggle" class="p-1 hover:bg-emerald-200 rounded-md transition text-emerald-800" title="Mute/Unmute">
+              <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+        <p id="vaAssistantResponse" class="text-xs sm:text-sm font-semibold text-emerald-950 leading-relaxed">
+          నమస్కారం! నేను మీ కిసాన్ సాథి వాయిస్ సహాయకుడిని. మీరు మాట్లాడి ఏదైనా ఆదేశం ఇవ్వవచ్చు.
+        </p>
+      </div>
+
+      <!-- 1-Tap Quick Voice Command Suggestions -->
+      <div class="space-y-1.5">
+        <div class="flex items-center justify-between text-[11px] font-bold text-gray-700">
+          <span>1-Tap Suggested Commands:</span>
+          <button type="button" onclick="window.KisanVoiceAssistant.readCurrentPageAloud()" class="text-emerald-700 hover:underline inline-flex items-center gap-1 font-bold">
+            <i data-lucide="volume-2" class="w-3 h-3"></i> Read Page
+          </button>
+        </div>
+        <div id="vaQuickCommandChips" class="grid grid-cols-2 gap-2 max-h-36 overflow-y-auto p-0.5">
+          <!-- Dynamically rendered -->
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Notification Toast -->
   <div id="toastNotification" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white px-4 py-2.5 rounded-full text-xs font-semibold shadow-xl opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-2">
     <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
@@ -3567,5 +3731,7 @@
   <!-- Application Logic Scripts -->
   <script src="assets/js/data.js?v=3.5.0"></script>
   <script src="assets/js/app.js?v=3.5.0"></script>
+  <script src="assets/js/tutorial-engine.js?v=3.5.0"></script>
+  <script src="assets/js/voice-assistant.js?v=3.5.0"></script>
 </body>
 </html>
