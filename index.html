@@ -380,7 +380,7 @@
       <!-- Sign Out Button -->
       <button id="btnSignOutHeader" class="text-xs px-2.5 py-1 bg-red-900/60 hover:bg-red-800 text-red-200 rounded-lg border border-red-700/50 transition flex items-center gap-1">
         <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
-        <span>Logout</span>
+        <span data-i18n="btn_sign_out">Logout</span>
       </button>
     </div>
   </header>
@@ -673,9 +673,10 @@
           <div class="flex items-center justify-between pt-1">
             <h3 class="font-bold text-gray-800 text-sm md:text-base" data-i18n="your_inventory">Your Crop Inventory</h3>
             <div class="flex gap-1 text-xs">
-              <button class="inv-filter-btn px-2.5 py-1 rounded-full bg-purple-600 text-white font-semibold" data-filter="all">All</button>
-              <button class="inv-filter-btn px-2.5 py-1 rounded-full bg-gray-200 text-gray-700" data-filter="grain">Grains</button>
-              <button class="inv-filter-btn px-2.5 py-1 rounded-full bg-gray-200 text-gray-700" data-filter="fruit">Fruits</button>
+              <button class="inv-filter-btn px-2.5 py-1 rounded-full bg-purple-600 text-white font-semibold" data-filter="all" data-i18n="filter_all">All</button>
+              <button class="inv-filter-btn px-2.5 py-1 rounded-full bg-gray-200 text-gray-700" data-filter="grain" data-i18n="filter_grain_produce">Grains</button>
+              <button class="inv-filter-btn px-2.5 py-1 rounded-full bg-gray-200 text-gray-700" data-filter="fruit" data-i18n="filter_fruit_produce">Fruits</button>
+              <button class="inv-filter-btn px-2.5 py-1 rounded-full bg-gray-200 text-gray-700" data-filter="vegetable" data-i18n="filter_veg_produce">Vegetables</button>
             </div>
           </div>
 
@@ -929,9 +930,9 @@
                   <span class="p-1.5 bg-white/10 rounded-xl text-cyan-300">
                     <i data-lucide="trending-up" class="w-5 h-5"></i>
                   </span>
-                  <h2 class="text-lg font-bold">Telangana Daily Market Prices</h2>
+                  <h2 class="text-lg font-bold" data-i18n="market_dashboard_title">Telangana Daily Market Prices</h2>
                 </div>
-                <p class="text-xs text-purple-200 mt-1">
+                <p class="text-xs text-purple-200 mt-1" data-i18n="market_dashboard_sub">
                   రోజువారీ మార్కెట్ ధరలు • Real-time Wholesale Mandi Benchmarks & Retail Trends
                 </p>
               </div>
@@ -941,7 +942,7 @@
                 </span>
                 <button type="button" id="btnRefreshMarketDashboard" class="px-3 py-1.5 bg-cyan-500 hover:bg-cyan-600 active:scale-95 text-white text-xs font-bold rounded-xl shadow transition flex items-center gap-1.5">
                   <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-                  <span>Refresh</span>
+                  <span data-i18n="refresh_prices">Refresh</span>
                 </button>
               </div>
             </div>
@@ -987,18 +988,18 @@
           <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-xs space-y-3">
             <div class="relative">
               <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-3"></i>
-              <input type="text" id="inputMarketSearch" placeholder="Search produce (e.g. Tomato, Onion, Paddy, Arhar, Mango)..." class="w-full pl-9 pr-8 py-2 border rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none" />
+              <input type="text" id="inputMarketSearch" placeholder="Search produce (e.g. Tomato, Onion, Paddy, Arhar, Mango)..." data-i18n-placeholder="search_produce_placeholder" class="w-full pl-9 pr-8 py-2 border rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none" />
               <button type="button" id="btnClearMarketSearch" class="hidden absolute right-3 top-2.5 text-xs text-gray-400 hover:text-gray-600 font-bold">✕</button>
             </div>
 
             <!-- Filter Pills -->
             <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 text-xs" id="marketCategoryPills">
-              <button type="button" class="mkt-cat-pill active px-3 py-1.5 rounded-xl font-bold bg-purple-700 text-white shadow-xs shrink-0" data-cat="all">All Produce</button>
-              <button type="button" class="mkt-cat-pill px-3 py-1.5 rounded-xl font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 shrink-0" data-cat="vegetable">🥦 Vegetables</button>
-              <button type="button" class="mkt-cat-pill px-3 py-1.5 rounded-xl font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 shrink-0" data-cat="fruit">🍎 Fruits</button>
-              <button type="button" class="mkt-cat-pill px-3 py-1.5 rounded-xl font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 shrink-0" data-cat="grain">🌾 Grains & Cereals</button>
-              <button type="button" class="mkt-cat-pill px-3 py-1.5 rounded-xl font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 shrink-0" data-cat="pulse">🥣 Pulses & Legumes</button>
-              <button type="button" class="mkt-cat-pill px-3 py-1.5 rounded-xl font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 shrink-0" data-cat="commercial">🌿 Commercial / Spices</button>
+              <button type="button" class="mkt-cat-pill active px-3 py-1.5 rounded-xl font-bold bg-purple-700 text-white shadow-xs shrink-0" data-cat="all" data-i18n="filter_all_produce">All Produce</button>
+              <button type="button" class="mkt-cat-pill px-3 py-1.5 rounded-xl font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 shrink-0" data-cat="vegetable" data-i18n="filter_veg_produce">🥦 Vegetables</button>
+              <button type="button" class="mkt-cat-pill px-3 py-1.5 rounded-xl font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 shrink-0" data-cat="fruit" data-i18n="filter_fruit_produce">🍎 Fruits</button>
+              <button type="button" class="mkt-cat-pill px-3 py-1.5 rounded-xl font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 shrink-0" data-cat="grain" data-i18n="filter_grain_produce">🌾 Grains & Cereals</button>
+              <button type="button" class="mkt-cat-pill px-3 py-1.5 rounded-xl font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 shrink-0" data-cat="pulse" data-i18n="filter_pulse_produce">🥣 Pulses & Legumes</button>
+              <button type="button" class="mkt-cat-pill px-3 py-1.5 rounded-xl font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 shrink-0" data-cat="commercial" data-i18n="filter_commercial_produce">🌿 Commercial / Spices</button>
             </div>
           </div>
 
@@ -2524,7 +2525,7 @@
           </button>
           <button class="nav-item" data-navigate="market-dashboard">
             <i data-lucide="trending-up" class="w-5 h-5 mb-0.5"></i>
-            <span>Market</span>
+            <span data-i18n="title_market">Market</span>
           </button>
           <button class="nav-item" data-navigate="orders">
             <i data-lucide="truck" class="w-5 h-5 mb-0.5"></i>

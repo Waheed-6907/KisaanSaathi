@@ -40,7 +40,8 @@
         "agmarknetId": "MANGO"
       },
       "mspInrPerQuintal": null,
-      "description": "King of fruits in Telangana, prime harvest April-June across Jagtial, Warangal and Khammam."
+      "description": "King of fruits in Telangana, prime harvest April-June across Jagtial, Warangal and Khammam.",
+      "urduName": "آم"
     },
     {
       "id": "FRUIT_SWEET_ORANGE_MOSAMBI",
@@ -70,7 +71,8 @@
         "agmarknetId": "MOSAMBI"
       },
       "mspInrPerQuintal": null,
-      "description": "Major commercial citrus in Nalgonda and Suryapet districts, rich in vitamin C."
+      "description": "Major commercial citrus in Nalgonda and Suryapet districts, rich in vitamin C.",
+      "urduName": "موسمی / میٹھا سنگترہ"
     },
     {
       "id": "FRUIT_ACID_LIME",
@@ -101,7 +103,8 @@
         "agmarknetId": "LIME"
       },
       "mspInrPerQuintal": null,
-      "description": "Small round high-acid citrus fruit, heavily cultivated across Mahabubnagar and Nalgonda."
+      "description": "Small round high-acid citrus fruit, heavily cultivated across Mahabubnagar and Nalgonda.",
+      "urduName": "کاغذی لیموں"
     },
     {
       "id": "FRUIT_LEMON",
@@ -131,7 +134,8 @@
         "agmarknetId": "LEMON"
       },
       "mspInrPerQuintal": null,
-      "description": "Larger oblong lemon distinct from small acid lime, grown for table juice and food service."
+      "description": "Larger oblong lemon distinct from small acid lime, grown for table juice and food service.",
+      "urduName": "بڑا لیموں (یوریکا)"
     },
     {
       "id": "FRUIT_GUAVA",
@@ -163,7 +167,8 @@
         "agmarknetId": "GUAVA"
       },
       "mspInrPerQuintal": null,
-      "description": "Hardy fruit rich in dietary fiber and vitamin C, popular throughout Rangareddy and Medak."
+      "description": "Hardy fruit rich in dietary fiber and vitamin C, popular throughout Rangareddy and Medak.",
+      "urduName": "امرود"
     },
     {
       "id": "FRUIT_PAPAYA",
@@ -193,7 +198,8 @@
         "agmarknetId": "PAPAYA"
       },
       "mspInrPerQuintal": null,
-      "description": "Tropical melon-like fruit grown round the year under drip irrigation in Telangana."
+      "description": "Tropical melon-like fruit grown round the year under drip irrigation in Telangana.",
+      "urduName": "پپیتا"
     },
     {
       "id": "FRUIT_BANANA",
@@ -226,7 +232,8 @@
         "agmarknetId": "BANANA"
       },
       "mspInrPerQuintal": null,
-      "description": "Staple fruit crop harvested continuously, transported via reefer networks to Hyderabad."
+      "description": "Staple fruit crop harvested continuously, transported via reefer networks to Hyderabad.",
+      "urduName": "کیلا"
     },
     {
       "id": "FRUIT_POMEGRANATE",
@@ -256,7 +263,8 @@
         "agmarknetId": "POMEGRANATE"
       },
       "mspInrPerQuintal": null,
-      "description": "High-value drought-tolerant fruit with deep red arils, grown in semi-arid zones."
+      "description": "High-value drought-tolerant fruit with deep red arils, grown in semi-arid zones.",
+      "urduName": "انار"
     },
     {
       "id": "FRUIT_GRAPES",
@@ -288,7 +296,8 @@
         "agmarknetId": "GRAPES"
       },
       "mspInrPerQuintal": null,
-      "description": "Famous Hyderabad grape belt produce, noted for sweet berry bunches and bower training."
+      "description": "Famous Hyderabad grape belt produce, noted for sweet berry bunches and bower training.",
+      "urduName": "انگور"
     },
     {
       "id": "FRUIT_SAPOTA",
@@ -318,7 +327,8 @@
         "agmarknetId": "SAPOTA"
       },
       "mspInrPerQuintal": null,
-      "description": "Sweet brownish gritty flesh fruit, prolific in Nizamabad and Rangareddy red loamy soils."
+      "description": "Sweet brownish gritty flesh fruit, prolific in Nizamabad and Rangareddy red loamy soils.",
+      "urduName": "چیکو"
     },
     {
       "id": "FRUIT_WATERMELON",
@@ -349,7 +359,8 @@
         "agmarknetId": "WATERMELON"
       },
       "mspInrPerQuintal": null,
-      "description": "Summer vine fruit with high water content, cultivated along riverbeds and drip farms."
+      "description": "Summer vine fruit with high water content, cultivated along riverbeds and drip farms.",
+      "urduName": "تربوز"
     },
     {
       "id": "FRUIT_MUSKMELON",
@@ -379,7 +390,8 @@
         "agmarknetId": "MUSKMELON"
       },
       "mspInrPerQuintal": null,
-      "description": "Aromatic netted rind melon with sweet pale orange flesh, grown widely in rabi/summer."
+      "description": "Aromatic netted rind melon with sweet pale orange flesh, grown widely in rabi/summer.",
+      "urduName": "خربوزہ"
     },
     {
       "id": "FRUIT_CUSTARD_APPLE",
@@ -409,7 +421,8 @@
         "agmarknetId": "CUSTARD_APPLE"
       },
       "mspInrPerQuintal": null,
-      "description": "Telangana GI-associated native fruit, harvested from Balanagar and Mahabubnagar wild & cultivated tracts."
+      "description": "Telangana GI-associated native fruit, harvested from Balanagar and Mahabubnagar wild & cultivated tracts.",
+      "urduName": "شریفہ (سیتا پھل)"
     },
     {
       "id": "FRUIT_AMLA",
@@ -441,7 +454,8 @@
         "agmarknetId": "AMLA"
       },
       "mspInrPerQuintal": null,
-      "description": "Ayurvedic fruit rich in ascorbic acid, grown in dry agro-ecological zones of Telangana."
+      "description": "Ayurvedic fruit rich in ascorbic acid, grown in dry agro-ecological zones of Telangana.",
+      "urduName": "آملہ"
     },
     {
       "id": "FRUIT_BER",
@@ -474,7 +488,8 @@
         "agmarknetId": "BER"
       },
       "mspInrPerQuintal": null,
-      "description": "Hardy dryland arid fruit with crisp sweet-tart flesh, popular in local rural markets."
+      "description": "Hardy dryland arid fruit with crisp sweet-tart flesh, popular in local rural markets.",
+      "urduName": "بیر"
     },
     {
       "id": "FRUIT_APPLE",
@@ -505,7 +520,8 @@
         "agmarknetId": "APPLE"
       },
       "mspInrPerQuintal": null,
-      "description": "Temperate fruit traded in huge volumes at Bowenpally & Gaddiannaram wholesale terminal yards."
+      "description": "Temperate fruit traded in huge volumes at Bowenpally & Gaddiannaram wholesale terminal yards.",
+      "urduName": "سیب"
     },
     {
       "id": "FRUIT_PINEAPPLE",
@@ -535,7 +551,8 @@
         "agmarknetId": "PINEAPPLE"
       },
       "mspInrPerQuintal": null,
-      "description": "Tropical spiny composite fruit traded widely in wholesale crates across mandi hubs."
+      "description": "Tropical spiny composite fruit traded widely in wholesale crates across mandi hubs.",
+      "urduName": "انناس"
     },
     {
       "id": "FRUIT_DRAGON_FRUIT",
@@ -564,7 +581,8 @@
         "agmarknetId": "DRAGON_FRUIT"
       },
       "mspInrPerQuintal": null,
-      "description": "High-value climbing cactus crop expanding rapidly in Siddipet, Medak and Vikarabad."
+      "description": "High-value climbing cactus crop expanding rapidly in Siddipet, Medak and Vikarabad.",
+      "urduName": "ڈریگن فروٹ"
     },
     {
       "id": "FRUIT_JACKFRUIT",
@@ -594,7 +612,8 @@
         "agmarknetId": "JACKFRUIT"
       },
       "mspInrPerQuintal": null,
-      "description": "Largest tree-borne fruit, sold both unripe as vegetable and ripe as sweet honey bulb dessert."
+      "description": "Largest tree-borne fruit, sold both unripe as vegetable and ripe as sweet honey bulb dessert.",
+      "urduName": "کٹہل"
     },
     {
       "id": "FRUIT_PEAR",
@@ -624,7 +643,8 @@
         "agmarknetId": "PEAR"
       },
       "mspInrPerQuintal": null,
-      "description": "Crisp bell-shaped fruit traded across interstate wholesale freight channels."
+      "description": "Crisp bell-shaped fruit traded across interstate wholesale freight channels.",
+      "urduName": "ناشپاتی"
     },
     {
       "id": "FRUIT_SWEET_MELON",
@@ -652,7 +672,8 @@
         "agmarknetId": "SWEET_MELON"
       },
       "mspInrPerQuintal": null,
-      "description": "Distinct sweet round cantaloupe melon grown for commercial juice and salad bars."
+      "description": "Distinct sweet round cantaloupe melon grown for commercial juice and salad bars.",
+      "urduName": "گرما (میٹھا خربوزہ)"
     },
     {
       "id": "FRUIT_STRAWBERRY",
@@ -680,7 +701,8 @@
         "agmarknetId": "STRAWBERRY"
       },
       "mspInrPerQuintal": null,
-      "description": "High-margin berry grown in polyhouses near Hyderabad urban periphery."
+      "description": "High-margin berry grown in polyhouses near Hyderabad urban periphery.",
+      "urduName": "اسٹرابیری"
     },
     {
       "id": "FRUIT_COCONUT",
@@ -710,7 +732,8 @@
         "agmarknetId": "COCONUT"
       },
       "mspInrPerQuintal": null,
-      "description": "Essential agricultural commodity produced in river canal belts and traded statewide."
+      "description": "Essential agricultural commodity produced in river canal belts and traded statewide.",
+      "urduName": "ناریل"
     },
     {
       "id": "FRUIT_DATES",
@@ -739,7 +762,8 @@
         "agmarknetId": "DATES"
       },
       "mspInrPerQuintal": null,
-      "description": "Desert palm fruit grown in trial arid pockets and traded in bulk wholesale mandi boxes."
+      "description": "Desert palm fruit grown in trial arid pockets and traded in bulk wholesale mandi boxes.",
+      "urduName": "کھجور"
     },
     {
       "id": "FRUIT_SWEET_TAMARIND",
@@ -767,7 +791,8 @@
         "agmarknetId": "SWEET_TAMARIND"
       },
       "mspInrPerQuintal": null,
-      "description": "Specialty legume-fruit with sweet pulpy pods eaten fresh as dessert."
+      "description": "Specialty legume-fruit with sweet pulpy pods eaten fresh as dessert.",
+      "urduName": "میٹھی املی"
     },
     {
       "id": "FRUIT_JAMUN",
@@ -796,7 +821,8 @@
         "agmarknetId": "JAMUN"
       },
       "mspInrPerQuintal": null,
-      "description": "Deep purple anti-diabetic seasonal fruit harvested from forest fringes and orchards."
+      "description": "Deep purple anti-diabetic seasonal fruit harvested from forest fringes and orchards.",
+      "urduName": "جامن"
     },
     {
       "id": "FRUIT_FIG",
@@ -825,7 +851,8 @@
         "agmarknetId": "FIG"
       },
       "mspInrPerQuintal": null,
-      "description": "Subtropical bell-shaped fruit with sweet honey-like seeded pulp."
+      "description": "Subtropical bell-shaped fruit with sweet honey-like seeded pulp.",
+      "urduName": "انجیر"
     },
     {
       "id": "FRUIT_KIWI",
@@ -854,7 +881,8 @@
         "agmarknetId": "KIWI"
       },
       "mspInrPerQuintal": null,
-      "description": "Fuzzy brown oval fruit with emerald green flesh and black seeds, prominent in wholesale trade."
+      "description": "Fuzzy brown oval fruit with emerald green flesh and black seeds, prominent in wholesale trade.",
+      "urduName": "کیوی"
     },
     {
       "id": "FRUIT_ORANGE_MANDARIN",
@@ -884,7 +912,8 @@
         "agmarknetId": "MANDARIN_ORANGE"
       },
       "mspInrPerQuintal": null,
-      "description": "Loose-skinned bright orange citrus fruit distinct from tight-skinned Mosambi."
+      "description": "Loose-skinned bright orange citrus fruit distinct from tight-skinned Mosambi.",
+      "urduName": "سنگترہ / کینو"
     },
     {
       "id": "FRUIT_WOOD_APPLE",
@@ -915,7 +944,8 @@
         "agmarknetId": "BAEL"
       },
       "mspInrPerQuintal": null,
-      "description": "Hard woody shelled sacred fruit with aromatic sticky brown medicinal pulp."
+      "description": "Hard woody shelled sacred fruit with aromatic sticky brown medicinal pulp.",
+      "urduName": "بیل پھل"
     },
     {
       "id": "VEG_TOMATO",
@@ -946,7 +976,8 @@
         "agmarknetId": "TOMATO"
       },
       "mspInrPerQuintal": null,
-      "description": "Foremost commercial vegetable in Telangana, benchmarked daily at Bowenpally and Madanapalle."
+      "description": "Foremost commercial vegetable in Telangana, benchmarked daily at Bowenpally and Madanapalle.",
+      "urduName": "ٹماٹر"
     },
     {
       "id": "VEG_ONION",
@@ -978,7 +1009,8 @@
         "agmarknetId": "ONION"
       },
       "mspInrPerQuintal": null,
-      "description": "Essential staple vegetable bulb with major wholesale arrivals in Malakpet and Bowenpally."
+      "description": "Essential staple vegetable bulb with major wholesale arrivals in Malakpet and Bowenpally.",
+      "urduName": "پیاز"
     },
     {
       "id": "VEG_POTATO",
@@ -1008,7 +1040,8 @@
         "agmarknetId": "POTATO"
       },
       "mspInrPerQuintal": null,
-      "description": "Underground tuber crop with massive year-round cold storage volume across Telangana."
+      "description": "Underground tuber crop with massive year-round cold storage volume across Telangana.",
+      "urduName": "آلو"
     },
     {
       "id": "VEG_BRINJAL",
@@ -1039,7 +1072,8 @@
         "agmarknetId": "BRINJAL"
       },
       "mspInrPerQuintal": null,
-      "description": "Quintessential southern vegetable grown in purple striped, green and round cultivars."
+      "description": "Quintessential southern vegetable grown in purple striped, green and round cultivars.",
+      "urduName": "بینگن"
     },
     {
       "id": "VEG_OKRA",
@@ -1070,7 +1104,8 @@
         "agmarknetId": "BHINDI"
       },
       "mspInrPerQuintal": null,
-      "description": "Mucilaginous green pod crop cultivated extensively under warm Telangana climate."
+      "description": "Mucilaginous green pod crop cultivated extensively under warm Telangana climate.",
+      "urduName": "بھنڈی"
     },
     {
       "id": "VEG_GREEN_CHILLI",
@@ -1101,7 +1136,8 @@
         "agmarknetId": "GREEN_CHILLI"
       },
       "mspInrPerQuintal": null,
-      "description": "Pungent vegetable pods essential in every Indian kitchen, major crop in Armoor and Warangal."
+      "description": "Pungent vegetable pods essential in every Indian kitchen, major crop in Armoor and Warangal.",
+      "urduName": "ہری مرچ"
     },
     {
       "id": "VEG_CAPSICUM",
@@ -1130,7 +1166,8 @@
         "agmarknetId": "CAPSICUM"
       },
       "mspInrPerQuintal": null,
-      "description": "Mild thick-walled pepper grown in polyhouses and open fields in Medak and Shamshabad."
+      "description": "Mild thick-walled pepper grown in polyhouses and open fields in Medak and Shamshabad.",
+      "urduName": "شملہ مرچ"
     },
     {
       "id": "VEG_CABBAGE",
@@ -1158,7 +1195,8 @@
         "agmarknetId": "CABBAGE"
       },
       "mspInrPerQuintal": null,
-      "description": "Dense leafy head cruciferous vegetable traded year-round in bulk mandi sacks."
+      "description": "Dense leafy head cruciferous vegetable traded year-round in bulk mandi sacks.",
+      "urduName": "بند گوبھی"
     },
     {
       "id": "VEG_CAULIFLOWER",
@@ -1187,7 +1225,8 @@
         "agmarknetId": "CAULIFLOWER"
       },
       "mspInrPerQuintal": null,
-      "description": "Compact white curd vegetable harvested during cooler months across Rangareddy."
+      "description": "Compact white curd vegetable harvested during cooler months across Rangareddy.",
+      "urduName": "پھول گوبھی"
     },
     {
       "id": "VEG_CARROT",
@@ -1215,7 +1254,8 @@
         "agmarknetId": "CARROT"
       },
       "mspInrPerQuintal": null,
-      "description": "Taproot vegetable rich in beta-carotene, sold washed in 50kg bags at mandis."
+      "description": "Taproot vegetable rich in beta-carotene, sold washed in 50kg bags at mandis.",
+      "urduName": "گاجر"
     },
     {
       "id": "VEG_BEETROOT",
@@ -1241,7 +1281,8 @@
         "agmarknetId": "BEETROOT"
       },
       "mspInrPerQuintal": null,
-      "description": "Deep red round root vegetable grown in rabi seasons."
+      "description": "Deep red round root vegetable grown in rabi seasons.",
+      "urduName": "چقندر"
     },
     {
       "id": "VEG_RADISH",
@@ -1270,7 +1311,8 @@
         "agmarknetId": "RADISH"
       },
       "mspInrPerQuintal": null,
-      "description": "Pungent white root harvested within 40-50 days of sowing."
+      "description": "Pungent white root harvested within 40-50 days of sowing.",
+      "urduName": "مولی"
     },
     {
       "id": "VEG_CUCUMBER",
@@ -1300,7 +1342,8 @@
         "agmarknetId": "CUCUMBER"
       },
       "mspInrPerQuintal": null,
-      "description": "Cooling vine crop, includes salad keera and traditional yellow culinary dosakaya."
+      "description": "Cooling vine crop, includes salad keera and traditional yellow culinary dosakaya.",
+      "urduName": "کھیرا"
     },
     {
       "id": "VEG_BOTTLE_GOURD",
@@ -1330,7 +1373,8 @@
         "agmarknetId": "BOTTLE_GOURD"
       },
       "mspInrPerQuintal": null,
-      "description": "Cylindrical light green cucurbit, highly demanded across Hyderabad canteens."
+      "description": "Cylindrical light green cucurbit, highly demanded across Hyderabad canteens.",
+      "urduName": "لوکی"
     },
     {
       "id": "VEG_RIDGE_GOURD",
@@ -1359,7 +1403,8 @@
         "agmarknetId": "RIDGE_GOURD"
       },
       "mspInrPerQuintal": null,
-      "description": "Dark green ribbed gourd grown on pandals and trellises across rural Telangana."
+      "description": "Dark green ribbed gourd grown on pandals and trellises across rural Telangana.",
+      "urduName": "تورئی"
     },
     {
       "id": "VEG_BITTER_GOURD",
@@ -1388,7 +1433,8 @@
         "agmarknetId": "BITTER_GOURD"
       },
       "mspInrPerQuintal": null,
-      "description": "Warty bitter cucurbit widely consumed for blood-sugar regulating properties."
+      "description": "Warty bitter cucurbit widely consumed for blood-sugar regulating properties.",
+      "urduName": "کریلا"
     },
     {
       "id": "VEG_SNAKE_GOURD",
@@ -1416,7 +1462,8 @@
         "agmarknetId": "SNAKE_GOURD"
       },
       "mspInrPerQuintal": null,
-      "description": "Elongated striped gourd with delicate white flesh, grown in trellis gardens."
+      "description": "Elongated striped gourd with delicate white flesh, grown in trellis gardens.",
+      "urduName": "چچنڈا"
     },
     {
       "id": "VEG_SPONGE_GOURD",
@@ -1444,7 +1491,8 @@
         "agmarknetId": "SPONGE_GOURD"
       },
       "mspInrPerQuintal": null,
-      "description": "Smooth cylindrical gourd tender inside, distinct from ribbed ridge gourd."
+      "description": "Smooth cylindrical gourd tender inside, distinct from ribbed ridge gourd.",
+      "urduName": "گلکی"
     },
     {
       "id": "VEG_ASH_GOURD",
@@ -1473,7 +1521,8 @@
         "agmarknetId": "ASH_GOURD"
       },
       "mspInrPerQuintal": null,
-      "description": "Waxy white-powder coated large melon with exceptional storage life."
+      "description": "Waxy white-powder coated large melon with exceptional storage life.",
+      "urduName": "سفید پیٹھا"
     },
     {
       "id": "VEG_PUMPKIN",
@@ -1502,7 +1551,8 @@
         "agmarknetId": "PUMPKIN"
       },
       "mspInrPerQuintal": null,
-      "description": "Orange-fleshed ribbed winter squash grown in river basin soils."
+      "description": "Orange-fleshed ribbed winter squash grown in river basin soils.",
+      "urduName": "کدو"
     },
     {
       "id": "VEG_DRUMSTICK",
@@ -1532,7 +1582,8 @@
         "agmarknetId": "DRUMSTICK"
       },
       "mspInrPerQuintal": null,
-      "description": "Long nutrient-rich moringa seed pods, key ingredient in traditional sambar."
+      "description": "Long nutrient-rich moringa seed pods, key ingredient in traditional sambar.",
+      "urduName": "سہجن کی پھلیاں (منگا)"
     },
     {
       "id": "VEG_FRENCH_BEANS",
@@ -1560,7 +1611,8 @@
         "agmarknetId": "FRENCH_BEANS"
       },
       "mspInrPerQuintal": null,
-      "description": "Slender tender green pods grown on bush and pole supports."
+      "description": "Slender tender green pods grown on bush and pole supports.",
+      "urduName": "فرانسیسی پھلیاں"
     },
     {
       "id": "VEG_GREEN_PEAS",
@@ -1590,7 +1642,8 @@
         "agmarknetId": "GREEN_PEAS"
       },
       "mspInrPerQuintal": null,
-      "description": "Sweet green pod seeds in high demand in winter and processing industries."
+      "description": "Sweet green pod seeds in high demand in winter and processing industries.",
+      "urduName": "ہری مٹر"
     },
     {
       "id": "VEG_CLUSTER_BEANS",
@@ -1619,7 +1672,8 @@
         "agmarknetId": "CLUSTER_BEANS"
       },
       "mspInrPerQuintal": null,
-      "description": "Sturdy drought-tolerant legume pods grown for table vegetable and guar gum."
+      "description": "Sturdy drought-tolerant legume pods grown for table vegetable and guar gum.",
+      "urduName": "گوار پھلی"
     },
     {
       "id": "VEG_BROAD_BEANS",
@@ -1648,7 +1702,8 @@
         "agmarknetId": "BROAD_BEANS"
       },
       "mspInrPerQuintal": null,
-      "description": "Flat textured winter bean pods beloved in Telangana sankranti festive cuisine."
+      "description": "Flat textured winter bean pods beloved in Telangana sankranti festive cuisine.",
+      "urduName": "سیم کی پھلیاں"
     },
     {
       "id": "VEG_SPINACH",
@@ -1677,7 +1732,8 @@
         "agmarknetId": "SPINACH"
       },
       "mspInrPerQuintal": null,
-      "description": "Major leafy vegetable packed with iron and calcium, harvested daily in suburban peri-urban tracts."
+      "description": "Major leafy vegetable packed with iron and calcium, harvested daily in suburban peri-urban tracts.",
+      "urduName": "پالک"
     },
     {
       "id": "VEG_AMARANTH_LEAVES",
@@ -1707,7 +1763,8 @@
         "agmarknetId": "AMARANTH_LEAVES"
       },
       "mspInrPerQuintal": null,
-      "description": "Telangana household staple green leafy vegetable grown rapidly under sunny climate."
+      "description": "Telangana household staple green leafy vegetable grown rapidly under sunny climate.",
+      "urduName": "چولائی کا ساگ"
     },
     {
       "id": "VEG_CORIANDER_LEAVES",
@@ -1737,7 +1794,8 @@
         "agmarknetId": "CORIANDER_LEAVES"
       },
       "mspInrPerQuintal": null,
-      "description": "Aromatic garnish herb traded daily in bundled bunches across all rythu bazars."
+      "description": "Aromatic garnish herb traded daily in bundled bunches across all rythu bazars.",
+      "urduName": "ہرا دھنیا"
     },
     {
       "id": "VEG_FENUGREEK_LEAVES",
@@ -1766,7 +1824,8 @@
         "agmarknetId": "METHI_LEAVES"
       },
       "mspInrPerQuintal": null,
-      "description": "Nutritious bittersweet greens harvested young for dal and paratha cooking."
+      "description": "Nutritious bittersweet greens harvested young for dal and paratha cooking.",
+      "urduName": "میتھی کا ساگ"
     },
     {
       "id": "VEG_SWEET_CORN",
@@ -1795,7 +1854,8 @@
         "agmarknetId": "SWEET_CORN"
       },
       "mspInrPerQuintal": null,
-      "description": "Succulent tender cobs traded fresh as vegetable, distinct from mature grain maize."
+      "description": "Succulent tender cobs traded fresh as vegetable, distinct from mature grain maize.",
+      "urduName": "میٹھی مکئی"
     },
     {
       "id": "GRAIN_PADDY_GENERIC",
@@ -1826,7 +1886,8 @@
         "agmarknetId": "PADDY_COMMON"
       },
       "mspInrPerQuintal": 2300,
-      "description": "Benchmark common paddy grade traded under GoI MSP procurement in all Telangana PACs."
+      "description": "Benchmark common paddy grade traded under GoI MSP procurement in all Telangana PACs.",
+      "urduName": "دھان (عام قسم)"
     },
     {
       "id": "GRAIN_PADDY_TELANGANA_SONA",
@@ -1853,7 +1914,8 @@
         "agmarknetId": "PADDY_TELANGANA_SONA"
       },
       "mspInrPerQuintal": 2320,
-      "description": "Flagship Telangana PJTSAU low-GI super fine rice variety with premium market realization."
+      "description": "Flagship Telangana PJTSAU low-GI super fine rice variety with premium market realization.",
+      "urduName": "تلنگانہ سونا دھان (RNR 15048)"
     },
     {
       "id": "GRAIN_PADDY_BPT_5204",
@@ -1879,7 +1941,8 @@
         "agmarknetId": "PADDY_BPT_5204"
       },
       "mspInrPerQuintal": 2320,
-      "description": "Standard premium fine grain paddy prized for table rice cooking quality."
+      "description": "Standard premium fine grain paddy prized for table rice cooking quality.",
+      "urduName": "سونا مسوری دھان (BPT 5204)"
     },
     {
       "id": "GRAIN_PADDY_MTU_1010",
@@ -1904,7 +1967,8 @@
         "agmarknetId": "PADDY_MTU_1010"
       },
       "mspInrPerQuintal": 2300,
-      "description": "Short duration rabi paddy high yielding variety widespread in Karimnagar and Warangal."
+      "description": "Short duration rabi paddy high yielding variety widespread in Karimnagar and Warangal.",
+      "urduName": "ایم ٹی یو 1010 دھان"
     },
     {
       "id": "GRAIN_PADDY_JAGTIAL_SANNALU",
@@ -1929,7 +1993,8 @@
         "agmarknetId": "PADDY_JGL_1798"
       },
       "mspInrPerQuintal": 2320,
-      "description": "Blast-resistant fine grain variety bred specifically at Regional Agricultural Research Station, Jagtial."
+      "description": "Blast-resistant fine grain variety bred specifically at Regional Agricultural Research Station, Jagtial.",
+      "urduName": "جگتیال سنالو دھان (JGL 1798)"
     },
     {
       "id": "GRAIN_WHEAT",
@@ -1959,7 +2024,8 @@
         "agmarknetId": "WHEAT"
       },
       "mspInrPerQuintal": 2425,
-      "description": "Major cereal grain traded in huge lots in Bowenpally & Nizamabad yards."
+      "description": "Major cereal grain traded in huge lots in Bowenpally & Nizamabad yards.",
+      "urduName": "گندم"
     },
     {
       "id": "GRAIN_MAIZE",
@@ -1989,7 +2055,8 @@
         "agmarknetId": "MAIZE"
       },
       "mspInrPerQuintal": 2225,
-      "description": "Principal feed and starch cereal traded heavily at Badepally and Nizamabad mandis."
+      "description": "Principal feed and starch cereal traded heavily at Badepally and Nizamabad mandis.",
+      "urduName": "مکئی"
     },
     {
       "id": "GRAIN_JOWAR",
@@ -2019,7 +2086,8 @@
         "agmarknetId": "JOWAR"
       },
       "mspInrPerQuintal": 3371,
-      "description": "Drought hardy staple coarse cereal cultivated across Adilabad and Mahabubnagar drylands."
+      "description": "Drought hardy staple coarse cereal cultivated across Adilabad and Mahabubnagar drylands.",
+      "urduName": "جوار"
     },
     {
       "id": "GRAIN_BAJRA",
@@ -2047,7 +2115,8 @@
         "agmarknetId": "BAJRA"
       },
       "mspInrPerQuintal": 2625,
-      "description": "Nutritious drought resilient grain with high iron content grown in dry sandy loams."
+      "description": "Nutritious drought resilient grain with high iron content grown in dry sandy loams.",
+      "urduName": "باجرہ"
     },
     {
       "id": "GRAIN_RAGI",
@@ -2077,7 +2146,8 @@
         "agmarknetId": "RAGI"
       },
       "mspInrPerQuintal": 4290,
-      "description": "Calcium-dense nutritious Shree Anna millet prominent in healthy diets and weaning foods."
+      "description": "Calcium-dense nutritious Shree Anna millet prominent in healthy diets and weaning foods.",
+      "urduName": "راگی"
     },
     {
       "id": "GRAIN_FOXTAIL_MILLET",
@@ -2106,7 +2176,8 @@
         "agmarknetId": "FOXTAIL_MILLET"
       },
       "mspInrPerQuintal": 3500,
-      "description": "Popular low glycemic traditional small millet with rich golden seed coats."
+      "description": "Popular low glycemic traditional small millet with rich golden seed coats.",
+      "urduName": "کنگنی باجرہ (کورالو)"
     },
     {
       "id": "GRAIN_LITTLE_MILLET",
@@ -2135,7 +2206,8 @@
         "agmarknetId": "LITTLE_MILLET"
       },
       "mspInrPerQuintal": 3400,
-      "description": "Fast-maturing drought escaping indigenous millet grown in tribal and rainfed belts."
+      "description": "Fast-maturing drought escaping indigenous millet grown in tribal and rainfed belts.",
+      "urduName": "کٹکی باجرہ (سامالو)"
     },
     {
       "id": "GRAIN_KODO_MILLET",
@@ -2163,7 +2235,8 @@
         "agmarknetId": "KODO_MILLET"
       },
       "mspInrPerQuintal": 3600,
-      "description": "Hardy high-fiber millet grain with exceptional anti-diabetic dietary qualities."
+      "description": "Hardy high-fiber millet grain with exceptional anti-diabetic dietary qualities.",
+      "urduName": "کودو باجرہ (اریکیلو)"
     },
     {
       "id": "GRAIN_BARNYARD_MILLET",
@@ -2192,7 +2265,8 @@
         "agmarknetId": "BARNYARD_MILLET"
       },
       "mspInrPerQuintal": 3500,
-      "description": "Quick growing cereal grain commonly consumed during fasting and as prebiotic fiber."
+      "description": "Quick growing cereal grain commonly consumed during fasting and as prebiotic fiber.",
+      "urduName": "سانواں باجرہ (اودالو)"
     },
     {
       "id": "GRAIN_PROSO_MILLET",
@@ -2221,7 +2295,8 @@
         "agmarknetId": "PROSO_MILLET"
       },
       "mspInrPerQuintal": 3400,
-      "description": "Smooth shiny golden millet grain with the lowest water footprint among cereals."
+      "description": "Smooth shiny golden millet grain with the lowest water footprint among cereals.",
+      "urduName": "چینا باجرہ (وریگالو)"
     },
     {
       "id": "GRAIN_RED_GRAM",
@@ -2252,7 +2327,8 @@
         "agmarknetId": "RED_GRAM"
       },
       "mspInrPerQuintal": 7550,
-      "description": "Primary pulse crop with GI-tagged Tandur red gram, traded heavily in Vikarabad and Tandur."
+      "description": "Primary pulse crop with GI-tagged Tandur red gram, traded heavily in Vikarabad and Tandur.",
+      "urduName": "ارہر دال / توار (لال چنا)"
     },
     {
       "id": "GRAIN_GREEN_GRAM",
@@ -2282,7 +2358,8 @@
         "agmarknetId": "GREEN_GRAM"
       },
       "mspInrPerQuintal": 8682,
-      "description": "Quick 65-day kharif and rabi pulse grain rich in digestible plant proteins."
+      "description": "Quick 65-day kharif and rabi pulse grain rich in digestible plant proteins.",
+      "urduName": "مونگ دال"
     },
     {
       "id": "GRAIN_BLACK_GRAM",
@@ -2312,7 +2389,8 @@
         "agmarknetId": "BLACK_GRAM"
       },
       "mspInrPerQuintal": 7400,
-      "description": "Essential pulse for dosa and idli batter fermentation, grown in Nizamabad and Khammam."
+      "description": "Essential pulse for dosa and idli batter fermentation, grown in Nizamabad and Khammam.",
+      "urduName": "ماش / اڑد دال"
     },
     {
       "id": "GRAIN_BENGAL_GRAM",
@@ -2342,7 +2420,8 @@
         "agmarknetId": "BENGAL_GRAM"
       },
       "mspInrPerQuintal": 5650,
-      "description": "Major rabi pulse grown on black cotton soils of Adilabad and Nizamabad."
+      "description": "Major rabi pulse grown on black cotton soils of Adilabad and Nizamabad.",
+      "urduName": "دیسی چنا (چھولے)"
     },
     {
       "id": "GRAIN_HORSE_GRAM",
@@ -2370,7 +2449,8 @@
         "agmarknetId": "HORSE_GRAM"
       },
       "mspInrPerQuintal": 3800,
-      "description": "Protein and iron-packed rustic legume widely used in traditional Telangana ulava charu."
+      "description": "Protein and iron-packed rustic legume widely used in traditional Telangana ulava charu.",
+      "urduName": "کلتھی دال (الاولُو)"
     },
     {
       "id": "GRAIN_COWPEA",
@@ -2400,7 +2480,8 @@
         "agmarknetId": "COWPEA"
       },
       "mspInrPerQuintal": 4800,
-      "description": "Drought hardy multipurpose pulse grown for dry grain as well as soil nitrogen enrichment."
+      "description": "Drought hardy multipurpose pulse grown for dry grain as well as soil nitrogen enrichment.",
+      "urduName": "لوبیا (رونگی)"
     },
     {
       "id": "GRAIN_SOYBEAN",
@@ -2429,7 +2510,8 @@
         "agmarknetId": "SOYBEAN"
       },
       "mspInrPerQuintal": 4892,
-      "description": "High-protein commercial oil-pulse crop cultivated on wide scale in Adilabad and Nirmal."
+      "description": "High-protein commercial oil-pulse crop cultivated on wide scale in Adilabad and Nirmal.",
+      "urduName": "سویا بین"
     },
     {
       "id": "GRAIN_GROUNDNUT",
@@ -2460,7 +2542,8 @@
         "agmarknetId": "GROUNDNUT"
       },
       "mspInrPerQuintal": 6783,
-      "description": "Foremost edible oilseed of Telangana with intense trading at Mahabubnagar & Gadwal mandis."
+      "description": "Foremost edible oilseed of Telangana with intense trading at Mahabubnagar & Gadwal mandis.",
+      "urduName": "مونگ پھلی"
     },
     {
       "id": "GRAIN_SESAME",
@@ -2490,7 +2573,8 @@
         "agmarknetId": "SESAME"
       },
       "mspInrPerQuintal": 9267,
-      "description": "Premium high-value ancient oilseed crop grown in summer and kharif seasons."
+      "description": "Premium high-value ancient oilseed crop grown in summer and kharif seasons.",
+      "urduName": "تل"
     },
     {
       "id": "GRAIN_SUNFLOWER_SEED",
@@ -2519,7 +2603,8 @@
         "agmarknetId": "SUNFLOWER"
       },
       "mspInrPerQuintal": 7280,
-      "description": "Heart-healthy edible oilseed crop grown in Nizamabad, Medak and Warangal districts."
+      "description": "Heart-healthy edible oilseed crop grown in Nizamabad, Medak and Warangal districts.",
+      "urduName": "سورج مکھی کے بیج"
     },
     {
       "id": "GRAIN_CASTOR_SEED",
@@ -2548,7 +2633,8 @@
         "agmarknetId": "CASTOR_SEED"
       },
       "mspInrPerQuintal": 6000,
-      "description": "Industrial non-edible oilseed with deep drought tolerance, grown in Mahabubnagar and Nalgonda."
+      "description": "Industrial non-edible oilseed with deep drought tolerance, grown in Mahabubnagar and Nalgonda.",
+      "urduName": "ارنڈی کے بیج"
     },
     {
       "id": "GRAIN_SAFFLOWER_SEED",
@@ -2577,7 +2663,8 @@
         "agmarknetId": "SAFFLOWER"
       },
       "mspInrPerQuintal": 5800,
-      "description": "Rabi spiny oilseed containing high linoleic fatty acids for heart-healthy oil."
+      "description": "Rabi spiny oilseed containing high linoleic fatty acids for heart-healthy oil.",
+      "urduName": "کڑدی کے بیج"
     },
     {
       "id": "GRAIN_MUSTARD_SEED",
@@ -2607,7 +2694,8 @@
         "agmarknetId": "MUSTARD"
       },
       "mspInrPerQuintal": 5650,
-      "description": "Pungent spice-oilseed traded in significant quantities in northern Telangana borders."
+      "description": "Pungent spice-oilseed traded in significant quantities in northern Telangana borders.",
+      "urduName": "سرسوں کے بیج (رائی)"
     },
     {
       "id": "GRAIN_NIGER_SEED",
@@ -2636,7 +2724,8 @@
         "agmarknetId": "NIGER_SEED"
       },
       "mspInrPerQuintal": 8717,
-      "description": "Minor oilseed cultivated primarily in undulating tribal tracts of Adilabad and Khammam."
+      "description": "Minor oilseed cultivated primarily in undulating tribal tracts of Adilabad and Khammam.",
+      "urduName": "رام تل"
     },
     {
       "id": "GRAIN_DRIED_RED_CHILLI",
@@ -2668,7 +2757,8 @@
         "agmarknetId": "DRY_CHILLIES"
       },
       "mspInrPerQuintal": null,
-      "description": "Premier commercial spice crop traded in Asia's largest chilli yards at Khammam and Warangal."
+      "description": "Premier commercial spice crop traded in Asia's largest chilli yards at Khammam and Warangal.",
+      "urduName": "سوکھی لال مرچ"
     }
   ]
 }

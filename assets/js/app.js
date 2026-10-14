@@ -24,278 +24,2359 @@ function initKisanSaathi() {
   let blockchainLedger = JSON.parse(localStorage.getItem('kisan_blockchain')) || [...KISAN_DATA.blockchainLedger];
   let voiceEnabled = false;
 
-  // Dictionary for Localization (Matching strings.xml & strings-hi-rIN.xml)
-  // Dictionary for Localization (Matching strings.xml & strings-hi-rIN.xml)
-  const I18N = {
-    en: {
-      app_name: "KisanSaathi",
-      tagline: "Direct Farm-to-Buyer with Value Addition & Packaging",
-      nav_inventory: "Farmer's Inventory",
-      nav_upload: "Add Crop to Sell",
-      nav_market_dashboard: "Daily Market Prices",
-      nav_quality: "Crop Quality Prediction (AI)",
-      nav_negotiate: "Price Negotiations",
-      nav_orders: "Orders & Deliveries",
-      nav_wallet: "Payment Tracking System",
-      nav_loan: "Blockchain Loan Ledger",
-      nav_soil: "Soil Testing Labs & Card",
-      nav_info: "Advisory & Information Hub",
-      nav_godowns: "Godowns & Warehouses",
-      nav_logistics: "Logistics Network",
-      nav_weather: "Weather Forecast",
-      nav_chat: "AI Kisan Assistant (Chatbot)",
-      nav_feedback: "Contact Admin / Grievance",
-      nav_about: "About Project & Team",
-      title_home: "Home",
-      title_info: "Info",
-      title_quality: "Quality",
-      title_chat: "Chat",
-      title_profile: "Profile",
-      wallet_earning: "Payments Received",
-      negotiations_title: "Negotiations",
-      orders_title: "Orders",
-      your_inventory: "Your Crop Inventory",
-      total_crops: "Crops Listed",
-      add_in_inventory: "Add Inventory Item",
-      upload_image_hint: "Tap to take photo or upload crop sample",
-      enter_product_name: "Item / Crop Name",
-      quality: "Quality Grade",
-      quantity_available_in_stock: "Quantity (Kg)",
-      price_rs_kg: "Price (₹ / Kg)",
-      description: "Crop Description & Harvesting Details",
-      submit_crop: "Publish to Telangana Marketplace",
-      quality_prediction: "AI Crop Quality Prediction",
-      select_category: "Select Crop Category",
-      negotiated_prices: "Negotiated Prices by Buyers",
-      all_orders: "All Buyer Orders",
-      available_balance: "Total Payments Received from Consumers",
-      send_money_to_bank: "Direct DBT Settlement",
-      request_statement: "Download Statement",
-      recents_transactions: "Consumer Payments Received",
-      labs_heading: "Soil Testing Laboratories",
-      soil_test_lab: "Find nearest authorized soil testing laboratory in Telangana",
-      select_state: "State",
-      select_district: "District",
-      crop_production_card_title: "Crop Production Methods",
-      treatment_card_title: "Crop Disease Remedies",
-      horticulture_card_title: "Horticulture Methods",
-      policy_card_title: "Government Schemes",
-      godown: "Godowns & Warehouses",
-      storage_card_title: "Soil Health Card",
-      logistics: "Logistics",
-      wallet: "Farmer's Earning Wallet",
-      about_us: "About Application & Team",
-      kisan_mitra_title: "Kisan Mitra AI Assistant",
-      tab1_item_details: "Item Details",
-      tab2_reviews: "Buyer Reviews",
-      edit_details: "Edit Details",
-      order_details: "Order Details",
-      reach_buyer: "Open Route in Google Maps",
-      price: "Price (₹/Kg)",
-      quantity: "Stock Available"
-    },
-    hi: {
-      app_name: "किसान साथी",
-      tagline: "मूल्य संवर्धन एवं पैकेजिंग के साथ किसान से सीधे खरीदार तक",
-      nav_inventory: "किसान इन्वेंटरी",
-      nav_upload: "फसल बिक्री हेतु जोड़ें",
-      nav_market_dashboard: "दैनिक बाजार भाव",
-      nav_quality: "फसल गुणवत्ता परीक्षण (AI)",
-      nav_negotiate: "मूल्य बातचीत (सौदा)",
-      nav_orders: "ऑर्डर एवं आपूर्ति",
-      nav_wallet: "भुगतान ट्रैकिंग सिस्टम",
-      nav_loan: "ब्लॉकचेन ऋण बहीखाता",
-      nav_soil: "मृदा परीक्षण प्रयोगशालाएं",
-      nav_info: "कृषि सलाह एवं सूचना केंद्र",
-      nav_godowns: "गोदाम एवं वेयरहाउस",
-      nav_logistics: "लॉजिस्टिक्स व वाहन",
-      nav_weather: "मौसम पूर्वानुमान",
-      nav_chat: "AI किसान सहायक (चैट)",
-      nav_feedback: "शिकायत निवारण / संपर्क",
-      nav_about: "परियोजना एवं टीम",
-      title_home: "होम",
-      title_info: "जानकारी",
-      title_quality: "गुणवत्ता",
-      title_chat: "चैट",
-      title_profile: "प्रोफ़ाइल",
-      wallet_earning: "प्राप्त भुगतान",
-      negotiations_title: "बातचीत",
-      orders_title: "ऑर्डर",
-      your_inventory: "आपकी फसल इन्वेंटरी",
-      total_crops: "सूचीबद्ध फसलें",
-      add_in_inventory: "इन्वेंटरी में फसल जोड़ें",
-      upload_image_hint: "फोटो लें या फसल का नमूना अपलोड करें",
-      enter_product_name: "फसल / उत्पाद का नाम",
-      quality: "गुणवत्ता श्रेणी",
-      quantity_available_in_stock: "उपलब्ध मात्रा (किग्रा)",
-      price_rs_kg: "मूल्य (₹ प्रति किग्रा)",
-      description: "फसल विवरण एवं कटाई की जानकारी",
-      submit_crop: "तेलंगाना मंडी पोर्टल पर प्रकाशित करें",
-      quality_prediction: "AI फसल गुणवत्ता परीक्षण",
-      select_category: "फसल श्रेणी चुनें",
-      negotiated_prices: "खरीदारों द्वारा प्रस्तावित मूल्य",
-      all_orders: "सभी खरीदार ऑर्डर",
-      available_balance: "उपभोक्ताओं से प्राप्त कुल भुगतान",
-      send_money_to_bank: "प्रत्यक्ष DBT भुगतान",
-      request_statement: "विवरण पत्र डाउनलोड करें",
-      recents_transactions: "उपभोक्ताओं से प्राप्त भुगतान",
-      labs_heading: "मृदा परीक्षण प्रयोगशालाएं",
-      soil_test_lab: "निकटतम अधिकृत मृदा परीक्षण प्रयोगशाला खोजें",
-      select_state: "राज्य",
-      select_district: "जिला",
-      crop_production_card_title: "फसल उत्पादन विधियाँ",
-      treatment_card_title: "फसल रोग एवं जैविक निदान",
-      horticulture_card_title: "बागवानी विधियाँ",
-      policy_card_title: "सरकारी योजनाएं",
-      godown: "गोदाम एवं भंडार गृह",
-      storage_card_title: "मृदा स्वास्थ्य कार्ड",
-      logistics: "परिवहन व लॉजिस्टिक्स",
-      wallet: "किसान कमाई वॉलेट",
-      about_us: "एप्लिकेशन एवं टीम परिचय",
-      kisan_mitra_title: "किसान मित्र AI सहायक",
-      tab1_item_details: "उत्पाद विवरण",
-      tab2_reviews: "खरीदार समीक्षाएं",
-      edit_details: "विवरण संपादित करें",
-      order_details: "ऑर्डर विवरण",
-      reach_buyer: "गूगल मैप पर मार्ग देखें",
-      price: "मूल्य (₹/किग्रा)",
-      quantity: "उपलब्ध स्टॉक"
-    },
-    te: {
-      app_name: "కిసాన్ సాథి",
-      tagline: "రైతు నుండి నేరుగా కొనుగోలుదారునికి విలువ జోడింపుతో",
-      nav_inventory: "రైతు పంట నిల్వలు",
-      nav_upload: "పంట అమ్మకానికి జోడించండి",
-      nav_market_dashboard: "రోజువారీ మార్కెట్ ధరలు",
-      nav_quality: "పంట నాణ్యత AI పరీక్ష",
-      nav_negotiate: "ధర సంప్రదింపులు",
-      nav_orders: "ఆర్డర్లు & రవాణా",
-      nav_wallet: "చెల్లింపుల ట్రాకింగ్ సిస్టమ్",
-      nav_loan: "బ్లాక్‌చెయిన్ పంట రుణాలు",
-      nav_soil: "నేల పరీక్ష ప్రయోగశాలలు",
-      nav_info: "వ్యవసాయ సలహా & సమాచారం",
-      nav_godowns: "గోదాములు & వేర్‌హౌస్‌లు",
-      nav_logistics: "రవాణా & లాజిస్టిక్స్ నెట్‌వర్క్",
-      nav_weather: "వాతావరణ సూచన",
-      nav_chat: "AI కిసాన్ అసిస్టెంట్",
-      nav_feedback: "ఫిర్యాదు / సంప్రదింపు",
-      nav_about: "ప్రాజెక్ట్ & టీమ్",
-      title_home: "హోమ్",
-      title_info: "సమాచారం",
-      title_quality: "నాణ్యత",
-      title_chat: "చాట్",
-      title_profile: "ప్రొఫైల్",
-      wallet_earning: "అందిన చెల్లింపులు",
-      negotiations_title: "ధర చర్చలు",
-      orders_title: "ఆర్డర్లు",
-      your_inventory: "మీ పంటల నిల్వ",
-      total_crops: "నమోదైన పంటలు",
-      add_in_inventory: "పంటను జోడించండి",
-      upload_image_hint: "ఫోటో తీయండి లేదా నమూనా అప్‌లోడ్ చేయండి",
-      enter_product_name: "పంట / ఉత్పత్తి పేరు",
-      quality: "నాణ్యత గ్రేడ్",
-      quantity_available_in_stock: "అందుబాటులో ఉన్న పరిమాణం (కిలోలు)",
-      price_rs_kg: "ధర (₹ / కిలో)",
-      description: "పంట వివరాలు",
-      submit_crop: "తెలంగాణ మార్కెట్లో ప్రచురించండి",
-      quality_prediction: "AI నాణ్యత పరీక్ష",
-      select_category: "పంట రకం ఎంచుకోండి",
-      negotiated_prices: "కొనుగోలుదారుల ఆఫర్లు",
-      all_orders: "అన్ని కొనుగోలుదారు ఆర్డర్లు",
-      available_balance: "వినియోగదారుల నుండి అందిన మొత్తం చెల్లింపులు",
-      send_money_to_bank: "ప్రత్యక్ష DBT బదిలీ",
-      request_statement: "చెల్లింపుల స్టేట్‌మెంట్ డౌన్‌లోడ్",
-      recents_transactions: "వినియోగదారుల నుండి అందిన చెల్లింపులు",
-      labs_heading: "నేల పరీక్ష ప్రయోగశాలలు",
-      soil_test_lab: "తెలంగాణలో అధీకృత నేల పరీక్ష కేంద్రాలు",
-      select_state: "రాష్ట్రం",
-      select_district: "జిల్లా",
-      crop_production_card_title: "పంట సాగు పద్ధతులు",
-      treatment_card_title: "సహజ కీటక నివారణ",
-      horticulture_card_title: "ఉద్యానవన పంటలు",
-      policy_card_title: "ప్రభుత్వ పథకాలు",
-      godown: "గోదాములు & వేర్‌హౌస్‌లు",
-      storage_card_title: "సాయిల్ హెల్త్ కార్డ్",
-      logistics: "లాజిస్టిక్స్ & రవాణా",
-      wallet: "రైతు వాలెట్",
-      about_us: "యాప్ & టీమ్ పరిచయం",
-      kisan_mitra_title: "కిసాన్ మిత్ర AI",
-      tab1_item_details: "వివరాలు",
-      tab2_reviews: "సమీక్షలు",
-      edit_details: "సవరించండి",
-      order_details: "ఆర్డర్ వివరాలు",
-      reach_buyer: "రూట్ చూడండి",
-      price: "ధర (₹/కిలో)",
-      quantity: "అందుబాటులో ఉన్న స్టాక్"
-    },
-    ur: {
-      app_name: "کسان ساتھی",
-      tagline: "کسان سے براہ راست خریدار تک ویلیو ایڈیشن کے ساتھ",
-      nav_inventory: "کسان کی فصلوں کی فہرست",
-      nav_upload: "فصل فروخت کیلئے شامل کریں",
-      nav_market_dashboard: "روزانہ منڈی کے بھاؤ",
-      nav_quality: "فصل کے معیار کی جانچ (AI)",
-      nav_negotiate: "قیمتوں کے مذاکرات",
-      nav_orders: "آرڈرز اور ترسیل",
-      nav_wallet: "ادائیگی ٹریکنگ سسٹم",
-      nav_loan: "بلاک چین قرض کا کھاتہ",
-      nav_soil: "مٹی ٹیسٹ کرنے والی لیبارٹریز",
-      nav_info: "زرعی مشاورتی مرکز",
-      nav_godowns: "گودام اور ویئر ہاؤسز",
-      nav_logistics: "لاجسٹکس اور ٹرانسپورٹ نیٹ ورک",
-      nav_weather: "موسم کی پیشن گوئی",
-      nav_chat: "AI کسان معاون",
-      nav_feedback: "شکایات اور رابطہ",
-      nav_about: "پروجیکٹ اور ٹیم",
-      title_home: "ہوم",
-      title_info: "معلومات",
-      title_quality: "معیار",
-      title_chat: "چیٹ",
-      title_profile: "پروفائل",
-      wallet_earning: "موصولہ ادائیگیاں",
-      negotiations_title: "بات چیت",
-      orders_title: "آرڈرز",
-      your_inventory: "آپ کی فصلوں کی فہرست",
-      total_crops: "فہرست شدہ فصلیں",
-      add_in_inventory: "فصل شامل کریں",
-      upload_image_hint: "تصویر لیں یا فصل کا نمونہ لگائیں",
-      enter_product_name: "فصل کا نام",
-      quality: "معیار کا گریڈ",
-      quantity_available_in_stock: "دستیاب مقدار (کلوگرام)",
-      price_rs_kg: "قیمت (₹ فی کلوگرام)",
-      description: "فصل کی تفصیل",
-      submit_crop: "مارکیٹ پورٹل پر شائع کریں",
-      quality_prediction: "AI فصل کا معیار",
-      select_category: "فصل کی قسم منتخب کریں",
-      negotiated_prices: "خریداروں کی تجاویز",
-      all_orders: "تمام خریدار آرڈرز",
-      available_balance: "صارفین سے موصولہ کل ادائیگیاں",
-      send_money_to_bank: "براہ راست ڈی بی ٹی ادائیگی",
-      request_statement: "اسٹیٹمنٹ ڈاؤن لوڈ کریں",
-      recents_transactions: "خریداروں سے موصولہ ادائیگیاں",
-      labs_heading: "مٹی ٹیسٹنگ لیبز",
-      soil_test_lab: "قریبی مٹی کی جانچ گاہ تلاش کریں",
-      select_state: "ریاست",
-      select_district: "ضلع",
-      crop_production_card_title: "فصل کی پیداواری طریقے",
-      treatment_card_title: "کیڑوں کے قدرتی علاج",
-      horticulture_card_title: "باغبانی کے طریقے",
-      policy_card_title: "سرکاری اسکیمیں",
-      godown: "گودام اور ویئر ہاؤسز",
-      storage_card_title: "سوائل ہیلتھ کارڈ",
-      logistics: "ٹرانسپورٹ و لاجسٹکس",
-      wallet: "کسان کا بٹوہ",
-      about_us: "ایپلیکیشن اور ٹیم",
-      kisan_mitra_title: "کسان مترا AI",
-      tab1_item_details: "تفصیلات",
-      tab2_reviews: "خریداروں کی آراء",
-      edit_details: "ترمیم کریں",
-      order_details: "آرڈر کی تفصیل",
-      reach_buyer: "گوگل میپ پر راستہ دیکھیں",
-      price: "قیمت (₹/کلو)",
-      quantity: "دستیاب اسٹاک"
+// Autogenerated Canonical Produce Master Table
+const PRODUCE_CATALOGUE = [
+  {
+    "slug": "mango",
+    "en": "Mango",
+    "te": "మామిడి (మామిడి పండు)",
+    "hi": "आम",
+    "ur": "آم",
+    "cat": "fruit",
+    "aliases": [
+      "mango",
+      "aam",
+      "mamidi",
+      "banganapalli",
+      "totapuri",
+      "kesar",
+      "alphonso"
+    ]
+  },
+  {
+    "slug": "sweet_orange_mosambi",
+    "en": "Sweet Orange (Mosambi)",
+    "te": "బత్తాయి (మొసంబి)",
+    "hi": "मौसंबी / मीठा संतरा",
+    "ur": "موسمی / میٹھا سنگترہ",
+    "cat": "fruit",
+    "aliases": [
+      "mosambi",
+      "sweet orange",
+      "bathayi",
+      "batayi",
+      "sathgudi",
+      "mousambi"
+    ]
+  },
+  {
+    "slug": "acid_lime",
+    "en": "Acid Lime (Kagzi Lime)",
+    "te": "కాగిత నిమ్మ (నిమ్మకాయ)",
+    "hi": "कागजी नींबू",
+    "ur": "کاغذی لیموں",
+    "cat": "fruit",
+    "aliases": [
+      "acid lime",
+      "kagzi lime",
+      "nimma",
+      "nimbu",
+      "kagzi nimbu",
+      "small lime"
+    ]
+  },
+  {
+    "slug": "lemon",
+    "en": "Lemon (Large / Eureka)",
+    "te": "పెద్ద నిమ్మ (లెమన్)",
+    "hi": "बड़ा नींबू",
+    "ur": "بڑا لیموں (یوریکا)",
+    "cat": "fruit",
+    "aliases": [
+      "lemon",
+      "pedda nimma",
+      "big lemon",
+      "eureka lemon",
+      "yellow lemon"
+    ]
+  },
+  {
+    "slug": "guava",
+    "en": "Guava",
+    "te": "జామ (జామపండు)",
+    "hi": "अमरूद",
+    "ur": "امرود",
+    "cat": "fruit",
+    "aliases": [
+      "guava",
+      "jaama",
+      "amrood",
+      "peru",
+      "safeda",
+      "arka kiran"
+    ]
+  },
+  {
+    "slug": "papaya",
+    "en": "Papaya",
+    "te": "బొప్పాయి (బొప్పాయి పండు)",
+    "hi": "पपीता",
+    "ur": "پپیتا",
+    "cat": "fruit",
+    "aliases": [
+      "papaya",
+      "boppayi",
+      "papita",
+      "red lady",
+      "boppaya"
+    ]
+  },
+  {
+    "slug": "banana",
+    "en": "Banana",
+    "te": "అరటి (అరటిపండు)",
+    "hi": "केला",
+    "ur": "کیلا",
+    "cat": "fruit",
+    "aliases": [
+      "banana",
+      "arati",
+      "arati pandu",
+      "kela",
+      "grand naine",
+      "g9",
+      "yelakki"
+    ]
+  },
+  {
+    "slug": "pomegranate",
+    "en": "Pomegranate",
+    "te": "దానిమ్మ (దానిమ్మ పండు)",
+    "hi": "अनार",
+    "ur": "انار",
+    "cat": "fruit",
+    "aliases": [
+      "pomegranate",
+      "danimma",
+      "anaar",
+      "anar",
+      "bhagwa"
+    ]
+  },
+  {
+    "slug": "grapes",
+    "en": "Grapes",
+    "te": "ద్రాక్ష (ద్రాక్ష పండ్లు)",
+    "hi": "अंगूर",
+    "ur": "انگور",
+    "cat": "fruit",
+    "aliases": [
+      "grapes",
+      "draksha",
+      "angoor",
+      "anab e shahi",
+      "thompson seedless",
+      "dilkush"
+    ]
+  },
+  {
+    "slug": "sapota_chikoo",
+    "en": "Sapota (Chikoo)",
+    "te": "సపోటా (సపోటా పండు)",
+    "hi": "चीकू / सपोटा",
+    "ur": "چیکو",
+    "cat": "fruit",
+    "aliases": [
+      "sapota",
+      "chikoo",
+      "chiku",
+      "sapota pandu",
+      "cricket ball sapota"
+    ]
+  },
+  {
+    "slug": "watermelon",
+    "en": "Watermelon",
+    "te": "పుచ్చకాయ (తర్బూజ)",
+    "hi": "तरबूज",
+    "ur": "تربوز",
+    "cat": "fruit",
+    "aliases": [
+      "watermelon",
+      "puchakaya",
+      "tarbooz",
+      "tarbuz",
+      "water melon"
+    ]
+  },
+  {
+    "slug": "muskmelon",
+    "en": "Muskmelon (Kharbuja)",
+    "te": "ఖర్బూజా (కర్బూజ పండు)",
+    "hi": "खरबूजा",
+    "ur": "خربوزہ",
+    "cat": "fruit",
+    "aliases": [
+      "muskmelon",
+      "musk melon",
+      "kharbuja",
+      "karbooja",
+      "kharbooza"
+    ]
+  },
+  {
+    "slug": "custard_apple",
+    "en": "Custard Apple (Sitaphal)",
+    "te": "సీతాఫలం (సీతాఫలం పండు)",
+    "hi": "शरीफा / सीताफल",
+    "ur": "شریفہ (سیتا پھل)",
+    "cat": "fruit",
+    "aliases": [
+      "custard apple",
+      "sitaphal",
+      "seethaphal",
+      "sharifa",
+      "balanagar sitaphal"
+    ]
+  },
+  {
+    "slug": "amla",
+    "en": "Amla (Indian Gooseberry)",
+    "te": "ఉసిరి (ఉసిరికాయ)",
+    "hi": "आंवला",
+    "ur": "آملہ",
+    "cat": "fruit",
+    "aliases": [
+      "amla",
+      "usiri",
+      "usirikaya",
+      "aanwla",
+      "gooseberry",
+      "indian gooseberry"
+    ]
+  },
+  {
+    "slug": "ber",
+    "en": "Ber (Indian Jujube)",
+    "te": "రేగు పండు (గంగరేగు)",
+    "hi": "बेर",
+    "ur": "بیر",
+    "cat": "fruit",
+    "aliases": [
+      "ber",
+      "regu",
+      "regu pandu",
+      "gangaregu",
+      "jujube",
+      "indian plum",
+      "apple ber"
+    ]
+  },
+  {
+    "slug": "apple",
+    "en": "Apple",
+    "te": "ఆపిల్ (సేబు పండు)",
+    "hi": "सेब",
+    "ur": "سیب",
+    "cat": "fruit",
+    "aliases": [
+      "apple",
+      "seb",
+      "sebu",
+      "apple pandu",
+      "shimla apple"
+    ]
+  },
+  {
+    "slug": "pineapple",
+    "en": "Pineapple",
+    "te": "అనాసపండు (అనాస)",
+    "hi": "अनानास",
+    "ur": "انناس",
+    "cat": "fruit",
+    "aliases": [
+      "pineapple",
+      "anasa",
+      "anasa pandu",
+      "ananas",
+      "kew"
+    ]
+  },
+  {
+    "slug": "dragon_fruit",
+    "en": "Dragon Fruit (Pitaya)",
+    "te": "డ్రాగన్ ఫ్రూట్ (పిటాయ)",
+    "hi": "ड्रैगन फ्रूट / कमलम",
+    "ur": "ڈریگن فروٹ",
+    "cat": "fruit",
+    "aliases": [
+      "dragon fruit",
+      "kamalam",
+      "pitaya",
+      "pitahaya",
+      "dragonfruit"
+    ]
+  },
+  {
+    "slug": "jackfruit",
+    "en": "Jackfruit",
+    "te": "పనసపండు (పనసకాయ)",
+    "hi": "कटहल",
+    "ur": "کٹہل",
+    "cat": "fruit",
+    "aliases": [
+      "jackfruit",
+      "panasa",
+      "panasa pandu",
+      "kathal",
+      "jack fruit"
+    ]
+  },
+  {
+    "slug": "pear",
+    "en": "Pear (Nashpati)",
+    "te": "బేరి పండు (నాష్పాతి)",
+    "hi": "नाशपाती",
+    "ur": "ناشپاتی",
+    "cat": "fruit",
+    "aliases": [
+      "pear",
+      "nashpati",
+      "beri",
+      "beri pandu",
+      "babbu gosha"
+    ]
+  },
+  {
+    "slug": "sweet_melon",
+    "en": "Sweet Melon (Cantaloupe)",
+    "te": "తీపి ఖర్బూజ (కాంటాలూప్)",
+    "hi": "मीठा खरबूजा / कैंटालूप",
+    "ur": "گرما (میٹھا خربوزہ)",
+    "cat": "fruit",
+    "aliases": [
+      "sweet melon",
+      "cantaloupe",
+      "honey dew",
+      "sweet kharbuja"
+    ]
+  },
+  {
+    "slug": "strawberry",
+    "en": "Strawberry",
+    "te": "స్ట్రాబెర్రీ (స్ట్రాబెర్రీ పండు)",
+    "hi": "स्ट्रॉबेरी",
+    "ur": "اسٹرابیری",
+    "cat": "fruit",
+    "aliases": [
+      "strawberry",
+      "straw berry",
+      "red berry"
+    ]
+  },
+  {
+    "slug": "coconut",
+    "en": "Coconut",
+    "te": "కొబ్బరి కాయ (టెంకాయ)",
+    "hi": "नारियल",
+    "ur": "ناریل",
+    "cat": "fruit",
+    "aliases": [
+      "coconut",
+      "kobbari",
+      "tenkaya",
+      "nariyal",
+      "kobbari kaya"
+    ]
+  },
+  {
+    "slug": "dates",
+    "en": "Dates (Fresh / Semi-dry)",
+    "te": "ఖర్జూరం (తాజా ఖర్జూర పండు)",
+    "hi": "खजूर",
+    "ur": "کھجور",
+    "cat": "fruit",
+    "aliases": [
+      "dates",
+      "kharjooram",
+      "khajoor",
+      "barhi dates"
+    ]
+  },
+  {
+    "slug": "sweet_tamarind",
+    "en": "Sweet Tamarind",
+    "te": "తీపి చింతపండు (మధుర చింత)",
+    "hi": "मीठी इमली",
+    "ur": "میٹھی املی",
+    "cat": "fruit",
+    "aliases": [
+      "sweet tamarind",
+      "theepi chintapandu",
+      "meethi imli",
+      "sweet imli"
+    ]
+  },
+  {
+    "slug": "jamun",
+    "en": "Jamun (Black Plum)",
+    "te": "నేరేడు పండు (అల్ల నేరేడు)",
+    "hi": "जामुन",
+    "ur": "جامن",
+    "cat": "fruit",
+    "aliases": [
+      "jamun",
+      "neredu",
+      "neredu pandu",
+      "black plum",
+      "alla neredu"
+    ]
+  },
+  {
+    "slug": "fig",
+    "en": "Fig (Anjeer)",
+    "te": "అంజీర (అంజీర పండు)",
+    "hi": "अंजीर",
+    "ur": "انجیر",
+    "cat": "fruit",
+    "aliases": [
+      "fig",
+      "anjeer",
+      "anjeera",
+      "anjeer pandu"
+    ]
+  },
+  {
+    "slug": "kiwi",
+    "en": "Kiwi",
+    "te": "కివి (కివి పండు)",
+    "hi": "कीवी",
+    "ur": "کیوی",
+    "cat": "fruit",
+    "aliases": [
+      "kiwi",
+      "kiwifruit",
+      "kiwi pandu",
+      "chinese gooseberry"
+    ]
+  },
+  {
+    "slug": "orange_mandarin",
+    "en": "Mandarin Orange (Kamala)",
+    "te": "కమలా పండు (నారింజ)",
+    "hi": "संतरा / कमला",
+    "ur": "سنگترہ / کینو",
+    "cat": "fruit",
+    "aliases": [
+      "mandarin",
+      "kamala",
+      "kamala pandu",
+      "santara",
+      "nagpur orange",
+      "kinnow"
+    ]
+  },
+  {
+    "slug": "wood_apple",
+    "en": "Wood Apple (Bael)",
+    "te": "వెలగ పండు (మారేడు కాయ)",
+    "hi": "बेल / कैथा",
+    "ur": "بیل پھل",
+    "cat": "fruit",
+    "aliases": [
+      "wood apple",
+      "bael",
+      "velaga",
+      "velaga pandu",
+      "bel",
+      "kaitha",
+      "maredu"
+    ]
+  },
+  {
+    "slug": "tomato",
+    "en": "Tomato",
+    "te": "టమాటా (టమాట)",
+    "hi": "टमाटर",
+    "ur": "ٹماٹر",
+    "cat": "vegetable",
+    "aliases": [
+      "tomato",
+      "tamata",
+      "tamatar",
+      "tomatobig",
+      "desi tomato"
+    ]
+  },
+  {
+    "slug": "onion",
+    "en": "Onion",
+    "te": "ఉల్లిపాయ (ఎర్రగడ్డ)",
+    "hi": "प्याज",
+    "ur": "پیاز",
+    "cat": "vegetable",
+    "aliases": [
+      "onion",
+      "ullipaya",
+      "pyaz",
+      "erragadda",
+      "onionbig",
+      "kanda"
+    ]
+  },
+  {
+    "slug": "potato",
+    "en": "Potato",
+    "te": "బంగాళాదుంప (ఆలుగడ్డ)",
+    "hi": "आलू",
+    "ur": "آلو",
+    "cat": "vegetable",
+    "aliases": [
+      "potato",
+      "bangaladumpa",
+      "aaloo",
+      "aloo",
+      "alugadda"
+    ]
+  },
+  {
+    "slug": "brinjal",
+    "en": "Brinjal (Eggplant)",
+    "te": "వంకాయ (వంకాయలు)",
+    "hi": "बैंगन",
+    "ur": "بینگن",
+    "cat": "vegetable",
+    "aliases": [
+      "brinjal",
+      "vankaya",
+      "baingan",
+      "eggplant",
+      "aubergine"
+    ]
+  },
+  {
+    "slug": "okra",
+    "en": "Okra (Ladies Finger)",
+    "te": "బెండకాయ (బెండ)",
+    "hi": "भिंडी",
+    "ur": "بھنڈی",
+    "cat": "vegetable",
+    "aliases": [
+      "okra",
+      "bendakaya",
+      "bhindi",
+      "ladies finger",
+      "lady finger",
+      "ladiesfinger"
+    ]
+  },
+  {
+    "slug": "green_chilli",
+    "en": "Green Chilli",
+    "te": "పచ్చిమిర్చి (పచ్చి మిరపకాయ)",
+    "hi": "हरी मिर्च",
+    "ur": "ہری مرچ",
+    "cat": "vegetable",
+    "aliases": [
+      "green chilli",
+      "pachimirchi",
+      "hari mirch",
+      "greenchili",
+      "chilli"
+    ]
+  },
+  {
+    "slug": "capsicum",
+    "en": "Capsicum (Bell Pepper)",
+    "te": "కాప్సికమ్ (బెంగళూరు మిర్చి)",
+    "hi": "शिमला मिर्च",
+    "ur": "شملہ مرچ",
+    "cat": "vegetable",
+    "aliases": [
+      "capsicum",
+      "shimla mirch",
+      "bell pepper",
+      "capsicumbig"
+    ]
+  },
+  {
+    "slug": "cabbage",
+    "en": "Cabbage",
+    "te": "క్యాబేజీ (క్యాబేజి)",
+    "hi": "पत्ता गोभी / बंदगोभी",
+    "ur": "بند گوبھی",
+    "cat": "vegetable",
+    "aliases": [
+      "cabbage",
+      "patta gobhi",
+      "cabbage head"
+    ]
+  },
+  {
+    "slug": "cauliflower",
+    "en": "Cauliflower",
+    "te": "క్యాలీఫ్లవర్ (గోబీ పువ్వు)",
+    "hi": "फूलगोभी",
+    "ur": "پھول گوبھی",
+    "cat": "vegetable",
+    "aliases": [
+      "cauliflower",
+      "phool gobhi",
+      "cauli flower",
+      "gobi"
+    ]
+  },
+  {
+    "slug": "carrot",
+    "en": "Carrot",
+    "te": "క్యారెట్ (గాజరగడ్డ)",
+    "hi": "गाजर",
+    "ur": "گاجر",
+    "cat": "vegetable",
+    "aliases": [
+      "carrot",
+      "gajar",
+      "gajaragadda"
+    ]
+  },
+  {
+    "slug": "beetroot",
+    "en": "Beetroot",
+    "te": "బీట్‌రూట్ (బీట్ రూట్)",
+    "hi": "चुकंदर",
+    "ur": "چقندر",
+    "cat": "vegetable",
+    "aliases": [
+      "beetroot",
+      "chukandar",
+      "beet root"
+    ]
+  },
+  {
+    "slug": "radish",
+    "en": "Radish",
+    "te": "ముల్లంగి (ముల్లంగి గడ్డ)",
+    "hi": "मूली",
+    "ur": "مولی",
+    "cat": "vegetable",
+    "aliases": [
+      "radish",
+      "mullangi",
+      "mooli",
+      "white radish"
+    ]
+  },
+  {
+    "slug": "cucumber",
+    "en": "Cucumber",
+    "te": "దోసకాయ (కీర దోసకాయ)",
+    "hi": "खीरा / ककड़ी",
+    "ur": "کھیرا",
+    "cat": "vegetable",
+    "aliases": [
+      "cucumber",
+      "keera",
+      "dosakaya",
+      "kheera",
+      "kakdi"
+    ]
+  },
+  {
+    "slug": "bottle_gourd",
+    "en": "Bottle Gourd",
+    "te": "సొరకాయ (ఆనపకాయ)",
+    "hi": "लौकी / घिया",
+    "ur": "لوکی",
+    "cat": "vegetable",
+    "aliases": [
+      "bottle gourd",
+      "sorakaya",
+      "anapakaya",
+      "lauki",
+      "ghiya",
+      "bottlegourd"
+    ]
+  },
+  {
+    "slug": "ridge_gourd",
+    "en": "Ridge Gourd",
+    "te": "బీరకాయ (బీర)",
+    "hi": "तुरई / तोरी",
+    "ur": "تورئی",
+    "cat": "vegetable",
+    "aliases": [
+      "ridge gourd",
+      "beerakaya",
+      "turai",
+      "tori",
+      "ridgegourd"
+    ]
+  },
+  {
+    "slug": "bitter_gourd",
+    "en": "Bitter Gourd",
+    "te": "కాకరకాయ (కాకర)",
+    "hi": "करेला",
+    "ur": "کریلا",
+    "cat": "vegetable",
+    "aliases": [
+      "bitter gourd",
+      "kakarakaya",
+      "karela",
+      "bittergourd"
+    ]
+  },
+  {
+    "slug": "snake_gourd",
+    "en": "Snake Gourd",
+    "te": "పొట్లకాయ (పొట్ల)",
+    "hi": "चिचिंडा / पडवल",
+    "ur": "چچنڈا",
+    "cat": "vegetable",
+    "aliases": [
+      "snake gourd",
+      "potlakaya",
+      "chichinda",
+      "snakegourd"
+    ]
+  },
+  {
+    "slug": "sponge_gourd",
+    "en": "Sponge Gourd",
+    "te": "నేతి బీరకాయ (గిల్కీ)",
+    "hi": "गिलकी / नेनुआ",
+    "ur": "گلکی",
+    "cat": "vegetable",
+    "aliases": [
+      "sponge gourd",
+      "neti beerakaya",
+      "gilki",
+      "nenua",
+      "spongegourd"
+    ]
+  },
+  {
+    "slug": "ash_gourd",
+    "en": "Ash Gourd",
+    "te": "బూడిద గుమ్మడికాయ (గుమ్మడి)",
+    "hi": "पेठा / सफेद कद्दू",
+    "ur": "سفید پیٹھا",
+    "cat": "vegetable",
+    "aliases": [
+      "ash gourd",
+      "budida gummadikaya",
+      "petha",
+      "white pumpkin",
+      "ashgourd"
+    ]
+  },
+  {
+    "slug": "pumpkin",
+    "en": "Pumpkin",
+    "te": "తీపి గుమ్మడికాయ (ఎర్ర గుమ్మడి)",
+    "hi": "कद्दू / सीताफल",
+    "ur": "کدو",
+    "cat": "vegetable",
+    "aliases": [
+      "pumpkin",
+      "theepi gummadikaya",
+      "kaddu",
+      "red pumpkin",
+      "sweet pumpkin"
+    ]
+  },
+  {
+    "slug": "drumstick",
+    "en": "Drumstick Pods",
+    "te": "మునగకాయలు (మునగ)",
+    "hi": "सहजन / मुनगा",
+    "ur": "سہجن کی پھلیاں (منگا)",
+    "cat": "vegetable",
+    "aliases": [
+      "drumstick",
+      "munagakayalu",
+      "sahjan",
+      "moringa pods",
+      "moringa"
+    ]
+  },
+  {
+    "slug": "french_beans",
+    "en": "French Beans",
+    "te": "ఫ్రెంచ్ బీన్స్ (బీన్స్)",
+    "hi": "फ्रेंच बीन्स",
+    "ur": "فرانسیسی پھلیاں",
+    "cat": "vegetable",
+    "aliases": [
+      "french beans",
+      "beans",
+      "french bean",
+      "green beans"
+    ]
+  },
+  {
+    "slug": "green_peas",
+    "en": "Green Peas",
+    "te": "బఠానీలు (పచ్చి బఠానీ)",
+    "hi": "हरी मटर",
+    "ur": "ہری مٹر",
+    "cat": "vegetable",
+    "aliases": [
+      "green peas",
+      "bataneelu",
+      "matar",
+      "peas",
+      "hari matar"
+    ]
+  },
+  {
+    "slug": "cluster_beans",
+    "en": "Cluster Beans (Guar)",
+    "te": "గోరుచిక్కుడు (గోరు చిక్కుడుకాయ)",
+    "hi": "ग्वार फली",
+    "ur": "گوار پھلی",
+    "cat": "vegetable",
+    "aliases": [
+      "cluster beans",
+      "goruchikkudu",
+      "gawar",
+      "guar phali",
+      "cluster bean"
+    ]
+  },
+  {
+    "slug": "broad_beans",
+    "en": "Broad Beans (Chikkudu)",
+    "te": "చిక్కుడుకాయ (నాటు చిక్కుడు)",
+    "hi": "बाकला / सेम फली",
+    "ur": "سیم کی پھلیاں",
+    "cat": "vegetable",
+    "aliases": [
+      "broad beans",
+      "chikkudukaya",
+      "sem phali",
+      "faba bean",
+      "bakla"
+    ]
+  },
+  {
+    "slug": "spinach",
+    "en": "Spinach (Palak)",
+    "te": "పాలకూర (పాలకూర ఆకులు)",
+    "hi": "पालक",
+    "ur": "پالک",
+    "cat": "vegetable",
+    "aliases": [
+      "spinach",
+      "palak",
+      "palakura",
+      "palak leaves"
+    ]
+  },
+  {
+    "slug": "amaranth_leaves",
+    "en": "Amaranth Leaves (Thotakura)",
+    "te": "తోటకూర (తోటకూర ఆకులు)",
+    "hi": "चौलाई",
+    "ur": "چولائی کا ساگ",
+    "cat": "vegetable",
+    "aliases": [
+      "amaranth leaves",
+      "thotakura",
+      "chaulai",
+      "thotakura aakulu",
+      "amaranth"
+    ]
+  },
+  {
+    "slug": "coriander_leaves",
+    "en": "Coriander Leaves",
+    "te": "కొత్తిమీర (కొత్తిమీర ఆకులు)",
+    "hi": "धनिया पत्ती",
+    "ur": "ہرا دھنیا",
+    "cat": "vegetable",
+    "aliases": [
+      "coriander leaves",
+      "kothimeera",
+      "dhaniya",
+      "coriander",
+      "kothimera"
+    ]
+  },
+  {
+    "slug": "fenugreek_leaves",
+    "en": "Fenugreek Leaves (Methi)",
+    "te": "మెంతికూర (మెంతి ఆకులు)",
+    "hi": "मेथी पत्ती",
+    "ur": "میتھی کا ساگ",
+    "cat": "vegetable",
+    "aliases": [
+      "fenugreek leaves",
+      "menthikura",
+      "methi",
+      "menthi aakulu",
+      "fenugreek"
+    ]
+  },
+  {
+    "slug": "sweet_corn",
+    "en": "Sweet Corn",
+    "te": "తీపి మొక్కజొన్న (స్వీట్ కార్న్)",
+    "hi": "स्वीट कॉर्न / मीठा भुट्टा",
+    "ur": "میٹھی مکئی",
+    "cat": "vegetable",
+    "aliases": [
+      "sweet corn",
+      "theepi mokkajonna",
+      "sweetcorn",
+      "bhutta",
+      "sweet maize"
+    ]
+  },
+  {
+    "slug": "paddy_generic",
+    "en": "Paddy (Common / Generic)",
+    "te": "వరి ధాన్యం (సాధారణ రకం)",
+    "hi": "धान (सामान्य)",
+    "ur": "دھان (عام قسم)",
+    "cat": "grain_dry_commodity",
+    "aliases": [
+      "paddy",
+      "dhaanya",
+      "dhaanyam",
+      "dhan",
+      "common paddy",
+      "rice grain"
+    ]
+  },
+  {
+    "slug": "paddy_telangana_sona",
+    "en": "Telangana Sona Paddy (RNR 15048)",
+    "te": "తెలంగాణ సోనా వరి ధాన్యం (RNR 15048)",
+    "hi": "तेलंगाना सोना धान",
+    "ur": "تلنگانہ سونا دھان (RNR 15048)",
+    "cat": "grain_dry_commodity",
+    "aliases": [
+      "telangana sona",
+      "rnr 15048",
+      "telangana sona paddy",
+      "sona masoori",
+      "low gi rice"
+    ]
+  },
+  {
+    "slug": "paddy_bpt_5204",
+    "en": "BPT 5204 Paddy (Samba Mahsuri)",
+    "te": "సాంబ మసూరి వరి ధాన్యం (BPT 5204)",
+    "hi": "सांभा मसूरी धान (BPT 5204)",
+    "ur": "سونا مسوری دھان (BPT 5204)",
+    "cat": "grain_dry_commodity",
+    "aliases": [
+      "bpt 5204",
+      "samba masoori",
+      "samba mahsuri",
+      "bpt paddy"
+    ]
+  },
+  {
+    "slug": "paddy_mtu_1010",
+    "en": "MTU 1010 Paddy (Cottondora Sannalu)",
+    "te": "ఎంటీయూ 1010 వరి ధాన్యం (కాటన్‌దొర సన్నాలు)",
+    "hi": "एमटीयू 1010 धान",
+    "ur": "ایم ٹی یو 1010 دھان",
+    "cat": "grain_dry_commodity",
+    "aliases": [
+      "mtu 1010",
+      "cottondora sannalu",
+      "mtu paddy"
+    ]
+  },
+  {
+    "slug": "paddy_jagtial_sannalu",
+    "en": "Jagtial Sannalu Paddy (JGL 1798)",
+    "te": "జగిత్యాల సన్నాలు వరి ధాన్యం (JGL 1798)",
+    "hi": "जगतियाल सन्नालु धान",
+    "ur": "جگتیال سنالو دھان (JGL 1798)",
+    "cat": "grain_dry_commodity",
+    "aliases": [
+      "jagtial sannalu",
+      "jgl 1798",
+      "jgl paddy"
+    ]
+  },
+  {
+    "slug": "wheat",
+    "en": "Wheat",
+    "te": "గోధుమలు (గోధుమ గింజలు)",
+    "hi": "गेहूं",
+    "ur": "گندم",
+    "cat": "grain_dry_commodity",
+    "aliases": [
+      "wheat",
+      "godhumalu",
+      "gehun",
+      "sharbati wheat",
+      "lokwan"
+    ]
+  },
+  {
+    "slug": "maize",
+    "en": "Maize (Makka Grain)",
+    "te": "మొక్కజొన్న గింజలు (మక్కలు)",
+    "hi": "मक्का",
+    "ur": "مکئی",
+    "cat": "grain_dry_commodity",
+    "aliases": [
+      "maize",
+      "makka",
+      "mokkajonna",
+      "corn grain",
+      "yellow maize"
+    ]
+  },
+  {
+    "slug": "jowar",
+    "en": "Jowar (Sorghum)",
+    "te": "జొన్నలు (తెల్ల జొన్నలు)",
+    "hi": "ज्वार",
+    "ur": "جوار",
+    "cat": "grain_dry_commodity",
+    "aliases": [
+      "jowar",
+      "jonnalu",
+      "sorghum",
+      "maldandi",
+      "great millet"
+    ]
+  },
+  {
+    "slug": "bajra",
+    "en": "Bajra (Pearl Millet)",
+    "te": "సజ్జలు (సజ్జ ధాన్యం)",
+    "hi": "बाजरा",
+    "ur": "باجرہ",
+    "cat": "grain_dry_commodity",
+    "aliases": [
+      "bajra",
+      "sajjalu",
+      "pearl millet",
+      "kambu"
+    ]
+  },
+  {
+    "slug": "ragi",
+    "en": "Ragi (Finger Millet)",
+    "te": "రాగులు (తైదులు)",
+    "hi": "रागी / मडुआ",
+    "ur": "راگی",
+    "cat": "grain_dry_commodity",
+    "aliases": [
+      "ragi",
+      "ragulu",
+      "thaidulu",
+      "finger millet",
+      "nachni"
+    ]
+  },
+  {
+    "slug": "foxtail_millet",
+    "en": "Foxtail Millet (Korralu)",
+    "te": "కొర్రలు (నవధాన్య కొర్రలు)",
+    "hi": "कंगनी",
+    "ur": "کنگنی باجرہ (کورالو)",
+    "cat": "grain_dry_commodity",
+    "aliases": [
+      "foxtail millet",
+      "korralu",
+      "kangni",
+      "tenai",
+      "navane"
+    ]
+  },
+  {
+    "slug": "little_millet",
+    "en": "Little Millet (Samalu)",
+    "te": "సామలు (చిరుధాన్యం)",
+    "hi": "कुटकी",
+    "ur": "کٹکی باجرہ (سامالو)",
+    "cat": "grain_dry_commodity",
+    "aliases": [
+      "little millet",
+      "samalu",
+      "kutki",
+      "sama",
+      "samai"
+    ]
+  },
+  {
+    "slug": "kodo_millet",
+    "en": "Kodo Millet (Arikelu)",
+    "te": "అరికెలు (చిరుధాన్యం)",
+    "hi": "कोदो",
+    "ur": "کودو باجرہ (اریکیلو)",
+    "cat": "grain_dry_commodity",
+    "aliases": [
+      "kodo millet",
+      "arikelu",
+      "kodo",
+      "varagu"
+    ]
+  },
+  {
+    "slug": "barnyard_millet",
+    "en": "Barnyard Millet (Oodalu)",
+    "te": "ఊదలు (చిరుధాన్యం)",
+    "hi": "सांवां / झंगोरा",
+    "ur": "سانواں باجرہ (اودالو)",
+    "cat": "grain_dry_commodity",
+    "aliases": [
+      "barnyard millet",
+      "oodalu",
+      "sanwa",
+      "samvat",
+      "jhangora"
+    ]
+  },
+  {
+    "slug": "proso_millet",
+    "en": "Proso Millet (Varigalu)",
+    "te": "వరిగలు (చీనా ధాన్యం)",
+    "hi": "चीना",
+    "ur": "چینا باجرہ (وریگالو)",
+    "cat": "grain_dry_commodity",
+    "aliases": [
+      "proso millet",
+      "varigalu",
+      "cheena",
+      "barri",
+      "white millet"
+    ]
+  },
+  {
+    "slug": "red_gram",
+    "en": "Red Gram (Arhar / Tur / Pigeonpea)",
+    "te": "కందులు (తొగరి పప్పు)",
+    "hi": "अरहर / तूर दाल",
+    "ur": "ارہر دال / توار (لال چنا)",
+    "cat": "grain_dry_commodity",
+    "aliases": [
+      "red gram",
+      "arhar",
+      "tur",
+      "kandulu",
+      "tandur dal",
+      "pigeon pea"
+    ]
+  },
+  {
+    "slug": "green_gram",
+    "en": "Green Gram (Moong)",
+    "te": "పెసలు (పచ్చ పెసలు)",
+    "hi": "मूंग",
+    "ur": "مونگ دال",
+    "cat": "grain_dry_commodity",
+    "aliases": [
+      "green gram",
+      "moong",
+      "pesalu",
+      "mung bean",
+      "green moong"
+    ]
+  },
+  {
+    "slug": "black_gram",
+    "en": "Black Gram (Urad)",
+    "te": "మినుములు (ఉద్ది పప్పు)",
+    "hi": "उड़द",
+    "ur": "ماش / اڑد دال",
+    "cat": "grain_dry_commodity",
+    "aliases": [
+      "black gram",
+      "urad",
+      "minumulu",
+      "black matpe",
+      "mash dal"
+    ]
+  },
+  {
+    "slug": "bengal_gram",
+    "en": "Bengal Gram (Desi Chana / Chickpea)",
+    "te": "శనగలు (దేశవాళీ శనగలు)",
+    "hi": "चना (देसी चना)",
+    "ur": "دیسی چنا (چھولے)",
+    "cat": "grain_dry_commodity",
+    "aliases": [
+      "bengal gram",
+      "chana",
+      "senagalu",
+      "chickpea",
+      "desi chana"
+    ]
+  },
+  {
+    "slug": "horse_gram",
+    "en": "Horse Gram (Ulavalu)",
+    "te": "ఉలవలు (గుర్రం శనగలు)",
+    "hi": "कुलथी",
+    "ur": "کلتھی دال (الاولُو)",
+    "cat": "grain_dry_commodity",
+    "aliases": [
+      "horse gram",
+      "ulavalu",
+      "kulthi",
+      "gahat"
+    ]
+  },
+  {
+    "slug": "cowpea",
+    "en": "Cowpea (Lobia / Bobbarlu)",
+    "te": "బొబ్బర్లు (అలచందలు)",
+    "hi": "लोबिया",
+    "ur": "لوبیا (رونگی)",
+    "cat": "grain_dry_commodity",
+    "aliases": [
+      "cowpea",
+      "bobbarlu",
+      "alachandalu",
+      "lobia",
+      "black eyed pea"
+    ]
+  },
+  {
+    "slug": "soybean",
+    "en": "Soybean",
+    "te": "సోయాబీన్ (సోయా గింజలు)",
+    "hi": "सोयाबीन",
+    "ur": "سویا بین",
+    "cat": "grain_dry_commodity",
+    "aliases": [
+      "soybean",
+      "soya bean",
+      "soyabean",
+      "soya"
+    ]
+  },
+  {
+    "slug": "groundnut",
+    "en": "Groundnut (Peanut Pods / Kernels)",
+    "te": "వేరుశనగ (పల్లీలు / కాయలు)",
+    "hi": "मूंगफली",
+    "ur": "مونگ پھلی",
+    "cat": "grain_dry_commodity",
+    "aliases": [
+      "groundnut",
+      "verusanaga",
+      "peanut",
+      "moongphali",
+      "pallilu"
+    ]
+  },
+  {
+    "slug": "sesame",
+    "en": "Sesame (Til / Gingelly)",
+    "te": "నువ్వులు (తెల్ల / నల్ల నువ్వులు)",
+    "hi": "तिल",
+    "ur": "تل",
+    "cat": "grain_dry_commodity",
+    "aliases": [
+      "sesame",
+      "nuvvulu",
+      "til",
+      "gingelly",
+      "sesame seeds"
+    ]
+  },
+  {
+    "slug": "sunflower_seed",
+    "en": "Sunflower Seed",
+    "te": "పొద్దుతిరుగుడు విత్తనాలు",
+    "hi": "सूरजमुखी बीज",
+    "ur": "سورج مکھی کے بیج",
+    "cat": "grain_dry_commodity",
+    "aliases": [
+      "sunflower seed",
+      "podduthirugudu",
+      "surajmukhi",
+      "sunflower"
+    ]
+  },
+  {
+    "slug": "castor_seed",
+    "en": "Castor Seed",
+    "te": "ఆముదం విత్తనాలు (ఆముదాలు)",
+    "hi": "अरंडी बीज",
+    "ur": "ارنڈی کے بیج",
+    "cat": "grain_dry_commodity",
+    "aliases": [
+      "castor seed",
+      "aamudam",
+      "arandi",
+      "castor"
+    ]
+  },
+  {
+    "slug": "safflower_seed",
+    "en": "Safflower Seed (Kardi)",
+    "te": "కుసుమలు (కుసుమ విత్తనాలు)",
+    "hi": "कुसुम बीज",
+    "ur": "کڑدی کے بیج",
+    "cat": "grain_dry_commodity",
+    "aliases": [
+      "safflower seed",
+      "kusumalu",
+      "kardi",
+      "kusum"
+    ]
+  },
+  {
+    "slug": "mustard_seed",
+    "en": "Mustard Seed (Rai / Sarson)",
+    "te": "ఆవాలు (ఆవ గింజలు)",
+    "hi": "सरसों / राई",
+    "ur": "سرسوں کے بیج (رائی)",
+    "cat": "grain_dry_commodity",
+    "aliases": [
+      "mustard seed",
+      "aavaalu",
+      "sarson",
+      "rai",
+      "mustard"
+    ]
+  },
+  {
+    "slug": "niger_seed",
+    "en": "Niger Seed (Ramtil / Olasalu)",
+    "te": "ఒలసలు (కార్ల విత్తనాలు)",
+    "hi": "रामतिल",
+    "ur": "رام تل",
+    "cat": "grain_dry_commodity",
+    "aliases": [
+      "niger seed",
+      "ramtil",
+      "olasalu",
+      "karla",
+      "niger"
+    ]
+  },
+  {
+    "slug": "dried_red_chilli",
+    "en": "Dried Red Chilli",
+    "te": "ఎండు మిర్చి (ఎండిన మిరపకాయలు)",
+    "hi": "सूखी लाल मिर्च",
+    "ur": "سوکھی لال مرچ",
+    "cat": "grain_dry_commodity",
+    "aliases": [
+      "dried red chilli",
+      "endu mirchi",
+      "dry chilli",
+      "lal mirch",
+      "teja mirchi",
+      "red chilli"
+    ]
+  },
+  {
+    "slug": "onionsmall",
+    "en": "Onion Small (Sambhar)",
+    "te": "చిన్న ఉల్లిపాయ (సాంబార్ ఉల్లిపాయ)",
+    "hi": "छोटा प्याज (सांभर प्याज)",
+    "ur": "چھوٹا پیاز (سانبھر پیاز)",
+    "cat": "vegetable",
+    "aliases": [
+      "onion small",
+      "sambhar onion",
+      "chinna ullipaya",
+      "pearl onion"
+    ]
+  },
+  {
+    "slug": "plantain",
+    "en": "Raw Banana (Plantain)",
+    "te": "పచ్చి అరటికాయ (కూర అరటి)",
+    "hi": "कच्चा केला (सब्जी केला)",
+    "ur": "کچا کیلا (سبزی کیلا)",
+    "cat": "fruit",
+    "aliases": [
+      "plantain",
+      "raw banana",
+      "cooking banana",
+      "arati kaya",
+      "kachha kela"
+    ]
+  },
+  {
+    "slug": "babycorn",
+    "en": "Baby Corn",
+    "te": "బేబీ కార్న్ (లేత మొక్కజొన్న)",
+    "hi": "बेबी कॉर्न (छोटा भुट्टा)",
+    "ur": "بے بی کارن",
+    "cat": "vegetable",
+    "aliases": [
+      "baby corn",
+      "babycorn",
+      "sweet baby corn"
+    ]
+  },
+  {
+    "slug": "bananaflower",
+    "en": "Banana Flower",
+    "te": "అరటి పువ్వు",
+    "hi": "केले का फूल",
+    "ur": "کیلے کا پھول",
+    "cat": "fruit",
+    "aliases": [
+      "banana flower",
+      "banana blossom",
+      "arati puvvu",
+      "kela phool"
+    ]
+  },
+  {
+    "slug": "butterbeans",
+    "en": "Butter Beans",
+    "te": "బటర్ బీన్స్ (చిక్కుడు)",
+    "hi": "बटर बीन्स (सेम)",
+    "ur": "مکھن پھلی (بٹر بینز)",
+    "cat": "vegetable",
+    "aliases": [
+      "butter beans",
+      "butterbeans",
+      "lima beans"
+    ]
+  },
+  {
+    "slug": "colocasialeaves",
+    "en": "Colocasia Leaves",
+    "te": "చేమ ఆకులు",
+    "hi": "अरबी के पत्ते",
+    "ur": "اروی کے پتے",
+    "cat": "vegetable",
+    "aliases": [
+      "colocasia leaves",
+      "arbi patta",
+      "chema aakulu",
+      "patra leaves"
+    ]
+  },
+  {
+    "slug": "colocasia",
+    "en": "Colocasia (Arbi / Taro)",
+    "te": "చేమదుంప (చేమగడ్డ)",
+    "hi": "अरबी (अरुई / घुइयां)",
+    "ur": "اروی / اروبی",
+    "cat": "vegetable",
+    "aliases": [
+      "colocasia",
+      "arbi",
+      "taro",
+      "arvi",
+      "chema dumpa",
+      "chemagedda"
+    ]
+  },
+  {
+    "slug": "corn",
+    "en": "Sweet Corn / Maize",
+    "te": "మొక్కజొన్న (స్వీట్ కార్న్)",
+    "hi": "मक्का (भुट्टा / स्वीट कॉर्न)",
+    "ur": "مکئی / بھٹا",
+    "cat": "vegetable",
+    "aliases": [
+      "corn",
+      "sweet corn",
+      "makka",
+      "bhutta",
+      "mokkajonna"
+    ]
+  },
+  {
+    "slug": "curryleaves",
+    "en": "Curry Leaves",
+    "te": "కరివేపాకు",
+    "hi": "कढ़ी पत्ता (मीठा नीम)",
+    "ur": "کڑی پتہ",
+    "cat": "vegetable",
+    "aliases": [
+      "curry leaves",
+      "karivepaku",
+      "kadi patta",
+      "meetha neem"
+    ]
+  },
+  {
+    "slug": "dillleaves",
+    "en": "Dill Leaves (Soya)",
+    "te": "సోయా కూర (సదాప ఆకు)",
+    "hi": "सोया साग (सोया पत्ता)",
+    "ur": "سویا ساگ",
+    "cat": "vegetable",
+    "aliases": [
+      "dill leaves",
+      "soya leaves",
+      "sadapa aaku",
+      "soya koora"
+    ]
+  },
+  {
+    "slug": "drumsticks",
+    "en": "Drumsticks (Moringa)",
+    "te": "మునగకాయలు (మునక్కాడ)",
+    "hi": "सहजन की फली (मुनगा)",
+    "ur": "سہجن کی پھلیاں",
+    "cat": "vegetable",
+    "aliases": [
+      "drumsticks",
+      "drumstick",
+      "mulakkada",
+      "munaga",
+      "sahjan",
+      "moringa"
+    ]
+  },
+  {
+    "slug": "brinjalbig",
+    "en": "Brinjal Big (Bharta Baingan)",
+    "te": "పెద్ద వంకాయ (భర్తా వంకాయ)",
+    "hi": "बड़ा बैंगन (भर्ता बैंगन)",
+    "ur": "بڑا بینگن (بھرتہ بینگن)",
+    "cat": "vegetable",
+    "aliases": [
+      "brinjal big",
+      "bharta baingan",
+      "pedda vankaya"
+    ]
+  },
+  {
+    "slug": "elephantyam",
+    "en": "Elephant Yam (Suran)",
+    "te": "కంద గడ్డ (కంద దుంప)",
+    "hi": "सूरन (जिमीकंद)",
+    "ur": "زمینکند / سورن",
+    "cat": "vegetable",
+    "aliases": [
+      "elephant yam",
+      "elephant foot yam",
+      "suran",
+      "jimikand",
+      "kanda gadda",
+      "kanda dumpa"
+    ]
+  },
+  {
+    "slug": "garlic",
+    "en": "Garlic",
+    "te": "వెల్లుల్లి (తెల్లపాయ)",
+    "hi": "लहसुन",
+    "ur": "لہسن",
+    "cat": "vegetable",
+    "aliases": [
+      "garlic",
+      "vellulli",
+      "lahsun",
+      "lehsan"
+    ]
+  },
+  {
+    "slug": "ginger",
+    "en": "Ginger",
+    "te": "అల్లం",
+    "hi": "अदरक",
+    "ur": "ادرک",
+    "cat": "vegetable"
+  },
+  {
+    "slug": "oniongreen",
+    "en": "Onion Green (Spring Onion)",
+    "te": "ఉల్లి కాడలు (స్ప్రింగ్ ఆనియన్)",
+    "hi": "हरा प्याज (स्प्रिंग अनियन)",
+    "ur": "ہرا پیاز",
+    "cat": "vegetable",
+    "aliases": [
+      "onion green",
+      "green onion",
+      "spring onion",
+      "scallion",
+      "ulli kaadalu"
+    ]
+  },
+  {
+    "slug": "ivygourd",
+    "en": "Ivy Gourd (Tindora)",
+    "te": "దొండకాయ",
+    "hi": "कुंदरू (टिंडोरा)",
+    "ur": "کندرو / ٹنڈورا",
+    "cat": "vegetable",
+    "aliases": [
+      "ivy gourd",
+      "dondakaya",
+      "kundru",
+      "tindora",
+      "tindoora"
+    ]
+  },
+  {
+    "slug": "mangoraw",
+    "en": "Raw Mango (Kaccha Aam)",
+    "te": "పచ్చి మామిడికాయ",
+    "hi": "कच्चा आम (कैरी)",
+    "ur": "کچا آم / کیری",
+    "cat": "fruit",
+    "aliases": [
+      "mango raw",
+      "raw mango",
+      "kaccha aam",
+      "kairi",
+      "pachi mamidikaya"
+    ]
+  },
+  {
+    "slug": "mintleaves",
+    "en": "Mint Leaves (Pudina)",
+    "te": "పుదీనా",
+    "hi": "पुदीना पत्ता",
+    "ur": "پودینہ",
+    "cat": "vegetable",
+    "aliases": [
+      "mint leaves",
+      "mint",
+      "pudina"
+    ]
+  },
+  {
+    "slug": "mushroom",
+    "en": "Mushroom",
+    "te": "పుట్టగొడుగులు",
+    "hi": "मशरूम (कुकुरमुत्ता)",
+    "ur": "مشروم / کھمبی",
+    "cat": "vegetable",
+    "aliases": [
+      "mushroom",
+      "puttagodugulu",
+      "khumbi"
+    ]
+  },
+  {
+    "slug": "mustardleaves",
+    "en": "Mustard Leaves (Sarson)",
+    "te": "ఆవ ఆకులు (ఆవ కూర)",
+    "hi": "सरसों का साग",
+    "ur": "سرسوں کا ساگ",
+    "cat": "vegetable",
+    "aliases": [
+      "mustard leaves",
+      "sarson saag",
+      "sarson patta",
+      "aava aakulu"
+    ]
+  },
+  {
+    "slug": "shallot",
+    "en": "Shallot (Pearl Onion)",
+    "te": "సాంబార్ ఉల్లిపాయ",
+    "hi": "सांभर प्याज",
+    "ur": "چھوٹا پیاز (شالٹ)",
+    "cat": "vegetable",
+    "aliases": [
+      "shallot",
+      "pearl onion",
+      "sambhar onion",
+      "madras onion"
+    ]
+  },
+  {
+    "slug": "sorrelleaves",
+    "en": "Sorrel Leaves (Gongura)",
+    "te": "గోంగూర (పుంటికూర)",
+    "hi": "गोंगुरा (अम्बाडी)",
+    "ur": "گونگورا / کھٹا ساگ",
+    "cat": "vegetable",
+    "aliases": [
+      "sorrel leaves",
+      "gongura",
+      "puntikoora",
+      "ambadi"
+    ]
+  },
+  {
+    "slug": "sweetpotato",
+    "en": "Sweet Potato (Shakarkand)",
+    "te": "చిలగడదుంప (గెనుసుగడ్డ)",
+    "hi": "शकरकंद",
+    "ur": "شکر قندی",
+    "cat": "vegetable",
+    "aliases": [
+      "sweet potato",
+      "sweetpotato",
+      "shakarkandi",
+      "shakarkand",
+      "chilakadadumpa"
+    ]
+  },
+  {
+    "slug": "telanganasona",
+    "en": "Telangana Sona Rice (RNR 15048)",
+    "te": "తెలంగాణ సోనా వరి (RNR 15048)",
+    "hi": "तेलंगाना सोना धान (RNR 15048)",
+    "ur": "تلنگانہ سونا چاول (RNR 15048)",
+    "cat": "grain",
+    "aliases": [
+      "telangana sona",
+      "rnr 15048",
+      "rnr-15048",
+      "telangana sona rice",
+      "telangana sona paddy"
+    ]
+  },
+  {
+    "slug": "sonamasoori",
+    "en": "Sona Masoori Paddy (BPT 5204)",
+    "te": "సోనా మసూరి వరి (BPT 5204)",
+    "hi": "सोना मसूरी धान (BPT 5204)",
+    "ur": "سونا مسوری دھان (BPT 5204)",
+    "cat": "grain",
+    "aliases": [
+      "sona masoori",
+      "bpt 5204",
+      "bpt-5204",
+      "sona masuri",
+      "samba mahsuri"
+    ]
+  },
+  {
+    "slug": "tandurredgram",
+    "en": "Tandur Red Gram (Arhar / Tur Dal)",
+    "te": "తాండూరు కందులు (కంది పప్పు)",
+    "hi": "तांदूर अरहर दाल (तूर दाल)",
+    "ur": "تندور ارہر دال (توار دال)",
+    "cat": "pulse",
+    "aliases": [
+      "tandur red gram",
+      "red gram",
+      "arhar dal",
+      "tur dal",
+      "arhar",
+      "tandur arhar"
+    ]
+  },
+  {
+    "slug": "organicguava",
+    "en": "Telangana Organic Guava",
+    "te": "తెలంగాణ సేంద్రీయ జామపండు (జామ)",
+    "hi": "तेलंगाना जैविक अमरूद",
+    "ur": "تلنگانہ نامیاتی امرود",
+    "cat": "fruit",
+    "aliases": [
+      "organic guava",
+      "telangana organic guava",
+      "safeda guava",
+      "safeda amrood"
+    ]
+  },
+  {
+    "slug": "organicbhendichillies",
+    "en": "Organic Okra (Bhendi) & Chillies",
+    "te": "సేంద్రీయ బెండకాయ & పచ్చిమిర్చి",
+    "hi": "जैविक भिंडी एवं हरी मिर्च",
+    "ur": "نامیاتی بھنڈی اور ہری مرچیں",
+    "cat": "vegetable",
+    "aliases": [
+      "organic bhendi",
+      "bhendi & chillies",
+      "okra & chillies"
+    ]
+  },
+  {
+    "slug": "warangalredchilli",
+    "en": "Warangal Chapata Red Chilli",
+    "te": "వరంగల్ చపటా ఎండుమిర్చి",
+    "hi": "वारंगल चपटा लाल मिर्च",
+    "ur": "وارنگل چپٹا لال مرچ",
+    "cat": "spice",
+    "aliases": [
+      "warangal chilli",
+      "warangal red chilli",
+      "chapata chilli",
+      "teja chilli"
+    ]
+  }
+];
+
+
+// Fast Produce Lookup Table
+const PRODUCE_LOOKUP = {};
+PRODUCE_CATALOGUE.forEach(item => {
+  PRODUCE_LOOKUP[item.slug.toLowerCase()] = item;
+  PRODUCE_LOOKUP[item.en.toLowerCase()] = item;
+  PRODUCE_LOOKUP[item.en.toLowerCase().replace(/[\s\-_]+/g, '')] = item;
+  if (item.aliases) {
+    item.aliases.forEach(a => {
+      PRODUCE_LOOKUP[a.toLowerCase()] = item;
+      PRODUCE_LOOKUP[a.toLowerCase().replace(/[\s\-_]+/g, '')] = item;
+    });
+  }
+});
+
+function getCropTranslation(inputName, lang = (typeof currentLanguage !== 'undefined' ? currentLanguage : 'en')) {
+  if (!inputName || typeof inputName !== 'string') {
+    return { name: '', en: '', te: '', hi: '', ur: '', cat: 'produce' };
+  }
+  const raw = inputName.trim();
+  const lower = raw.toLowerCase();
+  const noParens = lower.replace(/\(.*?\)/g, '').replace(/\[.*?\]/g, '').replace(/\/.*$/g, '').replace(/[0-9,]+(\s*kg|\s*quintal)?/gi, '').trim();
+  const noSpace = noParens.replace(/[\s\-_]+/g, '');
+
+  // 1. Exact match
+  let match = PRODUCE_LOOKUP[lower] || PRODUCE_LOOKUP[noParens] || PRODUCE_LOOKUP[noSpace];
+
+  // 2. Word boundary match (sorted by descending key length)
+  if (!match) {
+    const keys = Object.keys(PRODUCE_LOOKUP).sort((a, b) => b.length - a.length);
+    for (const k of keys) {
+      if (k.length >= 3) {
+        const escaped = k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const wordRegex = new RegExp('(?:^|\\s|_|-)' + escaped + '(?:$|\\s|_|-)', 'i');
+        if (wordRegex.test(noParens) || wordRegex.test(lower)) {
+          match = PRODUCE_LOOKUP[k];
+          break;
+        }
+      }
     }
-  };
+  }
+
+  // 3. Substring match fallback for keys >= 4 chars
+  if (!match) {
+    const keys = Object.keys(PRODUCE_LOOKUP).sort((a, b) => b.length - a.length);
+    for (const k of keys) {
+      if (k.length >= 4 && noParens.includes(k)) {
+        match = PRODUCE_LOOKUP[k];
+        break;
+      }
+    }
+  }
+
+  if (match) {
+    const localized = (lang === 'te' ? match.te : (lang === 'hi' ? match.hi : (lang === 'ur' ? match.ur : match.en))) || match.en;
+    return {
+      name: localized,
+      en: match.en,
+      te: match.te,
+      hi: match.hi,
+      ur: match.ur,
+      cat: match.cat
+    };
+  }
+
+  return { name: raw, en: raw, te: raw, hi: raw, ur: raw, cat: 'produce' };
+}
+window.getCropTranslation = getCropTranslation;
+
+  const I18N = {
+  en: {
+    app_name: "KisanSaathi",
+    tagline: "Direct Farm-to-Buyer with Value Addition & Packaging",
+    gov_telangana: "Government of Telangana",
+    dept_agriculture: "Department of Agriculture & Farmers Welfare",
+    nav_inventory: "Farmer's Inventory",
+    nav_upload: "Add Crop to Sell",
+    nav_market_dashboard: "Daily Market Prices",
+    nav_quality: "Crop Quality Prediction (AI)",
+    nav_negotiate: "Price Negotiations",
+    nav_orders: "Orders & Deliveries",
+    nav_wallet: "Payment Tracking System",
+    nav_loan: "Blockchain Loan Ledger",
+    nav_soil: "Soil Testing Labs & Card",
+    nav_info: "Advisory & Information Hub",
+    nav_godowns: "Godowns & Warehouses",
+    nav_logistics: "Logistics Network",
+    nav_weather: "Weather Forecast",
+    nav_chat: "AI Kisan Assistant (Chatbot)",
+    nav_feedback: "Contact Admin / Grievance",
+    nav_about: "About Project & Team",
+    title_home: "Home",
+    title_market: "Market",
+    title_info: "Info",
+    title_quality: "Quality",
+    title_orders: "Orders",
+    title_chat: "Assistant",
+    title_profile: "Profile",
+    wallet_earning: "Payments Received",
+    negotiations_title: "Negotiations",
+    orders_title: "Orders",
+    your_inventory: "Your Crop Inventory",
+    total_crops: "Crops Listed",
+    add_in_inventory: "Add Inventory Item",
+    upload_image_hint: "Tap to take photo or upload crop sample",
+    enter_product_name: "Item / Crop Name",
+    quality: "Quality Grade",
+    quantity_available_in_stock: "Quantity (Kg)",
+    price_rs_kg: "Price (₹ / Kg)",
+    description: "Crop Description & Harvesting Details",
+    submit_crop: "Publish to Telangana Marketplace",
+    quality_prediction: "AI Crop Quality Prediction",
+    select_category: "Select Crop Category",
+    negotiated_prices: "Negotiated Prices by Buyers",
+    all_orders: "All Buyer Orders",
+    available_balance: "Total Payments Received from Consumers",
+    send_money_to_bank: "Direct DBT Settlement",
+    request_statement: "Download Statement",
+    recents_transactions: "Consumer Payments Received",
+    labs_heading: "Soil Testing Laboratories",
+    soil_test_lab: "Find nearest authorized soil testing laboratory in Telangana",
+    select_state: "State",
+    select_district: "District",
+    crop_production_card_title: "Crop Production Methods",
+    treatment_card_title: "Crop Disease Remedies",
+    horticulture_card_title: "Horticulture Methods",
+    policy_card_title: "Government Schemes",
+    godown: "Godowns & Warehouses",
+    storage_card_title: "Soil Health Card",
+    logistics: "Logistics",
+    wallet: "Farmer's Earning Wallet",
+    about_us: "About Application & Team",
+    kisan_mitra_title: "Kisan Mitra AI Assistant",
+    tab1_item_details: "Item Details",
+    tab2_reviews: "Buyer Reviews",
+    edit_details: "Edit Details",
+    order_details: "Order Details",
+    reach_buyer: "Open Route in Google Maps",
+    price: "Price (₹/Kg)",
+    quantity: "Stock Available",
+    market_dashboard_title: "Telangana Daily Market Prices",
+    market_dashboard_sub: "Real-time Wholesale Mandi Benchmarks & Retail Trends",
+    search_produce_placeholder: "Search crop name (e.g. Tomato, Mango, Rice...)",
+    active_mandis: "Active Mandis",
+    tracked_commodities: "Tracked Commodities",
+    avg_wholesale_price: "Avg Wholesale Price",
+    price_trends: "Price Trends",
+    wholesale_mandi: "Wholesale (Mandi)",
+    retail_range: "Retail Range",
+    yesterday: "Yesterday",
+    trend_14d: "14D Trend",
+    variety_label: "Variety",
+    rythu_bazar_stores: "Rythu Bazar / Stores",
+    refresh_prices: "Refresh Prices",
+    no_produce_matches: "No produce matches your search filter.",
+    view_source_portal: "View Source Portal",
+    filter_all: "All",
+    filter_all_produce: "All Produce",
+    filter_veg_produce: "Vegetables",
+    filter_fruit_produce: "Fruits",
+    filter_grain_produce: "Grains & Cereals",
+    filter_pulse_produce: "Pulses",
+    filter_commercial_produce: "Commercial",
+    filter_spice_produce: "Spices",
+    pending_action: "Pending Action",
+    agreed_settled: "Agreed & Settled",
+    declined: "Declined",
+    your_price: "Your Price",
+    buyer_counter_offer: "Buyer Counter Offer",
+    total_deal: "Total Deal",
+    buyer_destination: "Buyer's Decided Delivery Destination:",
+    accept_offer_btn: "Accept Offer & Proceed with Delivery",
+    decline_btn: "Decline",
+    no_negotiations: "No buyer negotiation offers.",
+    transit_tracking_sub: "Transit Tracking & Fulfillment",
+    status_delivered: "Delivered",
+    status_in_transit: "In Transit",
+    status_processing: "Processing",
+    order_destination: "Decided Delivery Destination:",
+    items_label: "Items:",
+    proceed_delivery_btn: "Proceed with Delivery → Dispatch Shipment",
+    confirm_delivery_btn: "Confirm Delivery at Destination & Release Escrow",
+    delivery_fulfilled_badge: "Delivery Fulfilled | Payment Credited to Payment Tracking",
+    view_route_btn: "View Route & Transit →",
+    no_orders: "No active orders.",
+    payment_received_badge: "Received (DBT Credited)",
+    amount_paid: "Amount Paid",
+    ref_label: "Ref:",
+    no_payments: "No Consumer Payments Received Yet",
+    save_changes: "Save Changes",
+    delete_item: "Delete Item",
+    close_btn: "Close",
+    credit_score_label: "Agri Credit Score:",
+    eligible_limit: "Eligible Limit:",
+    verified_farmer: "Verified Farmer",
+    btn_sign_out: "Sign Out",
+    view_mode_mobile: "📱 Mobile App View",
+    view_mode_desktop: "💻 Desktop Portal Mode"
+  },
+  hi: {
+    app_name: "किसान साथी",
+    tagline: "मूल्य संवर्धन एवं पैकेजिंग के साथ किसान से सीधे खरीदार तक",
+    gov_telangana: "तेलंगाना सरकार",
+    dept_agriculture: "कृषि एवं किसान कल्याण विभाग",
+    nav_inventory: "किसान इन्वेंटरी",
+    nav_upload: "फसल बिक्री हेतु जोड़ें",
+    nav_market_dashboard: "दैनिक बाजार भाव",
+    nav_quality: "फसल गुणवत्ता परीक्षण (AI)",
+    nav_negotiate: "मूल्य बातचीत (सौदा)",
+    nav_orders: "ऑर्डर एवं आपूर्ति",
+    nav_wallet: "भुगतान ट्रैकिंग सिस्टम",
+    nav_loan: "ब्लॉकचेन ऋण बहीखाता",
+    nav_soil: "मृदा परीक्षण प्रयोगशालाएं",
+    nav_info: "कृषि सलाह एवं सूचना केंद्र",
+    nav_godowns: "गोदाम एवं वेयरहाउस",
+    nav_logistics: "लॉजिस्टिक्स व वाहन",
+    nav_weather: "मौसम पूर्वानुमान",
+    nav_chat: "AI किसान सहायक (चैट)",
+    nav_feedback: "शिकायत निवारण / संपर्क",
+    nav_about: "परियोजना एवं टीम",
+    title_home: "होम",
+    title_market: "मंडी भाव",
+    title_info: "जानकारी",
+    title_quality: "गुणवत्ता",
+    title_orders: "ऑर्डर",
+    title_chat: "सहायक",
+    title_profile: "प्रोफ़ाइल",
+    wallet_earning: "प्राप्त भुगतान",
+    negotiations_title: "बातचीत",
+    orders_title: "ऑर्डर",
+    your_inventory: "आपकी फसल इन्वेंटरी",
+    total_crops: "सूचीबद्ध फसलें",
+    add_in_inventory: "इन्वेंटरी में फसल जोड़ें",
+    upload_image_hint: "फोटो लें या फसल का नमूना अपलोड करें",
+    enter_product_name: "फसल / उत्पाद का नाम",
+    quality: "गुणवत्ता श्रेणी",
+    quantity_available_in_stock: "उपलब्ध मात्रा (किग्रा)",
+    price_rs_kg: "मूल्य (₹ प्रति किग्रा)",
+    description: "फसल विवरण एवं कटाई की जानकारी",
+    submit_crop: "तेलंगाना मंडी पोर्टल पर प्रकाशित करें",
+    quality_prediction: "AI फसल गुणवत्ता परीक्षण",
+    select_category: "फसल श्रेणी चुनें",
+    negotiated_prices: "खरीदारों द्वारा प्रस्तावित मूल्य",
+    all_orders: "सभी खरीदार ऑर्डर",
+    available_balance: "उपभोक्ताओं से प्राप्त कुल भुगतान",
+    send_money_to_bank: "प्रत्यक्ष DBT भुगतान",
+    request_statement: "विवरण पत्र डाउनलोड करें",
+    recents_transactions: "उपभोक्ताओं से प्राप्त भुगतान",
+    labs_heading: "मृदा परीक्षण प्रयोगशालाएं",
+    soil_test_lab: "निकटतम अधिकृत मृदा परीक्षण प्रयोगशाला खोजें",
+    select_state: "राज्य",
+    select_district: "जिला",
+    crop_production_card_title: "फसल उत्पादन विधियाँ",
+    treatment_card_title: "फसल रोग एवं जैविक निदान",
+    horticulture_card_title: "बागवानी विधियाँ",
+    policy_card_title: "सरकारी योजनाएं",
+    godown: "गोदाम एवं भंडार गृह",
+    storage_card_title: "मृदा स्वास्थ्य कार्ड",
+    logistics: "परिवहन व लॉजिस्टिक्स",
+    wallet: "किसान कमाई वॉलेट",
+    about_us: "एप्लिकेशन एवं टीम परिचय",
+    kisan_mitra_title: "किसान मित्र AI सहायक",
+    tab1_item_details: "उत्पाद विवरण",
+    tab2_reviews: "खरीदार समीक्षाएं",
+    edit_details: "विवरण संपादित करें",
+    order_details: "ऑर्डर विवरण",
+    reach_buyer: "गूगल मैप पर मार्ग देखें",
+    price: "मूल्य (₹/किग्रा)",
+    quantity: "उपलब्ध स्टॉक",
+    market_dashboard_title: "तेलंगाना दैनिक बाजार भाव",
+    market_dashboard_sub: "वास्तविक समय थोक मंडी दरें एवं खुदरा रुझान",
+    search_produce_placeholder: "फसल या फल खोजें (जैसे टमाटर, आम, धान...)",
+    active_mandis: "सक्रिय मंडियां",
+    tracked_commodities: "सूचीबद्ध फसलें",
+    avg_wholesale_price: "औसत थोक मूल्य",
+    price_trends: "मूल्य रुझान",
+    wholesale_mandi: "थोक मंडी भाव",
+    retail_range: "खुदरा मूल्य सीमा",
+    yesterday: "कल का भाव",
+    trend_14d: "14-दिन का रुझान",
+    variety_label: "किस्म",
+    rythu_bazar_stores: "रैतु बाजार / खुदरा दुकानें",
+    refresh_prices: "भाव ताज़ा करें",
+    no_produce_matches: "आपकी खोज के अनुसार कोई फसल नहीं मिली।",
+    view_source_portal: "स्रोत पोर्टल देखें",
+    filter_all: "सभी",
+    filter_all_produce: "सभी उत्पाद",
+    filter_veg_produce: "सब्जियां",
+    filter_fruit_produce: "फल",
+    filter_grain_produce: "अनाज व मोटे अनाज",
+    filter_pulse_produce: "दालें",
+    filter_commercial_produce: "व्यावसायिक फसलें",
+    filter_spice_produce: "मसाले",
+    pending_action: "कार्रवाई लंबित",
+    agreed_settled: "सौदा स्वीकृत",
+    declined: "अस्वीकृत",
+    your_price: "आपका मूल्य",
+    buyer_counter_offer: "खरीदार का प्रस्ताव",
+    total_deal: "कुल सौदा",
+    buyer_destination: "खरीदार का तय डिलीवरी गंतव्य:",
+    accept_offer_btn: "प्रस्ताव स्वीकारें एवं डिलीवरी शुरू करें",
+    decline_btn: "अस्वीकार करें",
+    no_negotiations: "कोई सक्रिय मूल्य प्रस्ताव नहीं।",
+    transit_tracking_sub: "आपूर्ति ट्रैकिंग एवं डिलीवरी",
+    status_delivered: "वितरित (सफल)",
+    status_in_transit: "रास्ते में (ट्रांजिट)",
+    status_processing: "प्रक्रिया में",
+    order_destination: "तय डिलीवरी गंतव्य:",
+    items_label: "उत्पाद:",
+    proceed_delivery_btn: "डिलीवरी शुरू करें → माल रवाना करें",
+    confirm_delivery_btn: "गंतव्य पर डिलीवरी सत्यापित करें व राशि जारी करें",
+    delivery_fulfilled_badge: "डिलीवरी संपन्न | भुगतान खाते में जमा",
+    view_route_btn: "मार्ग व ट्रैकिंग देखें →",
+    no_orders: "कोई सक्रिय ऑर्डर नहीं।",
+    payment_received_badge: "भुगतान प्राप्त (DBT जमा)",
+    amount_paid: "प्राप्त राशि",
+    ref_label: "संदर्भ:",
+    no_payments: "अभी तक कोई उपभोक्ता भुगतान प्राप्त नहीं हुआ",
+    save_changes: "परिवर्तन सहेजें",
+    delete_item: "हटाएं",
+    close_btn: "बंद करें",
+    credit_score_label: "कृषि क्रेडिट स्कोर:",
+    eligible_limit: "पात्र ऋण सीमा:",
+    verified_farmer: "सत्यापित किसान",
+    btn_sign_out: "लॉग आउट",
+    view_mode_mobile: "📱 मोबाइल दृश्य",
+    view_mode_desktop: "💻 डेस्कटॉप पोर्टल"
+  },
+  te: {
+    app_name: "కిసాన్ సాథి",
+    tagline: "రైతు నుండి నేరుగా కొనుగోలుదారునికి విలువ జోడింపుతో",
+    gov_telangana: "తెలంగాణ ప్రభుత్వం",
+    dept_agriculture: "వ్యవసాయ మరియు రైతు సంక్షేమ శాఖ",
+    nav_inventory: "రైతు పంట నిల్వలు",
+    nav_upload: "పంట అమ్మకానికి జోడించండి",
+    nav_market_dashboard: "రోజువారీ మార్కెట్ ధరలు",
+    nav_quality: "పంట నాణ్యత AI పరీక్ష",
+    nav_negotiate: "ధర సంప్రదింపులు",
+    nav_orders: "ఆర్డర్లు & రవాణా",
+    nav_wallet: "చెల్లింపుల ట్రాకింగ్ సిస్టమ్",
+    nav_loan: "బ్లాక్‌చెయిన్ పంట రుణాలు",
+    nav_soil: "నేల పరీక్ష ప్రయోగశాలలు",
+    nav_info: "వ్యవసాయ సలహా & సమాచారం",
+    nav_godowns: "గోదాములు & వేర్‌హౌస్‌లు",
+    nav_logistics: "రవాణా & లాజిస్టిక్స్ నెట్‌వర్క్",
+    nav_weather: "వాతావరణ సూచన",
+    nav_chat: "AI కిసాన్ అసిస్టెంట్",
+    nav_feedback: "ఫిర్యాదు / సంప్రదింపు",
+    nav_about: "ప్రాజెక్ట్ & టీమ్",
+    title_home: "హోమ్",
+    title_market: "మార్కెట్",
+    title_info: "సమాచారం",
+    title_quality: "నాణ్యత",
+    title_orders: "ఆర్డర్లు",
+    title_chat: "అసిస్టెంట్",
+    title_profile: "ప్రొఫైల్",
+    wallet_earning: "అందిన చెల్లింపులు",
+    negotiations_title: "ధర చర్చలు",
+    orders_title: "ఆర్డర్లు",
+    your_inventory: "మీ పంటల నిల్వ",
+    total_crops: "నమోదైన పంటలు",
+    add_in_inventory: "పంటను జోడించండి",
+    upload_image_hint: "ఫోటో తీయండి లేదా నమూనా అప్‌లోడ్ చేయండి",
+    enter_product_name: "పంట / ఉత్పత్తి పేరు",
+    quality: "నాణ్యత గ్రేడ్",
+    quantity_available_in_stock: "అందుబాటులో ఉన్న పరిమాణం (కిలోలు)",
+    price_rs_kg: "ధర (₹ / కిలో)",
+    description: "పంట వివరాలు",
+    submit_crop: "తెలంగాణ మార్కెట్లో ప్రచురించండి",
+    quality_prediction: "AI నాణ్యత పరీక్ష",
+    select_category: "పంట రకం ఎంచుకోండి",
+    negotiated_prices: "కొనుగోలుదారుల ఆఫర్లు",
+    all_orders: "అన్ని కొనుగోలుదారు ఆర్డర్లు",
+    available_balance: "వినియోగదారుల నుండి అందిన మొత్తం చెల్లింపులు",
+    send_money_to_bank: "ప్రత్యక్ష DBT బదిలీ",
+    request_statement: "చెల్లింపుల స్టేట్‌మెంట్ డౌన్‌లోడ్",
+    recents_transactions: "వినియోగదారుల నుండి అందిన చెల్లింపులు",
+    labs_heading: "నేల పరీక్ష ప్రయోగశాలలు",
+    soil_test_lab: "తెలంగాణలో అధీకృత నేల పరీక్ష కేంద్రాలు",
+    select_state: "రాష్ట్రం",
+    select_district: "జిల్లా",
+    crop_production_card_title: "పంట సాగు పద్ధతులు",
+    treatment_card_title: "సహజ కీటక నివారణ",
+    horticulture_card_title: "ఉద్యానవన పంటలు",
+    policy_card_title: "ప్రభుత్వ పథకాలు",
+    godown: "గోదాములు & వేర్‌హౌస్‌లు",
+    storage_card_title: "సాయిల్ హెల్త్ కార్డ్",
+    logistics: "లాజిస్టిక్స్ & రవాణా",
+    wallet: "రైతు వాలెట్",
+    about_us: "యాప్ & టీమ్ పరిచయం",
+    kisan_mitra_title: "కిసాన్ మిత్ర AI",
+    tab1_item_details: "వివరాలు",
+    tab2_reviews: "సమీక్షలు",
+    edit_details: "సవరించండి",
+    order_details: "ఆర్డర్ వివరాలు",
+    reach_buyer: "రూట్ చూడండి",
+    price: "ధర (₹/కిలో)",
+    quantity: "అందుబాటులో ఉన్న స్టాక్",
+    market_dashboard_title: "తెలంగాణ రోజువారీ మార్కెట్ ధరలు",
+    market_dashboard_sub: "లైవ్ హోల్‌సేల్ మార్కెట్ ధరలు & రిటైల్ ట్రెండ్‌లు",
+    search_produce_placeholder: "పంట లేదా పండు పేరును వెతకండి (ఉదా: టమాట, మామిడి, వరి...)",
+    active_mandis: "యాక్టివ్ మార్కెట్లు",
+    tracked_commodities: "ట్రాక్ చేయబడిన పంటలు",
+    avg_wholesale_price: "సగటు హోల్‌సేల్ ధర",
+    price_trends: "ధరల ట్రెండ్స్",
+    wholesale_mandi: "హోల్‌సేల్ (మండి) ధర",
+    retail_range: "రిటైల్ ధరల శ్రేణి",
+    yesterday: "నిన్నటి ధర",
+    trend_14d: "14 రోజుల ట్రెండ్",
+    variety_label: "రకం",
+    rythu_bazar_stores: "రైతు బజార్ / దుకాణాలు",
+    refresh_prices: "ధరలను రీఫ్రెష్ చేయండి",
+    no_produce_matches: "మీరు వెతికిన పంట వివరాలు లభించలేదు.",
+    view_source_portal: "అధికారిక పోర్టల్ చూడండి",
+    filter_all: "అన్నీ",
+    filter_all_produce: "అన్ని ఉత్పత్తులు",
+    filter_veg_produce: "కూరగాయలు",
+    filter_fruit_produce: "పండ్లు",
+    filter_grain_produce: "ధాన్యాలు & చిరుధాన్యాలు",
+    filter_pulse_produce: "పప్పుదినుసులు",
+    filter_commercial_produce: "వాణిజ్య పంటలు",
+    filter_spice_produce: "మసాలా దినుసులు",
+    pending_action: "పరిశీలనలో ఉంది",
+    agreed_settled: "ఒప్పందం కుదిరింది",
+    declined: "తిరస్కరించబడింది",
+    your_price: "మీ ధర",
+    buyer_counter_offer: "కొనుగోలుదారు ప్రతిపాదన",
+    total_deal: "మొత్తం విలువ",
+    buyer_destination: "కొనుగోలుదారు డెలివరీ గమ్యస్థానం:",
+    accept_offer_btn: "ఆఫర్‌ను అంగీకరించి డెలివరీ ప్రారంభించండి",
+    decline_btn: "తిరస్కరించండి",
+    no_negotiations: "ధర చర్చల ఆఫర్లు ఏవీ లేవు.",
+    transit_tracking_sub: "రవాణా & డెలివరీ ట్రాకింగ్",
+    status_delivered: "చేరవేయబడింది (పూర్తయింది)",
+    status_in_transit: "రవాణాలో ఉంది (ట్రాన్సిట్)",
+    status_processing: "ప్రాసెసింగ్ జరుగుతోంది",
+    order_destination: "నిర్ణయించిన డెలివరీ ప్రాంతం:",
+    items_label: "ఉత్పత్తులు:",
+    proceed_delivery_btn: "డెలివరీని ప్రారంభించండి → సరుకు పంపండి",
+    confirm_delivery_btn: "డెలివరీని ధృవీకరించండి & నిధులను విడుదల చేయండి",
+    delivery_fulfilled_badge: "డెలివరీ పూర్తయింది | చెల్లింపు ఖాతాలో జమైంది",
+    view_route_btn: "మార్గం & ట్రాకింగ్ చూడండి →",
+    no_orders: "ఎటువంటి ఆర్డర్లు లేవు.",
+    payment_received_badge: "చెల్లింపు అందింది (DBT క్రెడిట్)",
+    amount_paid: "అందిన మొత్తం",
+    ref_label: "రిఫరెన్స్:",
+    no_payments: "ఇంకా ఎటువంటి చెల్లింపులు అందలేదు",
+    save_changes: "మార్పులను సేవ్ చేయండి",
+    delete_item: "తొలగించండి",
+    close_btn: "మూసివేయండి",
+    credit_score_label: "వ్యవసాయ క్రెడిట్ స్కోరు:",
+    eligible_limit: "అర్హత కలిగిన రుణం:",
+    verified_farmer: "ధృవీకరించబడిన రైతు",
+    btn_sign_out: "లాగ్ అవుట్",
+    view_mode_mobile: "📱 మొబైల్ వీక్షణ",
+    view_mode_desktop: "💻 డెస్క్‌టాప్ పోర్టల్"
+  },
+  ur: {
+    app_name: "کسان ساتھی",
+    tagline: "کسان سے براہ راست خریدار تک ویلیو ایڈیشن کے ساتھ",
+    gov_telangana: "حکومت تلنگانہ",
+    dept_agriculture: "محکمہ زراعت و بہبود کسان",
+    nav_inventory: "کسان کی فصلوں کی فہرست",
+    nav_upload: "فصل فروخت کیلئے شامل کریں",
+    nav_market_dashboard: "روزانہ منڈی کے بھاؤ",
+    nav_quality: "فصل کے معیار کی جانچ (AI)",
+    nav_negotiate: "قیمتوں کے مذاکرات",
+    nav_orders: "آرڈرز اور ترسیل",
+    nav_wallet: "ادائیگی ٹریکنگ سسٹم",
+    nav_loan: "بلاک چین قرض کا کھاتہ",
+    nav_soil: "مٹی ٹیسٹ کرنے والی لیبارٹریز",
+    nav_info: "زرعی مشاورتی مرکز",
+    nav_godowns: "گودام اور ویئر ہاؤسز",
+    nav_logistics: "لاجسٹکس اور ٹرانسپورٹ نیٹ ورک",
+    nav_weather: "موسم کی پیشن گوئی",
+    nav_chat: "AI کسان معاون",
+    nav_feedback: "شکایات اور رابطہ",
+    nav_about: "پروجیکٹ اور ٹیم",
+    title_home: "ہوم",
+    title_market: "منڈی بھاؤ",
+    title_info: "معلومات",
+    title_quality: "معیار",
+    title_orders: "آرڈرز",
+    title_chat: "معاون",
+    title_profile: "پروفائل",
+    wallet_earning: "موصولہ ادائیگیاں",
+    negotiations_title: "بات چیت",
+    orders_title: "آرڈرز",
+    your_inventory: "آپ کی فصلوں کی فہرست",
+    total_crops: "فہرست شدہ فصلیں",
+    add_in_inventory: "فصل شامل کریں",
+    upload_image_hint: "تصویر لیں یا فصل کا نمونہ لگائیں",
+    enter_product_name: "فصل کا نام",
+    quality: "معیار کا گریڈ",
+    quantity_available_in_stock: "دستیاب مقدار (کلوگرام)",
+    price_rs_kg: "قیمت (₹ فی کلوگرام)",
+    description: "فصل کی تفصیل",
+    submit_crop: "مارکیٹ پورٹل پر شائع کریں",
+    quality_prediction: "AI فصل کا معیار",
+    select_category: "فصل کی قسم منتخب کریں",
+    negotiated_prices: "خریداروں کی تجاویز",
+    all_orders: "تمام خریدار آرڈرز",
+    available_balance: "صارفین سے موصولہ کل ادائیگیاں",
+    send_money_to_bank: "براہ راست ڈی بی ٹی ادائیگی",
+    request_statement: "اسٹیٹمنٹ ڈاؤن لوڈ کریں",
+    recents_transactions: "خریداروں سے موصولہ ادائیگیاں",
+    labs_heading: "مٹی ٹیسٹنگ لیبز",
+    soil_test_lab: "قریبی مٹی کی جانچ گاہ تلاش کریں",
+    select_state: "ریاست",
+    select_district: "ضلع",
+    crop_production_card_title: "فصل کی پیداواری طریقے",
+    treatment_card_title: "کیڑوں کے قدرتی علاج",
+    horticulture_card_title: "باغبانی کے طریقے",
+    policy_card_title: "سرکاری اسکیمیں",
+    godown: "گودام اور ویئر ہاؤسز",
+    storage_card_title: "سوائل ہیلتھ کارڈ",
+    logistics: "ٹرانسپورٹ و لاجسٹکس",
+    wallet: "کسان کا بٹوہ",
+    about_us: "ایپلیکیشن اور ٹیم",
+    kisan_mitra_title: "کسان مترا AI",
+    tab1_item_details: "تفصیلات",
+    tab2_reviews: "خریداروں کی آراء",
+    edit_details: "ترمیم کریں",
+    order_details: "آرڈر کی تفصیل",
+    reach_buyer: "گوگل میپ پر راستہ دیکھیں",
+    price: "قیمت (₹/کلو)",
+    quantity: "دستیاب اسٹاک",
+    market_dashboard_title: "تلنگانہ کے روزانہ منڈی بھاؤ",
+    market_dashboard_sub: "ریئل ٹائم ہول سیل منڈی ریٹ اور ریٹیل قیمتیں",
+    search_produce_placeholder: "فصل یا پھل تلاش کریں (مثلاً ٹماٹر، آم، چاول...)",
+    active_mandis: "فعال منڈیاں",
+    tracked_commodities: "فہرست شدہ اجناس",
+    avg_wholesale_price: "اوسط ہول سیل ریٹ",
+    price_trends: "قیمتوں کا رجحان",
+    wholesale_mandi: "ہول سیل (منڈی) ریٹ",
+    retail_range: "ریٹیل مارکیٹ رینج",
+    yesterday: "کل کا بھاؤ",
+    trend_14d: "14 دنوں کا رجحان",
+    variety_label: "قسم",
+    rythu_bazar_stores: "رائیتو بازار / دکانیں",
+    refresh_prices: "بھاؤ تازہ کریں",
+    no_produce_matches: "آپ کی تلاش کے مطابق کوئی فصل نہیں ملی۔",
+    view_source_portal: "سرکاری پورٹل دیکھیں",
+    filter_all: "سب",
+    filter_all_produce: "تمام اجناس",
+    filter_veg_produce: "سبزیاں",
+    filter_fruit_produce: "پھل",
+    filter_grain_produce: "اناج اور باجرہ",
+    filter_pulse_produce: "دالیں",
+    filter_commercial_produce: "تجارتی فصلیں",
+    filter_spice_produce: "مصالحہ جات",
+    pending_action: "کارروائی زیر التوا",
+    agreed_settled: "معاہدہ طے پایا",
+    declined: "مسترد",
+    your_price: "آپ کی قیمت",
+    buyer_counter_offer: "خریدار کی پیشکش",
+    total_deal: "کل سودا",
+    buyer_destination: "خریدار کی مقررہ ترسیلی منزل:",
+    accept_offer_btn: "پیشکش قبول کریں اور ترسیل شروع کریں",
+    decline_btn: "مسترد کریں",
+    no_negotiations: "کوئی فعال تجاویز موجود نہیں ہیں۔",
+    transit_tracking_sub: "ٹرانسپورٹ اور ترسیل کی ٹریکنگ",
+    status_delivered: "ترسیل مکمل",
+    status_in_transit: "راستے میں (ٹرانزٹ)",
+    status_processing: "پروسیسنگ جاری",
+    order_destination: "مقررہ ترسیلی منزل:",
+    items_label: "اشیاء:",
+    proceed_delivery_btn: "ترسیل شروع کریں → مال روانہ کریں",
+    confirm_delivery_btn: "منزل پر ترسیل کی تصدیق کریں اور رقم جاری کریں",
+    delivery_fulfilled_badge: "ترسیل مکمل | رقم کسان کے کھاتے میں منتقل",
+    view_route_btn: "راستہ اور ٹریکنگ دیکھیں →",
+    no_orders: "کوئی فعال آرڈر نہیں ہے۔",
+    payment_received_badge: "ادائیگی موصول (DBT کریڈٹ)",
+    amount_paid: "ادا شدہ رقم",
+    ref_label: "حوالہ:",
+    no_payments: "ابھی تک کوئی ادائیگی موصول نہیں ہوئی",
+    save_changes: "تبدیلیاں محفوظ کریں",
+    delete_item: "حذف کریں",
+    close_btn: "بند کریں",
+    credit_score_label: "زرعی کریڈٹ اسکور:",
+    eligible_limit: "قرض کی اہلیت:",
+    verified_farmer: "تصدیق شدہ کسان",
+    btn_sign_out: "لاگ آؤٹ",
+    view_mode_mobile: "📱 موبائل منظر",
+    view_mode_desktop: "💻 ڈیسک ٹاپ پورٹل"
+  }
+};
 
   // Setup Clock
   function updateClock() {
@@ -1599,9 +3680,41 @@ function initKisanSaathi() {
       }
     });
 
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      const key = el.getAttribute('data-i18n-placeholder');
+      if (dict[key]) {
+        el.placeholder = dict[key];
+      }
+    });
+
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+      const key = el.getAttribute('data-i18n-title');
+      if (dict[key]) {
+        el.title = dict[key];
+      }
+    });
+
     const appHeaderTitle = document.getElementById('appHeaderTitle');
     if (appHeaderTitle) {
       appHeaderTitle.textContent = dict.app_name;
+    }
+
+    // Update Drawer Farmer Profile details
+    const farmer = KISAN_DATA.farmer;
+    const drawerFarmerName = document.getElementById('drawerFarmerName');
+    if (drawerFarmerName && farmer) {
+      drawerFarmerName.textContent = (lang === 'hi' && farmer.name_hi) ? farmer.name_hi :
+                                     (lang === 'te' && farmer.name_te) ? farmer.name_te :
+                                     (lang === 'ur' && farmer.name_ur) ? farmer.name_ur :
+                                     farmer.name;
+    }
+    const drawerFarmerPlace = document.getElementById('drawerFarmerPlace');
+    if (drawerFarmerPlace && farmer) {
+      const dist = (lang === 'hi' && farmer.district_hi) ? farmer.district_hi :
+                   (lang === 'te' && farmer.district_te) ? farmer.district_te :
+                   (lang === 'ur' && farmer.district_ur) ? farmer.district_ur :
+                   farmer.district;
+      drawerFarmerPlace.textContent = `${dist}, Telangana`;
     }
 
     // Set document direction for Urdu (RTL) and typography
@@ -1875,8 +3988,19 @@ function initKisanSaathi() {
 
     container.innerHTML = filtered.map(item => {
       const badgeClass = item.quality === 'Elite' ? 'badge-elite' : item.quality === 'Premium' ? 'badge-premium' : 'badge-classic';
-      const title = (currentLanguage === 'hi' && item.title_hi) ? item.title_hi : item.title;
-      const desc = (currentLanguage === 'hi' && item.description_hi) ? item.description_hi : item.description;
+      const crop = getCropTranslation(item.title, currentLanguage);
+      const title = (currentLanguage === 'hi' && item.title_hi) ? item.title_hi :
+                    (currentLanguage === 'te' && item.title_te) ? item.title_te :
+                    (currentLanguage === 'ur' && item.title_ur) ? item.title_ur :
+                    (crop.name || item.title);
+      const desc = (currentLanguage === 'hi' && item.description_hi) ? item.description_hi :
+                   (currentLanguage === 'te' && item.description_te) ? item.description_te :
+                   (currentLanguage === 'ur' && item.description_ur) ? item.description_ur :
+                   item.description;
+      const dict = I18N[currentLanguage] || I18N.en;
+      const qualityText = item.quality === 'Elite' ? (currentLanguage === 'te' ? 'ఎలైట్' : currentLanguage === 'hi' ? 'एलीट' : currentLanguage === 'ur' ? 'اعلیٰ' : 'Elite') :
+                          item.quality === 'Premium' ? (currentLanguage === 'te' ? 'ప్రీమియం' : currentLanguage === 'hi' ? 'प्रीमियम' : currentLanguage === 'ur' ? 'پریمیم' : 'Premium') :
+                          (currentLanguage === 'te' ? 'క్లాసిక్' : currentLanguage === 'hi' ? 'क्लासिक' : currentLanguage === 'ur' ? 'معیاری' : 'Classic');
 
       return `
         <div class="kisan-card p-3.5 flex gap-3 cursor-pointer relative" onclick="openItemDetailsModal('${item.id}')">
@@ -1889,7 +4013,7 @@ function initKisanSaathi() {
               <div class="flex justify-between items-start gap-1">
                 <h4 class="font-bold text-sm text-gray-900 leading-snug">${title}</h4>
                 <span class="px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wide font-extrabold ${badgeClass}">
-                  ${item.quality}
+                  ${qualityText}
                 </span>
               </div>
               <p class="text-[11px] text-gray-500 line-clamp-2 mt-1 leading-relaxed">${desc}</p>
@@ -1928,14 +4052,28 @@ function initKisanSaathi() {
     const item = inventory.find(i => i.id === itemId);
     if (!item) return;
 
+    const crop = getCropTranslation(item.title, currentLanguage);
+    const title = (currentLanguage === 'hi' && item.title_hi) ? item.title_hi :
+                  (currentLanguage === 'te' && item.title_te) ? item.title_te :
+                  (currentLanguage === 'ur' && item.title_ur) ? item.title_ur :
+                  (crop.name || item.title);
+    const desc = (currentLanguage === 'hi' && item.description_hi) ? item.description_hi :
+                 (currentLanguage === 'te' && item.description_te) ? item.description_te :
+                 (currentLanguage === 'ur' && item.description_ur) ? item.description_ur :
+                 item.description;
+    const dict = I18N[currentLanguage] || I18N.en;
+    const qualityText = item.quality === 'Elite' ? (currentLanguage === 'te' ? 'ఎలైట్' : currentLanguage === 'hi' ? 'एलीट' : currentLanguage === 'ur' ? 'اعلیٰ' : 'Elite') :
+                        item.quality === 'Premium' ? (currentLanguage === 'te' ? 'ప్రీమియం' : currentLanguage === 'hi' ? 'प्रीमियम' : currentLanguage === 'ur' ? 'پریمیم' : 'Premium') :
+                        (currentLanguage === 'te' ? 'క్లాసిక్' : currentLanguage === 'hi' ? 'क्लासिक' : currentLanguage === 'ur' ? 'معیاری' : 'Classic');
+
     document.getElementById('modalItemImage').src = item.image;
-    document.getElementById('modalItemTitle').textContent = (currentLanguage === 'hi' && item.title_hi) ? item.title_hi : item.title;
-    document.getElementById('modalItemDesc').textContent = (currentLanguage === 'hi' && item.description_hi) ? item.description_hi : item.description;
+    document.getElementById('modalItemTitle').textContent = title;
+    document.getElementById('modalItemDesc').textContent = desc;
     document.getElementById('modalItemPrice').textContent = `₹${item.price} / Kg`;
-    document.getElementById('modalItemQuantity').textContent = `${item.quantity} Kg in Stock`;
+    document.getElementById('modalItemQuantity').textContent = `${item.quantity} Kg (${dict.quantity || 'Stock Available'})`;
 
     const badge = document.getElementById('modalItemQualityBadge');
-    badge.textContent = `${item.quality} Quality`;
+    badge.textContent = `${qualityText} ${dict.quality || 'Quality'}`;
     badge.className = `absolute bottom-3 left-3 px-3 py-1 rounded-full text-xs font-bold ${item.quality === 'Elite' ? 'badge-elite' : item.quality === 'Premium' ? 'badge-premium' : 'badge-classic'}`;
 
     // Render Reviews
@@ -2659,27 +4797,48 @@ function initKisanSaathi() {
       const changeClass = isUp ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : (isDown ? 'bg-rose-50 text-rose-800 border-rose-200' : 'bg-gray-50 text-gray-700 border-gray-200');
       const changeArrow = isUp ? '▲' : (isDown ? '▼' : '●');
 
-      const catBadges = {
-        vegetable: '<span class="text-[9px] px-1.5 py-0.5 rounded-md font-semibold bg-green-100 text-green-800">Vegetable</span>',
-        fruit: '<span class="text-[9px] px-1.5 py-0.5 rounded-md font-semibold bg-red-100 text-red-800">Fruit</span>',
-        grain: '<span class="text-[9px] px-1.5 py-0.5 rounded-md font-semibold bg-amber-100 text-amber-800">Grain / Cereal</span>',
-        pulse: '<span class="text-[9px] px-1.5 py-0.5 rounded-md font-semibold bg-yellow-100 text-yellow-800">Pulse</span>',
-        commercial: '<span class="text-[9px] px-1.5 py-0.5 rounded-md font-semibold bg-purple-100 text-purple-800">Commercial</span>',
-        spice: '<span class="text-[9px] px-1.5 py-0.5 rounded-md font-semibold bg-orange-100 text-orange-800">Spice</span>'
+      const dict = I18N[currentLanguage] || I18N.en;
+      const crop = getCropTranslation(item.name || item.id, currentLanguage);
+      const mainTitle = crop.name || item.name;
+
+      // Subtitle: English or local alternate
+      let subtitle = '';
+      if (currentLanguage === 'en') {
+        subtitle = item.teluguName || '';
+      } else if (item.name && item.name !== mainTitle) {
+        subtitle = item.name;
+      }
+
+      const catLabels = {
+        vegetable: dict.filter_veg_produce || 'Vegetable',
+        fruit: dict.filter_fruit_produce || 'Fruit',
+        grain: dict.filter_grain_produce || 'Grain',
+        pulse: dict.filter_pulse_produce || 'Pulse',
+        commercial: dict.filter_commercial_produce || 'Commercial',
+        spice: dict.filter_spice_produce || 'Spice'
       };
 
-      const catBadge = catBadges[item.category] || '<span class="text-[9px] px-1.5 py-0.5 rounded-md font-semibold bg-gray-100 text-gray-800">Produce</span>';
+      const catBadges = {
+        vegetable: `<span class="text-[9px] px-1.5 py-0.5 rounded-md font-semibold bg-green-100 text-green-800">${catLabels.vegetable}</span>`,
+        fruit: `<span class="text-[9px] px-1.5 py-0.5 rounded-md font-semibold bg-red-100 text-red-800">${catLabels.fruit}</span>`,
+        grain: `<span class="text-[9px] px-1.5 py-0.5 rounded-md font-semibold bg-amber-100 text-amber-800">${catLabels.grain}</span>`,
+        pulse: `<span class="text-[9px] px-1.5 py-0.5 rounded-md font-semibold bg-yellow-100 text-yellow-800">${catLabels.pulse}</span>`,
+        commercial: `<span class="text-[9px] px-1.5 py-0.5 rounded-md font-semibold bg-purple-100 text-purple-800">${catLabels.commercial}</span>`,
+        spice: `<span class="text-[9px] px-1.5 py-0.5 rounded-md font-semibold bg-orange-100 text-orange-800">${catLabels.spice}</span>`
+      };
+
+      const catBadge = catBadges[item.category] || `<span class="text-[9px] px-1.5 py-0.5 rounded-md font-semibold bg-gray-100 text-gray-800">${item.category}</span>`;
 
       return `
         <div class="bg-white p-3.5 rounded-2xl border border-gray-100 hover:border-purple-200 shadow-xs hover:shadow-sm transition-all duration-150 space-y-2.5">
           <div class="flex items-start justify-between gap-2">
             <div>
               <div class="flex items-center gap-1.5 flex-wrap">
-                <h4 class="text-sm font-bold text-gray-900">${item.name}</h4>
+                <h4 class="text-sm font-bold text-gray-900">${mainTitle}</h4>
                 ${catBadge}
               </div>
-              ${item.teluguName ? `<p class="text-[11px] text-gray-500 font-medium">${item.teluguName}</p>` : ''}
-              ${item.variety ? `<p class="text-[10px] text-purple-700 font-medium">Variety: ${item.variety}</p>` : ''}
+              ${subtitle ? `<p class="text-[11px] text-gray-500 font-medium">${subtitle}</p>` : ''}
+              ${item.variety ? `<p class="text-[10px] text-purple-700 font-medium">${dict.variety_label || 'Variety'}: ${item.variety}</p>` : ''}
             </div>
 
             <div class="text-right shrink-0">
@@ -2693,18 +4852,18 @@ function initKisanSaathi() {
 
           <div class="grid grid-cols-2 gap-2 p-2.5 rounded-xl bg-purple-50/40 border border-purple-100/60 text-xs">
             <div>
-              <span class="text-[10px] text-purple-900 font-bold uppercase tracking-wider block">Wholesale (Mandi)</span>
+              <span class="text-[10px] text-purple-900 font-bold uppercase tracking-wider block">${dict.wholesale_mandi || 'Wholesale (Mandi)'}</span>
               <div class="text-base font-extrabold text-purple-950 mt-0.5">
                 ₹${item.wholesalePrice} <span class="text-[10px] font-normal text-purple-800">/ ${item.units || '1kg'}</span>
               </div>
-              <span class="text-[10px] text-gray-500">Yesterday: ₹${item.prevWholesalePrice}</span>
+              <span class="text-[10px] text-gray-500">${dict.yesterday || 'Yesterday'}: ₹${item.prevWholesalePrice}</span>
             </div>
             <div>
-              <span class="text-[10px] text-amber-900 font-bold uppercase tracking-wider block">Retail Range</span>
+              <span class="text-[10px] text-amber-900 font-bold uppercase tracking-wider block">${dict.retail_range || 'Retail Range'}</span>
               <div class="text-sm font-bold text-amber-950 mt-0.5">
                 ${item.retailPrice}
               </div>
-              <span class="text-[10px] text-amber-700">Rythu Bazar / Stores</span>
+              <span class="text-[10px] text-amber-700">${dict.rythu_bazar_stores || 'Rythu Bazar / Stores'}</span>
             </div>
           </div>
 
@@ -2714,11 +4873,11 @@ function initKisanSaathi() {
               <span class="truncate">${item.market || 'Telangana'} • ${item.observationDate}</span>
             </div>
             <div class="flex items-center gap-2">
-              <a href="${item.portalUrl}" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-purple-600 transition" title="View Source Portal">
+              <a href="${item.portalUrl}" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-purple-600 transition" title="${dict.view_source_portal || 'View Source Portal'}">
                 <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
               </a>
-              <button type="button" onclick="showCropHistoryChart('${item.id}', '${item.name.replace(/'/g, "\\'")}')" class="px-2.5 py-1 bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold text-[11px] rounded-lg transition inline-flex items-center gap-1">
-                <i data-lucide="line-chart" class="w-3 h-3"></i> 14D Trend
+              <button type="button" onclick="showCropHistoryChart('${item.id}', '${mainTitle.replace(/'/g, "\\'")}')" class="px-2.5 py-1 bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold text-[11px] rounded-lg transition inline-flex items-center gap-1">
+                <i data-lucide="line-chart" class="w-3 h-3"></i> ${dict.trend_14d || '14D Trend'}
               </button>
             </div>
           </div>
@@ -2922,10 +5081,15 @@ function initKisanSaathi() {
       return;
     }
 
+    const dict = I18N[currentLanguage] || I18N.en;
     container.innerHTML = negotiations.map(n => {
       const isPending = n.status === 'pending';
       const isAccepted = n.status === 'accepted';
       const decidedLocation = n.buyer?.location || n.mandi_location || 'Bowenpally Modern Market Yard, Secunderabad, Telangana';
+
+      const crop = getCropTranslation(n.itemTitle, currentLanguage);
+      const cropTitle = crop.name || n.itemTitle;
+      const statusText = isPending ? dict.pending_action : isAccepted ? dict.agreed_settled : dict.declined;
 
       return `
         <div class="kisan-card p-4 space-y-3 border-l-4 ${isPending ? 'border-amber-500' : isAccepted ? 'border-emerald-500' : 'border-gray-400'}">
@@ -2935,11 +5099,11 @@ function initKisanSaathi() {
               <div class="flex justify-between items-start">
                 <h4 class="font-bold text-sm text-gray-900">${n.buyer.name}</h4>
                 <span class="text-xs font-bold px-2 py-0.5 rounded-full ${isPending ? 'bg-amber-100 text-amber-800' : isAccepted ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-700'}">
-                  ${isPending ? 'Pending Action' : isAccepted ? 'Agreed & Settled' : 'Declined'}
+                  ${statusText}
                 </span>
               </div>
               <p class="text-[11px] text-gray-500">${n.buyer.phone} | ${n.buyer.company || 'Direct Buyer'}</p>
-              <p class="text-xs font-semibold text-gray-700 mt-0.5">${n.itemTitle} (${n.quantity} Kg)</p>
+              <p class="text-xs font-semibold text-gray-700 mt-0.5">${cropTitle} (${n.quantity} Kg)</p>
             </div>
           </div>
 
@@ -2947,22 +5111,22 @@ function initKisanSaathi() {
           <div class="bg-emerald-50/80 border border-emerald-300 rounded-xl p-2.5 flex items-start gap-2 text-xs">
             <i data-lucide="map-pin" class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5"></i>
             <div>
-              <span class="text-[10px] text-emerald-800 uppercase font-bold tracking-wide block">Buyer's Decided Delivery Destination:</span>
+              <span class="text-[10px] text-emerald-800 uppercase font-bold tracking-wide block">${dict.buyer_destination}</span>
               <span class="font-bold text-gray-900">${decidedLocation}</span>
             </div>
           </div>
 
           <div class="bg-gray-50 p-2.5 rounded-xl flex items-center justify-between text-xs">
             <div>
-              <span class="text-gray-500 block">Your Price</span>
+              <span class="text-gray-500 block">${dict.your_price}</span>
               <span class="font-bold text-gray-700 line-through">₹${n.actualPrice} / Kg</span>
             </div>
             <div class="text-right">
-              <span class="text-gray-500 block">Buyer Counter Offer</span>
+              <span class="text-gray-500 block">${dict.buyer_counter_offer}</span>
               <span class="font-extrabold text-amber-700 text-sm">₹${n.proposedPrice} / Kg</span>
             </div>
             <div class="text-right">
-              <span class="text-gray-500 block">Total Deal</span>
+              <span class="text-gray-500 block">${dict.total_deal}</span>
               <span class="font-extrabold text-emerald-700 text-sm">₹${(n.proposedPrice * n.quantity).toLocaleString('en-IN')}</span>
             </div>
           </div>
@@ -2971,10 +5135,10 @@ function initKisanSaathi() {
             <div class="flex gap-2 pt-1">
               <button onclick="handleNegotiation('${n.id}', 'accept')" class="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-sm transition flex items-center justify-center gap-1.5">
                 <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
-                <span>Accept Offer & Proceed with Delivery (₹${n.proposedPrice}/Kg)</span>
+                <span>${dict.accept_offer_btn} (₹${n.proposedPrice}/Kg)</span>
               </button>
               <button onclick="handleNegotiation('${n.id}', 'reject')" class="px-3.5 py-2 border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-xl font-semibold text-xs transition">
-                Decline
+                ${dict.decline_btn}
               </button>
             </div>
           ` : `
@@ -3142,11 +5306,18 @@ function initKisanSaathi() {
       return;
     }
 
+    const dict = I18N[currentLanguage] || I18N.en;
     container.innerHTML = orders.map(order => {
       const isProcessing = order.status === 'Processing';
       const isInTransit = order.status === 'In Transit';
       const isDelivered = order.status === 'Delivered';
       const deliveryLocation = order.delivery_location || order.buyer?.address || 'Bowenpally Modern Market Yard, Secunderabad, Telangana';
+
+      const statusBadgeText = isDelivered ? ('✅ ' + dict.status_delivered) : isInTransit ? ('🚚 ' + dict.status_in_transit) : ('⏳ ' + dict.status_processing);
+      const itemsListStr = order.items.map(i => {
+        const c = getCropTranslation(i.name, currentLanguage);
+        return `${c.name || i.name} (${i.quantity}Kg)`;
+      }).join(', ');
 
       return `
         <div class="kisan-card p-4 space-y-3 cursor-pointer hover:border-purple-300 transition" onclick="openOrderDetailsModal('${order.id}')">
@@ -3156,7 +5327,7 @@ function initKisanSaathi() {
               <h4 class="font-bold text-sm text-gray-900">${order.buyer.first_name}</h4>
             </div>
             <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${isDelivered ? 'bg-emerald-100 text-emerald-800' : isInTransit ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800'}">
-              ${isDelivered ? '✅ Delivered' : isInTransit ? '🚚 In Transit' : '⏳ Processing'}
+              ${statusBadgeText}
             </span>
           </div>
 
@@ -3164,15 +5335,15 @@ function initKisanSaathi() {
           <div class="bg-blue-50/80 border border-blue-200 rounded-xl p-2.5 flex items-start gap-2 text-xs">
             <i data-lucide="map-pin" class="w-4 h-4 text-blue-600 shrink-0 mt-0.5"></i>
             <div>
-              <span class="text-[10px] text-blue-800 uppercase font-bold tracking-wide block">Decided Delivery Destination:</span>
+              <span class="text-[10px] text-blue-800 uppercase font-bold tracking-wide block">${dict.order_destination}</span>
               <span class="font-bold text-gray-900">${deliveryLocation}</span>
             </div>
           </div>
 
           <div class="bg-gray-50 p-2.5 rounded-xl flex justify-between items-center text-xs">
             <div>
-              <span class="text-gray-500">Items: </span>
-              <span class="font-semibold text-gray-800">${order.items.map(i => `${i.name} (${i.quantity}Kg)`).join(', ')}</span>
+              <span class="text-gray-500">${dict.items_label} </span>
+              <span class="font-semibold text-gray-800">${itemsListStr}</span>
             </div>
             <div class="font-bold text-purple-700 text-sm">
               ₹${order.amount.toLocaleString('en-IN')}
@@ -3184,17 +5355,17 @@ function initKisanSaathi() {
             ${isProcessing ? `
               <button type="button" onclick="event.stopPropagation(); advanceOrderDelivery('${order.id}', 'In Transit')" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs shadow transition flex items-center justify-center gap-1.5">
                 <i data-lucide="truck" class="w-3.5 h-3.5"></i>
-                <span>Proceed with Delivery &rarr; Dispatch Shipment</span>
+                <span>${dict.proceed_delivery_btn}</span>
               </button>
             ` : isInTransit ? `
               <button type="button" onclick="event.stopPropagation(); advanceOrderDelivery('${order.id}', 'Delivered')" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow transition flex items-center justify-center gap-1.5">
                 <i data-lucide="check-check" class="w-3.5 h-3.5"></i>
-                <span>Confirm Delivery at Destination & Release Escrow</span>
+                <span>${dict.confirm_delivery_btn}</span>
               </button>
             ` : `
               <div class="text-center py-1 text-emerald-700 font-bold text-xs flex items-center justify-center gap-1">
                 <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
-                <span>Delivery Fulfilled | Payment Credited to Payment Tracking</span>
+                <span>${dict.delivery_fulfilled_badge}</span>
               </div>
             `}
           </div>
@@ -3202,7 +5373,7 @@ function initKisanSaathi() {
           <div class="flex justify-between items-center text-[11px] text-gray-500 pt-1 border-t">
             <span>Date: ${order.date}</span>
             <span class="text-purple-600 font-semibold flex items-center gap-1">
-              <i data-lucide="map-pin" class="w-3 h-3"></i> View Route & Transit &rarr;
+              <i data-lucide="map-pin" class="w-3 h-3"></i> ${dict.view_route_btn}
             </span>
           </div>
         </div>
@@ -3337,10 +5508,17 @@ function initKisanSaathi() {
       return;
     }
 
+    const dict = I18N[currentLanguage] || I18N.en;
     txList.innerHTML = wallet.transactions.map(tx => {
       const amount = Math.abs(tx.amount || 0);
       const buyerName = tx.buyer || 'Verified Agro-Buyer';
-      const cropInfo = tx.cropName ? `${tx.cropName} (${tx.quantity || ''} Kg)` : (tx.desc || 'Crop harvest procurement');
+
+      let localizedCrop = '';
+      if (tx.cropName) {
+        const c = getCropTranslation(tx.cropName, currentLanguage);
+        localizedCrop = c.name || tx.cropName;
+      }
+      const cropInfo = localizedCrop ? `${localizedCrop} (${tx.quantity || ''} Kg)` : (tx.desc || 'Crop harvest procurement');
       const timeStr = tx.time || 'Recently';
       const destStr = tx.deliveryLocation ? `<span class="block text-[10px] text-gray-500 mt-0.5"><i data-lucide="map-pin" class="w-3 h-3 inline text-emerald-600"></i> ${tx.deliveryLocation}</span>` : '';
       const txId = tx.id || ('PAY-' + Math.floor(1000 + Math.random() * 9000));
@@ -3355,20 +5533,20 @@ function initKisanSaathi() {
               <div class="flex items-center gap-1.5 flex-wrap">
                 <span class="font-bold text-sm text-gray-900">${buyerName}</span>
                 <span class="inline-flex items-center gap-1 text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
-                  <i data-lucide="check" class="w-2.5 h-2.5 text-emerald-600"></i> Received (DBT Credited)
+                  <i data-lucide="check" class="w-2.5 h-2.5 text-emerald-600"></i> ${dict.payment_received_badge}
                 </span>
               </div>
               <p class="text-xs font-semibold text-gray-700 mt-0.5">${cropInfo}</p>
               ${destStr}
               <div class="flex items-center gap-2 text-[10px] text-gray-400 mt-1 font-mono">
-                <span>Ref: ${txId}</span>
+                <span>${dict.ref_label} ${txId}</span>
                 <span>•</span>
                 <span>${timeStr}</span>
               </div>
             </div>
           </div>
           <div class="text-right shrink-0">
-            <span class="text-[10px] text-gray-500 block uppercase font-bold">Amount Paid</span>
+            <span class="text-[10px] text-gray-500 block uppercase font-bold">${dict.amount_paid}</span>
             <span class="text-base font-extrabold text-emerald-700">+₹${amount.toLocaleString('en-IN')}</span>
           </div>
         </div>
