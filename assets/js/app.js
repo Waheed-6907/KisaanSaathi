@@ -17,9 +17,24 @@ function initKisanSaathi() {
   let selectedFarmerFilterId = null;
 
   // Local state clone of KISAN_DATA
+  function deduplicateOrders(orderList) {
+    if (!Array.isArray(orderList)) return [];
+    const seen = new Set();
+    return orderList.filter(o => {
+      if (!o) return false;
+      const crop = (o.crop_name || o.items?.[0]?.name || '').trim().toLowerCase();
+      const buyer = (o.buyer_name || o.buyer?.first_name || o.buyer?.name || '').trim().toLowerCase();
+      const key = o.id && !String(o.id).startsWith('ORD-') ? String(o.id) : `${crop}__${buyer}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+
   let inventory = JSON.parse(localStorage.getItem('kisan_inventory')) || [...KISAN_DATA.inventory];
   let negotiations = JSON.parse(localStorage.getItem('kisan_negotiations')) || [...KISAN_DATA.negotiations];
-  let orders = JSON.parse(localStorage.getItem('kisan_orders')) || [...KISAN_DATA.orders];
+  let orders = deduplicateOrders(JSON.parse(localStorage.getItem('kisan_orders')) || [...KISAN_DATA.orders]);
+  localStorage.setItem('kisan_orders', JSON.stringify(orders));
   let wallet = JSON.parse(localStorage.getItem('kisan_wallet')) || { ...KISAN_DATA.wallet };
   let blockchainLedger = JSON.parse(localStorage.getItem('kisan_blockchain')) || [...KISAN_DATA.blockchainLedger];
   let voiceEnabled = false;
@@ -1967,12 +1982,20 @@ window.getCropTranslation = getCropTranslation;
     transit_tracking_sub: "Transit Tracking & Fulfillment",
     status_delivered: "Delivered",
     status_in_transit: "In Transit",
-    status_processing: "Processing",
+    status_processing: "Out for Shipment",
+    status_out_for_shipment: "Out for Shipment",
+    btn_mark_in_transit: "Dispatch Shipment → In Transit",
+    btn_mark_delivered: "Confirm Delivery at Destination → Delivered",
+    status_delivered_completed: "Delivery Fulfilled | Escrow Released to DBT",
+    phase_out_for_shipment: "1. Out for Shipment",
+    phase_in_transit: "2. In Transit",
+    phase_delivered: "3. Delivered",
+    delivery_managed_by_farmer: "Delivery status is updated exclusively by the farmer",
     order_destination: "Decided Delivery Destination:",
     items_label: "Items:",
-    proceed_delivery_btn: "Proceed with Delivery → Dispatch Shipment",
-    confirm_delivery_btn: "Confirm Delivery at Destination & Release Escrow",
-    delivery_fulfilled_badge: "Delivery Fulfilled | Payment Credited to Payment Tracking",
+    proceed_delivery_btn: "Dispatch Shipment → In Transit",
+    confirm_delivery_btn: "Confirm Delivery at Destination → Delivered",
+    delivery_fulfilled_badge: "Delivery Fulfilled | Escrow Released to DBT",
     view_route_btn: "View Route & Transit →",
     no_orders: "No active orders.",
     payment_received_badge: "Received (DBT Credited)",
@@ -2096,12 +2119,20 @@ window.getCropTranslation = getCropTranslation;
     transit_tracking_sub: "आपूर्ति ट्रैकिंग एवं डिलीवरी",
     status_delivered: "वितरित (सफल)",
     status_in_transit: "रास्ते में (ट्रांजिट)",
-    status_processing: "प्रक्रिया में",
+    status_processing: "शिपमेंट हेतु तैयार",
+    status_out_for_shipment: "शिपमेंट हेतु तैयार",
+    btn_mark_in_transit: "शिपमेंट रवाना करें → ट्रांजिट",
+    btn_mark_delivered: "डिलीवरी की पुष्टि करें → पूर्ण",
+    status_delivered_completed: "वितरण पूर्ण | एस्क्रो राशि DBT खाते में जारी",
+    phase_out_for_shipment: "1. शिपमेंट हेतु तैयार",
+    phase_in_transit: "2. रास्ते में (ट्रांजिट)",
+    phase_delivered: "3. वितरित (सफल)",
+    delivery_managed_by_farmer: "डिलीवरी स्थिति केवल किसान द्वारा अपडेट की जाती है",
     order_destination: "तय डिलीवरी गंतव्य:",
     items_label: "उत्पाद:",
-    proceed_delivery_btn: "डिलीवरी शुरू करें → माल रवाना करें",
-    confirm_delivery_btn: "गंतव्य पर डिलीवरी सत्यापित करें व राशि जारी करें",
-    delivery_fulfilled_badge: "डिलीवरी संपन्न | भुगतान खाते में जमा",
+    proceed_delivery_btn: "शिपमेंट रवाना करें → ट्रांजिट",
+    confirm_delivery_btn: "डिलीवरी की पुष्टि करें → पूर्ण",
+    delivery_fulfilled_badge: "वितरण पूर्ण | एस्क्रो राशि DBT खाते में जारी",
     view_route_btn: "मार्ग व ट्रैकिंग देखें →",
     no_orders: "कोई सक्रिय ऑर्डर नहीं।",
     payment_received_badge: "भुगतान प्राप्त (DBT जमा)",
@@ -2225,12 +2256,20 @@ window.getCropTranslation = getCropTranslation;
     transit_tracking_sub: "రవాణా & డెలివరీ ట్రాకింగ్",
     status_delivered: "చేరవేయబడింది (పూర్తయింది)",
     status_in_transit: "రవాణాలో ఉంది (ట్రాన్సిట్)",
-    status_processing: "ప్రాసెసింగ్ జరుగుతోంది",
+    status_processing: "రవాణాకు సిద్ధం (షిప్‌మెంట్)",
+    status_out_for_shipment: "రవాణాకు సిద్ధం (షిప్‌మెంట్)",
+    btn_mark_in_transit: "సరుకును పంపించండి → రవాణాలో ఉంది",
+    btn_mark_delivered: "డెలివరీని నిర్ధారించండి → చేరింది",
+    status_delivered_completed: "డెలివరీ పూర్తయింది | ఎస్క్రో నిధులు DBTకి జమయ్యాయి",
+    phase_out_for_shipment: "1. రవాణాకు సిద్ధం",
+    phase_in_transit: "2. రవాణాలో ఉంది",
+    phase_delivered: "3. చేరవేయబడింది",
+    delivery_managed_by_farmer: "డెలివరీ స్థితిని కేవలం రైతు మాత్రమే అప్‌డేట్ చేస్తారు",
     order_destination: "నిర్ణయించిన డెలివరీ ప్రాంతం:",
     items_label: "ఉత్పత్తులు:",
-    proceed_delivery_btn: "డెలివరీని ప్రారంభించండి → సరుకు పంపండి",
-    confirm_delivery_btn: "డెలివరీని ధృవీకరించండి & నిధులను విడుదల చేయండి",
-    delivery_fulfilled_badge: "డెలివరీ పూర్తయింది | చెల్లింపు ఖాతాలో జమైంది",
+    proceed_delivery_btn: "సరుకును పంపించండి → రవాణాలో ఉంది",
+    confirm_delivery_btn: "డెలివరీని నిర్ధారించండి → చేరింది",
+    delivery_fulfilled_badge: "డెలివరీ పూర్తయింది | ఎస్క్రో నిధులు DBTకి జమయ్యాయి",
     view_route_btn: "మార్గం & ట్రాకింగ్ చూడండి →",
     no_orders: "ఎటువంటి ఆర్డర్లు లేవు.",
     payment_received_badge: "చెల్లింపు అందింది (DBT క్రెడిట్)",
@@ -2354,11 +2393,19 @@ window.getCropTranslation = getCropTranslation;
     transit_tracking_sub: "ٹرانسپورٹ اور ترسیل کی ٹریکنگ",
     status_delivered: "ترسیل مکمل",
     status_in_transit: "راستے میں (ٹرانزٹ)",
-    status_processing: "پروسیسنگ جاری",
+    status_processing: "ترسیل کے لیے تیار (شپمنٹ)",
+    status_out_for_shipment: "ترسیل کے لیے تیار (شپمنٹ)",
+    btn_mark_in_transit: "شپمنٹ روانہ کریں → ٹرانزٹ",
+    btn_mark_delivered: "ترسیل کی تصدیق کریں → مکمل",
+    status_delivered_completed: "ترسیل مکمل | رقم کسان کے کھاتے میں منتقل",
+    phase_out_for_shipment: "1. ترسیل کے لیے تیار",
+    phase_in_transit: "2. راستے میں (ٹرانزٹ)",
+    phase_delivered: "3. ترسیل مکمل",
+    delivery_managed_by_farmer: "ترسیل کی حالت صرف کسان کے ذریعے اپ ڈیٹ کی جاتی ہے",
     order_destination: "مقررہ ترسیلی منزل:",
     items_label: "اشیاء:",
-    proceed_delivery_btn: "ترسیل شروع کریں → مال روانہ کریں",
-    confirm_delivery_btn: "منزل پر ترسیل کی تصدیق کریں اور رقم جاری کریں",
+    proceed_delivery_btn: "شپمنٹ روانہ کریں → ٹرانزٹ",
+    confirm_delivery_btn: "ترسیل کی تصدیق کریں → مکمل",
     delivery_fulfilled_badge: "ترسیل مکمل | رقم کسان کے کھاتے میں منتقل",
     view_route_btn: "راستہ اور ٹریکنگ دیکھیں →",
     no_orders: "کوئی فعال آرڈر نہیں ہے۔",
@@ -3012,28 +3059,42 @@ window.getCropTranslation = getCropTranslation;
 
         if (!ordersErr && ordersData) {
           if (ordersData.length > 0) {
-            orders = ordersData.map(o => ({
-              id: o.id,
-              receiptNumber: `KS-TG-2026-${o.id ? o.id.slice(0, 5).toUpperCase() : Math.floor(10000 + Math.random()*90000)}`,
-              date: o.created_at ? new Date(o.created_at).toLocaleDateString('en-GB') : new Date().toLocaleDateString('en-GB'),
-              amount: Number(o.total_amount),
-              completed: o.escrow_status === 'escrow_released',
-              status: o.escrow_status === 'escrow_released' ? 'Delivered' : 'In Transit',
-              buyer: {
-                first_name: o.buyer_name,
-                phone: '+91 98480 33412',
-                address: 'Bowenpally Modern Market Yard, Secunderabad, Telangana'
-              },
-              items: [
-                { name: o.crop_name, quantity: Number(o.quantity_kg), pricePerKg: Number(o.price_per_kg || 28), total: Number(o.total_amount) }
-              ],
-              route: {
-                origin: "Geesugonda, Warangal (17.9689, 79.5941)",
-                destination: "Bowenpally Mandi, Secunderabad (17.4770, 78.4870)",
-                distanceKm: 148,
-                logisticsPartner: "VRL Telangana Agri-Freight"
+            const mappedOrders = ordersData.map(o => {
+              const rawStat = (o.delivery_status || '').toLowerCase();
+              let normalizedStatus = 'Out for Shipment';
+              if (rawStat.includes('delivered') || o.escrow_status === 'escrow_released' || o.escrow_status === 'completed') {
+                normalizedStatus = 'Delivered';
+              } else if (rawStat.includes('transit')) {
+                normalizedStatus = 'In Transit';
+              } else {
+                normalizedStatus = 'Out for Shipment';
               }
-            }));
+
+              return {
+                id: o.id,
+                receiptNumber: `KS-TG-2026-${o.id ? o.id.slice(0, 5).toUpperCase() : Math.floor(10000 + Math.random()*90000)}`,
+                date: o.created_at ? new Date(o.created_at).toLocaleDateString('en-GB') : new Date().toLocaleDateString('en-GB'),
+                amount: Number(o.total_amount),
+                completed: normalizedStatus === 'Delivered',
+                status: normalizedStatus,
+                delivery_location: o.delivery_location || 'Bowenpally Modern Market Yard, Secunderabad, Telangana',
+                buyer: {
+                  first_name: o.buyer_name,
+                  phone: o.buyer_phone || '+91 98480 33412',
+                  address: o.delivery_location || 'Bowenpally Modern Market Yard, Secunderabad, Telangana'
+                },
+                items: [
+                  { name: o.crop_name, quantity: Number(o.quantity_kg), pricePerKg: Number(o.price_per_kg || 28), total: Number(o.total_amount) }
+                ],
+                route: {
+                  origin: "Geesugonda, Warangal (17.9689, 79.5941)",
+                  destination: `${o.delivery_location || 'Bowenpally Mandi, Secunderabad'} (17.4770, 78.4870)`,
+                  distanceKm: 148,
+                  logisticsPartner: "VRL Telangana Agri-Freight"
+                }
+              };
+            });
+            orders = deduplicateOrders(mappedOrders);
           } else if (activeFarmerId !== 'FARMER-TG-7721') {
             orders = [];
           }
@@ -5151,28 +5212,45 @@ window.getCropTranslation = getCropTranslation;
     if (window.lucide) lucide.createIcons();
   }
 
-  window.handleNegotiation = function(negoId, action) {
+  window.handleNegotiation = async function(negoId, action) {
     const nego = negotiations.find(n => n.id === negoId);
     if (!nego) return;
 
     if (action === 'accept') {
       const decidedLocation = nego.buyer?.location || nego.mandi_location || 'Bowenpally Modern Market Yard, Secunderabad, Telangana';
-      nego.status = 'accepted';
-      nego.note = `Accepted at ₹${nego.proposedPrice}/Kg. Dispatched to: ${decidedLocation}`;
 
-      // Auto generate order with decided delivery destination and 'Processing' status
+      // Idempotency: Prevent duplicate deliveries for the exact same negotiation / deal
+      const existingOrder = orders.find(o => 
+        o.negotiation_id === nego.id ||
+        (o.buyer?.phone === nego.buyer?.phone && o.items?.[0]?.name === nego.itemTitle && !o.completed)
+      );
+
+      if (existingOrder) {
+        showToast('An active delivery order already exists for this accepted deal.');
+        nego.status = 'accepted';
+        localStorage.setItem('kisan_negotiations', JSON.stringify(negotiations));
+        renderNegotiations();
+        return;
+      }
+
+      nego.status = 'accepted';
+      nego.note = `Accepted at ₹${nego.proposedPrice}/Kg. Out for shipment to: ${decidedLocation}`;
+
+      // Phase 1: Auto generate single delivery order in 'Out for Shipment' phase
       const totalAmount = nego.proposedPrice * nego.quantity;
+      const orderTempId = `ORD-${Date.now().toString().slice(-5)}`;
       const newOrder = {
-        id: `ORD-${Date.now().toString().slice(-5)}`,
+        id: orderTempId,
+        negotiation_id: nego.id,
         receiptNumber: `KS-TG-2026-${Math.floor(Math.random() * 90000 + 10000)}`,
         date: new Date().toLocaleDateString('en-GB'),
         amount: totalAmount,
         completed: false,
-        status: 'Processing', // Farmer can proceed with delivery
+        status: 'Out for Shipment', // Phase 1 of 3
         delivery_location: decidedLocation,
         buyer: {
-          first_name: nego.buyer.name,
-          phone: nego.buyer.phone,
+          first_name: nego.buyer?.name || 'Verified Agro Buyer',
+          phone: nego.buyer?.phone || '+91 98480 33412',
           address: decidedLocation
         },
         items: [
@@ -5186,6 +5264,7 @@ window.getCropTranslation = getCropTranslation;
         }
       };
       orders.unshift(newOrder);
+      orders = deduplicateOrders(orders);
 
       // 1. Deduct payment from consumer escrow vault
       const prevEscrow = Number(localStorage.getItem('kisan_consumer_escrow')) || (currentConsumerEscrow || 150000);
@@ -5228,7 +5307,7 @@ window.getCropTranslation = getCropTranslation;
       renderWallet();
       if (typeof renderConsumerWallet === 'function') renderConsumerWallet();
 
-      // Sync with Supabase negotiations, orders, profiles, and wallet_transactions tables
+      // 3. Sync with Supabase negotiations, orders, profiles, and wallet_transactions tables
       if (window.supabaseClient) {
         let activeFarmerId = currentFarmerId || 'FARMER-TG-7721';
         const authData = localStorage.getItem('kisan_auth');
@@ -5242,58 +5321,98 @@ window.getCropTranslation = getCropTranslation;
         const txHash = '0x' + Array.from({length: 40}, () => Math.floor(Math.random()*16).toString(16)).join('');
 
         try {
-          if (nego.id && !nego.id.startsWith('NEGO-')) {
-            window.supabaseClient.from('negotiations').update({ status: 'accepted' }).eq('id', nego.id).then();
+          // A. Update negotiation to accepted in Supabase
+          let updatedInDB = false;
+          if (nego.id && !String(nego.id).startsWith('NEGO-')) {
+            const { data: nRes } = await window.supabaseClient
+              .from('negotiations')
+              .update({ status: 'accepted' })
+              .eq('id', nego.id)
+              .select();
+            if (nRes && nRes.length > 0) updatedInDB = true;
           }
-          window.supabaseClient.from('orders').insert([{
+          if (!updatedInDB && nego.itemTitle) {
+            await window.supabaseClient
+              .from('negotiations')
+              .update({ status: 'accepted' })
+              .eq('crop_name', nego.itemTitle)
+              .eq('status', 'pending');
+          }
+
+          // B. Insert single order with Phase 1: 'Out for Shipment'
+          const { data: insOrder } = await window.supabaseClient.from('orders').insert([{
             farmer_id: activeFarmerId,
             crop_name: nego.itemTitle,
             buyer_name: nego.buyer.name,
+            buyer_phone: nego.buyer.phone || '9848033412',
             quantity_kg: nego.quantity,
             price_per_kg: nego.proposedPrice,
             total_amount: totalAmount,
-            freight_savings_percent: 38.0,
+            delivery_location: decidedLocation,
+            delivery_status: 'Out for Shipment',
             escrow_status: 'escrow_locked',
             blockchain_tx_hash: txHash,
+            freight_savings_percent: 38.0,
             dbt_payout_within_hours: 24
-          }]).then();
+          }]).select();
 
-          // Sync new balance to profiles table
-          window.supabaseClient.from('profiles').update({
+          if (insOrder && insOrder[0]?.id) {
+            newOrder.id = insOrder[0].id;
+            localStorage.setItem('kisan_orders', JSON.stringify(orders));
+          }
+
+          // C. Sync new balance to profiles table
+          await window.supabaseClient.from('profiles').update({
             wallet_balance: wallet.balance,
             updated_at: new Date().toISOString()
-          }).eq('farmer_id', activeFarmerId).then();
+          }).eq('farmer_id', activeFarmerId);
 
-          // Sync credit transaction to wallet_transactions
-          window.supabaseClient.from('wallet_transactions').insert([{
+          // D. Sync credit transaction to wallet_transactions
+          await window.supabaseClient.from('wallet_transactions').insert([{
             farmer_id: activeFarmerId,
             title: `Escrow Sale: ${nego.itemTitle}`,
             type: 'credit',
             amount: totalAmount,
             status: 'completed',
             tx_hash: txHash
-          }]).then();
+          }]);
         } catch (e) {
           console.warn('Supabase order/wallet sync notice:', e);
         }
       }
 
-      showToast(`Offer accepted! Order generated for delivery to ${decidedLocation}.`);
+      // Broadcast update across open tabs/windows
+      if (typeof broadcastLiveUpdate === 'function') {
+        broadcastLiveUpdate('NEGOTIATION_ACCEPTED', { negoId, crop: nego.itemTitle, status: 'accepted' });
+      }
+
+      showToast(`Offer accepted! Produce marked as 'Out for Shipment' for ${decidedLocation}.`);
     } else {
       nego.status = 'rejected';
       nego.note = `Declined offer. Asking price maintained.`;
       localStorage.setItem('kisan_negotiations', JSON.stringify(negotiations));
 
-      if (window.supabaseClient && nego.id && !nego.id.startsWith('NEGO-')) {
+      if (window.supabaseClient) {
         try {
-          window.supabaseClient.from('negotiations').update({ status: 'rejected' }).eq('id', nego.id).then();
+          if (nego.id && !String(nego.id).startsWith('NEGO-')) {
+            await window.supabaseClient.from('negotiations').update({ status: 'rejected' }).eq('id', nego.id);
+          } else if (nego.itemTitle) {
+            await window.supabaseClient.from('negotiations').update({ status: 'rejected' }).eq('crop_name', nego.itemTitle).eq('status', 'pending');
+          }
         } catch (e) {}
+      }
+
+      if (typeof broadcastLiveUpdate === 'function') {
+        broadcastLiveUpdate('NEGOTIATION_REJECTED', { negoId, status: 'rejected' });
       }
 
       showToast('Counter offer declined.');
     }
 
     renderNegotiations();
+    renderOrders();
+    if (typeof renderConsumerOffers === 'function') renderConsumerOffers();
+    if (typeof renderConsumerOrders === 'function') renderConsumerOrders();
   };
 
   // =========================================================================
@@ -5301,6 +5420,11 @@ window.getCropTranslation = getCropTranslation;
   // =========================================================================
   function renderOrders() {
     const container = document.getElementById('ordersContainer');
+    if (!container) return;
+    
+    // Deduplicate orders before rendering
+    orders = deduplicateOrders(orders);
+
     if (orders.length === 0) {
       container.innerHTML = `<p class="text-xs text-gray-500 italic">No active orders.</p>`;
       return;
@@ -5308,13 +5432,20 @@ window.getCropTranslation = getCropTranslation;
 
     const dict = I18N[currentLanguage] || I18N.en;
     container.innerHTML = orders.map(order => {
-      const isProcessing = order.status === 'Processing';
-      const isInTransit = order.status === 'In Transit';
-      const isDelivered = order.status === 'Delivered';
+      const rawStatus = (order.status || 'Out for Shipment').toLowerCase();
+      const isDelivered = rawStatus.includes('delivered') || order.completed;
+      const isInTransit = !isDelivered && rawStatus.includes('transit');
+      const isOutForShipment = !isDelivered && !isInTransit; // Phase 1: Out for Shipment
+      
       const deliveryLocation = order.delivery_location || order.buyer?.address || 'Bowenpally Modern Market Yard, Secunderabad, Telangana';
 
-      const statusBadgeText = isDelivered ? ('✅ ' + dict.status_delivered) : isInTransit ? ('🚚 ' + dict.status_in_transit) : ('⏳ ' + dict.status_processing);
-      const itemsListStr = order.items.map(i => {
+      const statusBadgeText = isDelivered ? 
+        ('✅ ' + (dict.status_delivered || 'Delivered')) : 
+        isInTransit ? 
+        ('🚚 ' + (dict.status_in_transit || 'In Transit')) : 
+        ('📦 ' + (dict.status_out_for_shipment || 'Out for Shipment'));
+
+      const itemsListStr = (order.items || []).map(i => {
         const c = getCropTranslation(i.name, currentLanguage);
         return `${c.name || i.name} (${i.quantity}Kg)`;
       }).join(', ');
@@ -5324,9 +5455,9 @@ window.getCropTranslation = getCropTranslation;
           <div class="flex justify-between items-start">
             <div>
               <span class="text-[10px] text-gray-500 font-mono">${order.receiptNumber}</span>
-              <h4 class="font-bold text-sm text-gray-900">${order.buyer.first_name}</h4>
+              <h4 class="font-bold text-sm text-gray-900">${order.buyer?.first_name || order.buyer_name || 'Verified Buyer'}</h4>
             </div>
-            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${isDelivered ? 'bg-emerald-100 text-emerald-800' : isInTransit ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800'}">
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${isDelivered ? 'bg-emerald-100 text-emerald-800' : isInTransit ? 'bg-blue-100 text-blue-800 animate-pulse' : 'bg-amber-100 text-amber-800'}">
               ${statusBadgeText}
             </span>
           </div>
@@ -5335,37 +5466,58 @@ window.getCropTranslation = getCropTranslation;
           <div class="bg-blue-50/80 border border-blue-200 rounded-xl p-2.5 flex items-start gap-2 text-xs">
             <i data-lucide="map-pin" class="w-4 h-4 text-blue-600 shrink-0 mt-0.5"></i>
             <div>
-              <span class="text-[10px] text-blue-800 uppercase font-bold tracking-wide block">${dict.order_destination}</span>
+              <span class="text-[10px] text-blue-800 uppercase font-bold tracking-wide block">${dict.order_destination || 'Decided Delivery Destination:'}</span>
               <span class="font-bold text-gray-900">${deliveryLocation}</span>
+            </div>
+          </div>
+
+          <!-- 3-Phase Delivery Progress Indicator (Farmer View) -->
+          <div class="bg-gray-50/80 p-2.5 rounded-xl border text-[11px] space-y-1.5">
+            <div class="flex items-center justify-between font-bold text-gray-700">
+              <span>Delivery Phase:</span>
+              <span class="font-extrabold ${isDelivered ? 'text-emerald-700' : isInTransit ? 'text-blue-700' : 'text-amber-700'}">
+                ${isDelivered ? 'Phase 3 of 3 (Delivered)' : isInTransit ? 'Phase 2 of 3 (In Transit)' : 'Phase 1 of 3 (Out for Shipment)'}
+              </span>
+            </div>
+            <div class="grid grid-cols-3 gap-1 text-[10px] text-center font-semibold">
+              <span class="p-1 rounded ${isOutForShipment ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-emerald-100 text-emerald-800'}">
+                1. Out for Shipment
+              </span>
+              <span class="p-1 rounded ${isInTransit ? 'bg-blue-600 text-white font-bold animate-pulse' : isDelivered ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-400'}">
+                2. In Transit
+              </span>
+              <span class="p-1 rounded ${isDelivered ? 'bg-emerald-600 text-white font-bold' : 'bg-gray-100 text-gray-400'}">
+                3. Delivered
+              </span>
             </div>
           </div>
 
           <div class="bg-gray-50 p-2.5 rounded-xl flex justify-between items-center text-xs">
             <div>
-              <span class="text-gray-500">${dict.items_label} </span>
+              <span class="text-gray-500">${dict.items_label || 'Items:'} </span>
               <span class="font-semibold text-gray-800">${itemsListStr}</span>
             </div>
             <div class="font-bold text-purple-700 text-sm">
-              ₹${order.amount.toLocaleString('en-IN')}
+              ₹${(order.amount || 0).toLocaleString('en-IN')}
             </div>
           </div>
 
-          <!-- Delivery Progression Action Button -->
+          <!-- 3-Phase Delivery Progression Action Button (Only Farmer Can Advance) -->
           <div class="pt-1">
-            ${isProcessing ? `
-              <button type="button" onclick="event.stopPropagation(); advanceOrderDelivery('${order.id}', 'In Transit')" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs shadow transition flex items-center justify-center gap-1.5">
-                <i data-lucide="truck" class="w-3.5 h-3.5"></i>
-                <span>${dict.proceed_delivery_btn}</span>
+            ${isOutForShipment ? `
+              <button type="button" onclick="event.stopPropagation(); advanceOrderDelivery('${order.id}', 'In Transit')" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs shadow transition flex items-center justify-center gap-1.5">
+                <i data-lucide="truck" class="w-4 h-4"></i>
+                <span>${dict.btn_mark_in_transit || 'Dispatch Produce → Mark In Transit'}</span>
               </button>
             ` : isInTransit ? `
-              <button type="button" onclick="event.stopPropagation(); advanceOrderDelivery('${order.id}', 'Delivered')" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow transition flex items-center justify-center gap-1.5">
-                <i data-lucide="check-check" class="w-3.5 h-3.5"></i>
-                <span>${dict.confirm_delivery_btn}</span>
+              <button type="button" onclick="event.stopPropagation(); advanceOrderDelivery('${order.id}', 'Delivered')" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow transition flex items-center justify-center gap-1.5">
+                <i data-lucide="check-check" class="w-4 h-4"></i>
+                <span>${dict.btn_mark_delivered || 'Confirm Delivery at Destination → Delivered'}</span>
               </button>
             ` : `
-              <div class="text-center py-1 text-emerald-700 font-bold text-xs flex items-center justify-center gap-1">
-                <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
-                <span>${dict.delivery_fulfilled_badge}</span>
+              <div class="text-center py-2 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5">
+                <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
+                <span>${dict.status_delivered_completed || 'Delivery Fulfilled | Escrow Released to DBT'}</span>
               </div>
             `}
           </div>
@@ -5373,7 +5525,7 @@ window.getCropTranslation = getCropTranslation;
           <div class="flex justify-between items-center text-[11px] text-gray-500 pt-1 border-t">
             <span>Date: ${order.date}</span>
             <span class="text-purple-600 font-semibold flex items-center gap-1">
-              <i data-lucide="map-pin" class="w-3 h-3"></i> ${dict.view_route_btn}
+              <i data-lucide="map-pin" class="w-3 h-3"></i> ${dict.view_route_btn || 'View Route & Transit →'}
             </span>
           </div>
         </div>
@@ -5383,8 +5535,8 @@ window.getCropTranslation = getCropTranslation;
     if (window.lucide) lucide.createIcons();
   }
 
-  // Advance delivery progression
-  window.advanceOrderDelivery = function(orderId, nextStatus) {
+  // Advance delivery progression across 3 phases (Only by Farmer)
+  window.advanceOrderDelivery = async function(orderId, nextStatus) {
     const order = orders.find(o => o.id === orderId);
     if (!order) return;
 
@@ -5394,15 +5546,29 @@ window.getCropTranslation = getCropTranslation;
     }
     localStorage.setItem('kisan_orders', JSON.stringify(orders));
 
-    if (window.supabaseClient && order.id && !order.id.startsWith('ORD-')) {
+    if (window.supabaseClient) {
       try {
-        window.supabaseClient.from('orders').update({
-          escrow_status: nextStatus === 'Delivered' ? 'escrow_released' : 'in_transit'
-        }).eq('id', order.id).then();
-      } catch (e) {}
+        if (order.id && !String(order.id).startsWith('ORD-')) {
+          await window.supabaseClient.from('orders').update({
+            delivery_status: nextStatus,
+            escrow_status: nextStatus === 'Delivered' ? 'escrow_released' : 'in_transit'
+          }).eq('id', order.id);
+        } else if (order.items?.[0]?.name) {
+          await window.supabaseClient.from('orders').update({
+            delivery_status: nextStatus,
+            escrow_status: nextStatus === 'Delivered' ? 'escrow_released' : 'in_transit'
+          }).eq('crop_name', order.items[0].name);
+        }
+      } catch (e) {
+        console.warn('Supabase delivery status sync notice:', e);
+      }
     }
 
-    showToast(`Shipment updated: ${nextStatus}!`);
+    if (typeof broadcastLiveUpdate === 'function') {
+      broadcastLiveUpdate('ORDER_STATUS_CHANGED', { orderId, nextStatus });
+    }
+
+    showToast(`Shipment updated to: ${nextStatus}!`);
     renderOrders();
     if (typeof renderConsumerOrders === 'function') renderConsumerOrders();
   };
@@ -9807,17 +9973,60 @@ window.getCropTranslation = getCropTranslation;
     renderSearchGrid(filtered);
   });
 
-  // Grievance / Feedback form submit
-  document.getElementById('formFeedback').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const subjectEl = document.querySelector('#formFeedback input[type="text"]');
-    const msgEl = document.querySelector('#formFeedback textarea');
-    const catEl = document.querySelector('#formFeedback select');
+  // Grievance / Support Ticket System
+  function renderRecentGrievances() {
+    const listEl = document.getElementById('recentGrievancesList');
+    if (!listEl) return;
+    let tickets = JSON.parse(localStorage.getItem('kisan_grievances')) || [
+      {
+        ticket_number: 'TG-2026-7812',
+        subject: 'Mandi Weighing Slip Verification',
+        category: 'Paddy / Grains',
+        status: 'In Review (Extension Officer Assigned)',
+        created_at: new Date(Date.now() - 86400000).toLocaleDateString('en-GB')
+      }
+    ];
+    listEl.innerHTML = tickets.map(t => `
+      <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 flex items-start justify-between text-xs">
+        <div>
+          <span class="font-mono text-[10px] text-purple-700 font-bold">#${t.ticket_number}</span>
+          <h5 class="font-bold text-gray-900">${t.subject}</h5>
+          <p class="text-[11px] text-gray-500">Dept: ${t.category} | ${t.created_at || 'Today'}</p>
+        </div>
+        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800">
+          ${t.status || 'In Review'}
+        </span>
+      </div>
+    `).join('');
+    if (window.lucide) lucide.createIcons();
+  }
+  window.renderRecentGrievances = renderRecentGrievances;
 
-    const subject = subjectEl ? subjectEl.value.trim() : 'Mandi / Soil Inquiry';
-    const message = msgEl ? msgEl.value.trim() : 'Grievance submitted by farmer';
-    const category = catEl ? catEl.value : 'mandi_rate';
+  async function handleGrievanceSubmit(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const catEl = document.getElementById('feedbackCategory');
+    const phoneEl = document.getElementById('feedbackPhone');
+    const subjectEl = document.getElementById('feedbackSubject');
+    const msgEl = document.getElementById('feedbackContent');
+    const btn = document.getElementById('btnSubmitGrievance');
+    const btnText = document.getElementById('btnSubmitGrievanceText');
+    const banner = document.getElementById('grievanceSuccessBanner');
+    const ticketInfo = document.getElementById('grievanceTicketInfo');
+
+    const message = msgEl ? msgEl.value.trim() : '';
+    if (!message) {
+      showToast('Please enter the details of your grievance.');
+      if (msgEl) msgEl.focus();
+      return;
+    }
+
+    const category = catEl ? catEl.value : 'Paddy';
+    const phone = phoneEl ? phoneEl.value.trim() : '';
+    const subject = subjectEl && subjectEl.value.trim() ? subjectEl.value.trim() : `Inquiry regarding ${category}`;
     const ticketNo = 'TG-2026-' + Math.floor(1000 + Math.random() * 9000);
+
+    if (btn) btn.disabled = true;
+    if (btnText) btnText.textContent = 'Registering Grievance Ticket...';
 
     let activeFarmerId = currentFarmerId || 'FARMER-TG-7721';
     const authData = localStorage.getItem('kisan_auth');
@@ -9825,17 +10034,32 @@ window.getCropTranslation = getCropTranslation;
       try {
         const sess = JSON.parse(authData);
         if (sess.farmerId) activeFarmerId = sess.farmerId;
-      } catch (e) {}
+      } catch (err) {}
     }
 
+    // Save to local storage tickets history
+    let tickets = JSON.parse(localStorage.getItem('kisan_grievances')) || [];
+    const newTicket = {
+      ticket_number: ticketNo,
+      subject: subject,
+      category: category,
+      description: message,
+      phone: phone,
+      status: 'In Review (Extension Officer Assigned)',
+      created_at: new Date().toLocaleDateString('en-GB')
+    };
+    tickets.unshift(newTicket);
+    localStorage.setItem('kisan_grievances', JSON.stringify(tickets));
+
+    // Save to Supabase grievance_tickets table
     if (window.supabaseClient) {
       try {
         await window.supabaseClient.from('grievance_tickets').insert([{
           farmer_id: activeFarmerId,
           ticket_number: ticketNo,
-          subject: subject || 'Farmer Support Ticket',
+          subject: subject,
           category: category,
-          description: message,
+          description: `${message}${phone ? ` [Phone: ${phone}]` : ''}`,
           status: 'in_review'
         }]);
       } catch (err) {
@@ -9843,10 +10067,36 @@ window.getCropTranslation = getCropTranslation;
       }
     }
 
-    document.getElementById('formFeedback').reset();
+    // Update UI in-page
+    if (banner) banner.classList.remove('hidden');
+    if (ticketInfo) {
+      ticketInfo.textContent = `Ticket #${ticketNo} has been forwarded to Telangana Rythu Call Center & Agriculture Extension Officer. Your reference ID is registered.`;
+    }
+    const form = document.getElementById('formFeedback');
+    if (form) form.reset();
+    if (btn) btn.disabled = false;
+    if (btnText) btnText.textContent = 'Submit Grievance Ticket';
+
+    renderRecentGrievances();
     showToast(`Grievance ticket #${ticketNo} registered with Agriculture Dept!`);
-    navigateTo('inventory');
-  });
+  }
+  window.handleGrievanceSubmit = handleGrievanceSubmit;
+
+  const formFeedback = document.getElementById('formFeedback');
+  if (formFeedback) {
+    formFeedback.addEventListener('submit', handleGrievanceSubmit);
+  }
+  const btnSubmitGrievance = document.getElementById('btnSubmitGrievance');
+  if (btnSubmitGrievance) {
+    btnSubmitGrievance.addEventListener('click', (e) => {
+      const msgEl = document.getElementById('feedbackContent');
+      if (msgEl && !msgEl.value.trim()) {
+        msgEl.reportValidity();
+        return;
+      }
+      handleGrievanceSubmit(e);
+    });
+  }
 
   // Sign Out Demo Data Button
   const btnSignOutDemo = document.getElementById('btnSignOutDemo');
@@ -9861,24 +10111,22 @@ window.getCropTranslation = getCropTranslation;
   // =========================================================================
   let cachedFarmersDirectory = [];
   let cachedMarketplaceCrops = [];
-  let cachedConsumerDemands = [];
 
   function switchConsumerTab(tab) {
+    if (tab === 'demands') tab = 'offers';
     activeConsumerTab = tab;
     const tabFarmers = document.getElementById('tabConsumerFarmers');
     const tabMarketplace = document.getElementById('tabConsumerMarketplace');
     const tabOffers = document.getElementById('tabConsumerOffers');
-    const tabDemands = document.getElementById('tabConsumerDemands');
 
     const viewFarmers = document.getElementById('consumerFarmersView');
     const viewMarketplace = document.getElementById('consumerMarketplaceView');
     const viewOffers = document.getElementById('consumerOffersView');
-    const viewDemands = document.getElementById('consumerDemandsView');
 
-    [tabFarmers, tabMarketplace, tabOffers, tabDemands].forEach(t => {
+    [tabFarmers, tabMarketplace, tabOffers].forEach(t => {
       if (t) t.className = 'flex-1 pb-2.5 text-gray-500 hover:text-gray-800 flex items-center justify-center gap-1 font-bold shrink-0 px-2';
     });
-    [viewFarmers, viewMarketplace, viewOffers, viewDemands].forEach(v => {
+    [viewFarmers, viewMarketplace, viewOffers].forEach(v => {
       if (v) v.classList.add('hidden');
     });
 
@@ -9894,10 +10142,6 @@ window.getCropTranslation = getCropTranslation;
       if (tabOffers) tabOffers.className = 'flex-1 pb-2.5 border-b-2 border-amber-600 text-amber-700 flex items-center justify-center gap-1 font-bold shrink-0 px-2';
       if (viewOffers) viewOffers.classList.remove('hidden');
       renderConsumerOffers();
-    } else if (tab === 'demands') {
-      if (tabDemands) tabDemands.className = 'flex-1 pb-2.5 border-b-2 border-amber-600 text-amber-700 flex items-center justify-center gap-1 font-bold shrink-0 px-2';
-      if (viewDemands) viewDemands.classList.remove('hidden');
-      renderConsumerDemands();
     }
 
     if (window.lucide) lucide.createIcons();
@@ -9951,13 +10195,6 @@ window.getCropTranslation = getCropTranslation;
         const offerCountEl = document.getElementById('consumerOfferCount');
         if (statEl) statEl.textContent = `${count} Deals`;
         if (offerCountEl) offerCountEl.textContent = count;
-      } catch (e) {}
-
-      try {
-        const { data: demands } = await window.supabaseClient.from('consumer_demands').select('id');
-        const count = demands?.length || 2;
-        const statEl = document.getElementById('consumerStatDemands');
-        if (statEl) statEl.textContent = `${count} Active`;
       } catch (e) {}
     }
   }
@@ -10305,7 +10542,7 @@ window.getCropTranslation = getCropTranslation;
               <p class="text-xs text-gray-500">Quantity: ${o.offered_quantity_kg} Kg</p>
             </div>
             <span class="text-xs font-bold px-2.5 py-0.5 rounded-full ${isPending ? 'bg-amber-100 text-amber-800' : isAccepted ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-700'}">
-              ${isPending ? '⏳ Awaiting Farmer Review' : isAccepted ? '✅ Accepted & In Transit' : '❌ Declined'}
+              ${isPending ? '⏳ Awaiting Farmer Review' : isAccepted ? '✅ Deal Accepted by Farmer' : '❌ Declined'}
             </span>
           </div>
 
@@ -10331,11 +10568,11 @@ window.getCropTranslation = getCropTranslation;
 
           ${isAccepted ? `
             <div class="pt-1 flex items-center justify-between text-xs text-emerald-800 font-semibold bg-emerald-50 p-2 rounded-xl border border-emerald-200">
-              <span class="flex items-center gap-1.5">
-                <i data-lucide="truck" class="w-4 h-4 text-emerald-600"></i> Dispatch In Transit
+              <span class="flex items-center gap-1.5 font-bold">
+                <i data-lucide="package-check" class="w-4 h-4 text-emerald-600"></i> Deal Accepted: Out for Shipment
               </span>
-              <button type="button" onclick="navigateTo('consumer-orders')" class="underline font-bold hover:text-emerald-950">
-                Track Inbound Delivery &rarr;
+              <button type="button" onclick="navigateTo('consumer-orders')" class="underline font-bold text-emerald-900 hover:text-emerald-950">
+                Track 3-Phase Delivery &rarr;
               </button>
             </div>
           ` : isPending ? `
@@ -10350,87 +10587,12 @@ window.getCropTranslation = getCropTranslation;
     if (window.lucide) lucide.createIcons();
   }
 
-  // 4. Render Consumer Procurement Demands
-  async function renderConsumerDemands() {
-    const container = document.getElementById('consumerDemandsList');
-    const destInput = document.getElementById('inputDemandDeliveryLocation');
-    if (destInput) destInput.value = currentDeliveryAddress || 'Bowenpally Modern Market Yard, Secunderabad, Telangana';
-    if (!container) return;
-
-    let demands = [];
-    if (window.supabaseClient) {
-      try {
-        const { data, error } = await window.supabaseClient.from('consumer_demands').select('*').order('created_at', { ascending: false });
-        if (!error && data && data.length > 0) {
-          demands = data;
-        }
-      } catch (e) {
-        console.warn('Demands fetch notice:', e);
-      }
-    }
-
-    if (demands.length === 0) {
-      demands = [
-        {
-          id: 'DEMAND-1',
-          crop_name: 'Telangana Sona Super Fine Paddy (RNR 15048)',
-          category: 'Paddy / Grains',
-          required_quantity_kg: 5000,
-          target_price_per_kg: 28.0,
-          delivery_destination: currentDeliveryAddress || 'Bowenpally Modern Market Yard, Secunderabad',
-          status: 'open'
-        },
-        {
-          id: 'DEMAND-2',
-          crop_name: 'Tandur Organic Red Gram (GI Arhar)',
-          category: 'Pulses / Dal',
-          required_quantity_kg: 2000,
-          target_price_per_kg: 84.0,
-          delivery_destination: currentDeliveryAddress || 'Bowenpally Modern Market Yard, Secunderabad',
-          status: 'open'
-        }
-      ];
-    }
-
-    cachedConsumerDemands = demands;
-    const statEl = document.getElementById('consumerStatDemands');
-    if (statEl) statEl.textContent = `${demands.length} Active`;
-
-    container.innerHTML = demands.map(d => `
-      <div class="kisan-card p-3.5 space-y-2 border-l-4 border-l-amber-500">
-        <div class="flex items-center justify-between">
-          <h5 class="font-bold text-xs text-gray-900">${d.crop_name}</h5>
-          <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">
-            🟢 Active Requirement
-          </span>
-        </div>
-        <div class="flex justify-between items-center text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
-          <span>Target Price: <strong class="text-amber-800">₹${d.target_price_per_kg} / Kg</strong></span>
-          <span>Required: <strong class="text-gray-900">${Number(d.required_quantity_kg).toLocaleString('en-IN')} Kg</strong></span>
-        </div>
-        <p class="text-[11px] text-gray-500 flex items-center gap-1">
-          <i data-lucide="map-pin" class="w-3 h-3 text-amber-600 shrink-0"></i>
-          <span>Delivery: ${d.delivery_destination}</span>
-        </p>
-      </div>
-    `).join('');
-
-    if (window.lucide) lucide.createIcons();
-  }
-
-  // 5. Render Consumer Inbound Orders & Dispatches
+  // 5. Render Consumer Inbound Orders & Dispatches (3-Phase Delivery Stepper, Read-Only for Consumer)
   async function renderConsumerOrders() {
     const container = document.getElementById('consumerOrdersContainer');
     const destEl = document.getElementById('consumerOrdersDecidedLocation');
     if (destEl) destEl.textContent = currentDeliveryAddress || 'Bowenpally Modern Market Yard, Secunderabad, Telangana';
     if (!container) return;
-
-    container.innerHTML = `
-      <div class="py-8 text-center text-xs text-gray-500">
-        <div class="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-        <span>Fetching inbound harvest orders from Supabase...</span>
-      </div>
-    `;
 
     let inboundOrders = [];
     if (window.supabaseClient) {
@@ -10445,51 +10607,22 @@ window.getCropTranslation = getCropTranslation;
     }
 
     if (inboundOrders.length === 0) {
-      inboundOrders = [
-        {
-          id: 'ORD-2026-9821',
-          crop_name: 'Telangana Sona Super Fine Paddy',
-          farmer_id: 'FARMER-TG-7721',
-          farmer_name: 'K. Ramarao Reddy',
-          farmer_phone: '9848022334',
-          quantity_kg: 1000,
-          total_amount: 27500,
-          delivery_location: currentDeliveryAddress,
-          delivery_status: 'In Transit',
-          escrow_status: 'escrow_locked',
-          truck_no: 'TS-08-UB-4819',
-          driver_name: 'S. Narsimha (+91 9441203498)'
-        },
-        {
-          id: 'ORD-2026-9822',
-          crop_name: 'Organic Tandur Red Gram (Arhar Dal)',
-          farmer_id: 'FARMER-TG-7721',
-          farmer_name: 'K. Ramarao Reddy',
-          farmer_phone: '9848022334',
-          quantity_kg: 450,
-          total_amount: 38250,
-          delivery_location: currentDeliveryAddress,
-          delivery_status: 'Processing',
-          escrow_status: 'escrow_locked',
-          truck_no: 'AP-29-TA-8921',
-          driver_name: 'P. Yadagiri (+91 9848123456)'
-        },
-        {
-          id: 'ORD-2026-9799',
-          crop_name: 'Bhendi (Fresh Green Okra)',
-          farmer_id: 'FARMER-TG-8459',
-          farmer_name: 'Waheed Mujtaba',
-          farmer_phone: '9248006556',
-          quantity_kg: 654,
-          total_amount: 42510,
-          delivery_location: currentDeliveryAddress,
-          delivery_status: 'Delivered',
-          escrow_status: 'completed',
-          truck_no: 'TS-03-TC-1204',
-          driver_name: 'M. Ramesh'
-        }
-      ];
+      inboundOrders = orders.map(o => ({
+        id: o.id,
+        crop_name: o.items?.[0]?.name || o.crop_name || 'Telangana Produce',
+        farmer_id: 'FARMER-TG-7721',
+        farmer_name: 'Telangana Farmer Cluster',
+        farmer_phone: '9848022334',
+        quantity_kg: o.items?.[0]?.quantity || 1000,
+        total_amount: o.amount || 27500,
+        delivery_location: o.delivery_location || currentDeliveryAddress,
+        delivery_status: o.status || 'Out for Shipment',
+        escrow_status: o.completed ? 'completed' : 'escrow_locked'
+      }));
     }
+
+    // Strict deduplication of inbound deliveries
+    inboundOrders = deduplicateOrders(inboundOrders);
 
     const totalWeight = inboundOrders.reduce((sum, o) => sum + (Number(o.quantity_kg) || 0), 0);
     const totalEscrow = inboundOrders.reduce((sum, o) => sum + (Number(o.total_amount) || 0), 0);
@@ -10502,10 +10635,30 @@ window.getCropTranslation = getCropTranslation;
     if (weightStat) weightStat.textContent = `${totalWeight.toLocaleString('en-IN')} Kg`;
     if (escrowStat) escrowStat.textContent = `₹${totalEscrow.toLocaleString('en-IN')}`;
 
+    if (inboundOrders.length === 0) {
+      container.innerHTML = `
+        <div class="bg-white p-6 rounded-2xl border text-center space-y-2">
+          <i data-lucide="truck" class="w-8 h-8 text-gray-400 mx-auto"></i>
+          <p class="text-xs text-gray-500 italic">No inbound produce deliveries currently active.</p>
+        </div>
+      `;
+      if (window.lucide) lucide.createIcons();
+      return;
+    }
+
     container.innerHTML = inboundOrders.map(o => {
-      const isDelivered = (o.delivery_status || '').toLowerCase() === 'delivered';
-      const isInTransit = (o.delivery_status || '').toLowerCase().includes('transit');
+      const rawStatus = (o.delivery_status || o.status || 'Out for Shipment').toLowerCase();
+      let phase = 1; // 1 = Out for Shipment, 2 = In Transit, 3 = Delivered
+      if (rawStatus.includes('delivered') || o.escrow_status === 'escrow_released' || o.escrow_status === 'completed' || o.completed) {
+        phase = 3;
+      } else if (rawStatus.includes('transit')) {
+        phase = 2;
+      } else {
+        phase = 1; // Out for Shipment
+      }
+
       const farmerName = o.farmer_name || (o.farmer_id === 'FARMER-TG-7721' ? 'K. Ramarao Reddy' : o.farmer_id === 'FARMER-TG-8459' ? 'Waheed Mujtaba' : 'Telangana Farmer');
+      const deliveryDest = o.delivery_location || currentDeliveryAddress;
 
       return `
         <div class="kisan-card p-4 space-y-3 hover:border-blue-300 transition">
@@ -10515,9 +10668,57 @@ window.getCropTranslation = getCropTranslation;
               <h4 class="font-bold text-sm text-gray-900">${o.crop_name}</h4>
               <p class="text-xs text-gray-600">Farmer: <strong>${farmerName}</strong> | Ph: +91 ${o.buyer_phone || o.farmer_phone || '9848022334'}</p>
             </div>
-            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${isDelivered ? 'bg-emerald-100 text-emerald-800' : isInTransit ? 'bg-blue-100 text-blue-800 animate-pulse' : 'bg-amber-100 text-amber-800'}">
-              ${isDelivered ? '✅ Delivered' : isInTransit ? '🚚 In Transit' : '⏳ Farm Packaging'}
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${phase === 3 ? 'bg-emerald-100 text-emerald-800' : phase === 2 ? 'bg-blue-100 text-blue-800 animate-pulse' : 'bg-amber-100 text-amber-800'}">
+              ${phase === 3 ? '✅ Phase 3: Delivered' : phase === 2 ? '🚚 Phase 2: In Transit' : '📦 Phase 1: Out for Shipment'}
             </span>
+          </div>
+
+          <!-- 3-Phase Interactive Progression Stepper (Read-Only for Consumer) -->
+          <div class="bg-gradient-to-r from-gray-50 to-blue-50/40 p-3 rounded-xl border border-blue-100 space-y-2">
+            <div class="flex items-center justify-between text-[11px] font-bold">
+              <span class="text-gray-700">Live Delivery Progression:</span>
+              <span class="font-bold ${phase === 3 ? 'text-emerald-700' : phase === 2 ? 'text-blue-700' : 'text-amber-700'}">
+                ${phase === 3 ? 'Completed' : phase === 2 ? 'In Transit to Mandi' : 'Packaging & Ready for Pickup'}
+              </span>
+            </div>
+
+            <!-- 3-Phase Stepper Tracker -->
+            <div class="grid grid-cols-3 gap-1.5 pt-1 text-center">
+              <!-- Step 1: Out for Shipment -->
+              <div class="p-2 rounded-lg border text-xs ${phase >= 1 ? 'bg-white border-blue-300 shadow-xs' : 'bg-gray-100/60 border-gray-200 text-gray-400'}">
+                <div class="flex items-center justify-center gap-1 font-bold ${phase >= 2 ? 'text-emerald-600' : 'text-blue-700'}">
+                  <i data-lucide="${phase >= 2 ? 'check-circle' : 'package-check'}" class="w-3.5 h-3.5"></i>
+                  <span>1. Out for Shipment</span>
+                </div>
+                <span class="text-[10px] text-gray-500 block mt-0.5">${phase >= 2 ? 'Dispatched' : 'Produce Ready'}</span>
+              </div>
+
+              <!-- Step 2: In Transit -->
+              <div class="p-2 rounded-lg border text-xs ${phase === 2 ? 'bg-blue-600 text-white border-blue-700 shadow-sm animate-pulse' : phase === 3 ? 'bg-white border-emerald-300 shadow-xs text-emerald-700' : 'bg-gray-50 border-gray-200 text-gray-400'}">
+                <div class="flex items-center justify-center gap-1 font-bold">
+                  <i data-lucide="${phase === 3 ? 'check-circle' : 'truck'}" class="w-3.5 h-3.5"></i>
+                  <span>2. In Transit</span>
+                </div>
+                <span class="text-[10px] ${phase === 2 ? 'text-blue-100' : 'text-gray-500'} block mt-0.5">${phase === 3 ? 'Arrived' : phase === 2 ? 'On the Road' : 'Awaiting Dispatch'}</span>
+              </div>
+
+              <!-- Step 3: Delivered -->
+              <div class="p-2 rounded-lg border text-xs ${phase === 3 ? 'bg-emerald-600 text-white border-emerald-700 shadow-sm' : 'bg-gray-50 border-gray-200 text-gray-400'}">
+                <div class="flex items-center justify-center gap-1 font-bold">
+                  <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                  <span>3. Delivered</span>
+                </div>
+                <span class="text-[10px] ${phase === 3 ? 'text-emerald-100' : 'text-gray-500'} block mt-0.5">${phase === 3 ? 'Deal Completed' : 'Pending Receipt'}</span>
+              </div>
+            </div>
+
+            <div class="text-[10px] text-gray-500 italic flex items-center justify-between pt-1 border-t border-blue-100/60">
+              <span class="flex items-center gap-1">
+                <i data-lucide="lock" class="w-3 h-3 text-emerald-600"></i>
+                Delivery status is updated exclusively by the farmer
+              </span>
+              <span class="font-mono text-gray-600">Carrier: VRL Telangana Express</span>
+            </div>
           </div>
 
           <!-- Decided Delivery Destination on Order Card -->
@@ -10525,7 +10726,7 @@ window.getCropTranslation = getCropTranslation;
             <i data-lucide="map-pin" class="w-4 h-4 text-blue-600 shrink-0 mt-0.5"></i>
             <div>
               <span class="text-[10px] text-blue-800 uppercase font-bold tracking-wide block">Decided Delivery Destination:</span>
-              <span class="font-bold text-gray-900">${o.delivery_location || currentDeliveryAddress}</span>
+              <span class="font-bold text-gray-900">${deliveryDest}</span>
             </div>
           </div>
 
@@ -10541,21 +10742,18 @@ window.getCropTranslation = getCropTranslation;
             </div>
           </div>
 
-          <!-- Transit Logistics Info & Escrow Release Action -->
-          <div class="pt-1 flex gap-2">
-            ${!isDelivered ? `
-              <button type="button" onclick="confirmConsumerDeliveryReceipt('${o.id}')" class="flex-1 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold rounded-xl text-xs shadow transition flex items-center justify-center gap-1.5">
-                <i data-lucide="check-circle" class="w-4 h-4"></i>
-                <span>Confirm Mandi Receipt & Release Escrow</span>
-              </button>
-              <a href="tel:${o.buyer_phone || '9441203498'}" class="py-2.5 px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-xs flex items-center justify-center gap-1">
-                <i data-lucide="phone" class="w-3.5 h-3.5"></i> Call Fleet
-              </a>
-            ` : `
+          <!-- Phase-Specific Information & Logistics Contact -->
+          <div class="pt-1">
+            ${phase === 3 ? `
               <div class="w-full py-2 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5">
                 <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
-                <span>Escrow Disbursed to Farmer DBT Account (Completed)</span>
+                <span>Delivery Fulfilled & Escrow Disbursed to Farmer DBT Account</span>
               </div>
+            ` : `
+              <a href="tel:${o.buyer_phone || '9441203498'}" class="w-full py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition">
+                <i data-lucide="phone" class="w-3.5 h-3.5 text-blue-600"></i>
+                <span>Contact Logistics Driver (S. Narsimha)</span>
+              </a>
             `}
           </div>
         </div>
@@ -10564,29 +10762,7 @@ window.getCropTranslation = getCropTranslation;
 
     if (window.lucide) lucide.createIcons();
   }
-
-  // 6. Confirm Delivery Receipt & Release Escrow
-  window.confirmConsumerDeliveryReceipt = async function(orderId) {
-    if (!confirm('Confirm produce receipt at your decided delivery location? This will release the escrow funds directly to the farmer.')) {
-      return;
-    }
-
-    showToast('Releasing escrow payment to farmer DBT account...');
-
-    if (window.supabaseClient && orderId && !orderId.startsWith('ORD-')) {
-      try {
-        await window.supabaseClient.from('orders').update({
-          delivery_status: 'Delivered',
-          escrow_status: 'completed'
-        }).eq('id', orderId);
-      } catch (e) {
-        console.warn('Order status update notice:', e);
-      }
-    }
-
-    showToast('Delivery verified! Escrow payment released to farmer successfully.');
-    renderConsumerOrders();
-  };
+  window.renderConsumerOrders = renderConsumerOrders;
 
   // 7. Render Consumer Escrow Wallet
   function renderConsumerWallet() {
@@ -10806,49 +10982,6 @@ window.getCropTranslation = getCropTranslation;
     });
   }
 
-  // 9. Handle Post Bulk Procurement Requirement Form
-  const formConsumerDemand = document.getElementById('formConsumerDemand');
-  if (formConsumerDemand) {
-    formConsumerDemand.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const cropName = document.getElementById('inputDemandCropName').value;
-      const category = document.getElementById('inputDemandCategory').value;
-      const qty = Number(document.getElementById('inputDemandQuantity').value);
-      const price = Number(document.getElementById('inputDemandPrice').value);
-      const dest = document.getElementById('inputDemandDeliveryLocation').value;
-
-      if (!qty || qty <= 0 || !price || price <= 0) {
-        alert('Please enter valid quantity and target price.');
-        return;
-      }
-
-      showToast('Broadcasting procurement demand to Telangana farmers...');
-
-      const newDemand = {
-        consumer_id: currentConsumerId || 'CONSUMER-TG-5001',
-        company_name: currentConsumerCompany || 'Bowenpally Bulk Millers',
-        crop_name: cropName,
-        category: category,
-        required_quantity_kg: qty,
-        target_price_per_kg: price,
-        delivery_destination: dest || currentDeliveryAddress,
-        status: 'open'
-      };
-
-      if (window.supabaseClient) {
-        try {
-          await window.supabaseClient.from('consumer_demands').insert([newDemand]);
-        } catch (e) {
-          console.warn('Demand insert notice:', e);
-        }
-      }
-
-      showToast(`Demand for ${qty} Kg of ${cropName} broadcasted to farmers!`);
-      formConsumerDemand.reset();
-      renderConsumerDemands();
-    });
-  }
-
   // 10. Change Decided Delivery Destination Modal Handlers
   window.openChangeDeliveryModal = function() {
     const modal = document.getElementById('modalChangeConsumerDelivery');
@@ -10965,6 +11098,176 @@ window.getCropTranslation = getCropTranslation;
     });
   }
 
+  // =========================================================================
+  // ZERO-RELOAD LIVE REAL-TIME SYNCHRONIZATION ENGINE
+  // =========================================================================
+  let liveSyncBroadcastChannel = null;
+  try {
+    if (typeof BroadcastChannel !== 'undefined') {
+      liveSyncBroadcastChannel = new BroadcastChannel('kisaan_saathi_channel');
+      liveSyncBroadcastChannel.onmessage = (event) => {
+        handleLiveSyncBroadcast(event.data);
+      };
+    }
+  } catch (e) {}
+
+  window.addEventListener('storage', (event) => {
+    if (event.key === 'kisan_negotiations' || event.key === 'kisan_orders' || event.key === 'kisan_live_sync_ping') {
+      try {
+        if (event.key === 'kisan_negotiations') {
+          negotiations = JSON.parse(event.newValue || '[]');
+          if (activeSection === 'negotiate') renderNegotiations();
+          if (activeSection === 'consumer' && activeConsumerTab === 'offers') renderConsumerOffers();
+        }
+        if (event.key === 'kisan_orders') {
+          orders = deduplicateOrders(JSON.parse(event.newValue || '[]'));
+          if (activeSection === 'orders') renderOrders();
+          if (activeSection === 'consumer-orders') renderConsumerOrders();
+        }
+        if (event.key === 'kisan_live_sync_ping') {
+          const msg = JSON.parse(event.newValue || '{}');
+          handleLiveSyncBroadcast(msg);
+        }
+      } catch (err) {}
+    }
+  });
+
+  function broadcastLiveUpdate(type, payload = {}) {
+    const msg = { type, payload, timestamp: Date.now() };
+    if (liveSyncBroadcastChannel) {
+      try { liveSyncBroadcastChannel.postMessage(msg); } catch (e) {}
+    }
+    try {
+      localStorage.setItem('kisan_live_sync_ping', JSON.stringify(msg));
+    } catch (e) {}
+  }
+  window.broadcastLiveUpdate = broadcastLiveUpdate;
+
+  async function handleLiveSyncBroadcast(msg) {
+    if (!msg || !msg.type) return;
+    if (window.supabaseClient) {
+      await syncLiveStateFromSupabase();
+    } else {
+      if (activeSection === 'negotiate') renderNegotiations();
+      if (activeSection === 'orders') renderOrders();
+      if (activeSection === 'consumer' && activeConsumerTab === 'offers') renderConsumerOffers();
+      if (activeSection === 'consumer-orders') renderConsumerOrders();
+    }
+  }
+
+  let lastKnownNegotiationsHash = '';
+  let lastKnownOrdersHash = '';
+
+  async function syncLiveStateFromSupabase() {
+    if (!window.supabaseClient) return;
+
+    try {
+      // 1. Sync negotiations
+      const { data: dbNegs, error: negErr } = await window.supabaseClient
+        .from('negotiations')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (!negErr && dbNegs && dbNegs.length > 0) {
+        const hash = dbNegs.map(n => `${n.id}_${n.status}`).join('|');
+        if (hash !== lastKnownNegotiationsHash) {
+          lastKnownNegotiationsHash = hash;
+          negotiations = dbNegs.map(n => ({
+            id: n.id,
+            buyer: {
+              name: n.buyer_name,
+              phone: n.buyer_phone || '+91 98480 33412',
+              location: n.mandi_location || 'Bowenpally Modern Market Yard'
+            },
+            itemTitle: n.crop_name,
+            actualPrice: Number(n.counter_price_per_kg || (n.offer_price_per_kg * 1.1).toFixed(0)),
+            proposedPrice: Number(n.offer_price_per_kg),
+            quantity: Number(n.offered_quantity_kg),
+            image: "assets/raw/paddy.png",
+            status: n.status || 'pending',
+            note: n.status === 'accepted' ? 
+              `Accepted at ₹${n.offer_price_per_kg}/Kg. Out for shipment to: ${n.mandi_location || 'Bowenpally Mandi'}` : 
+              `Offer from ${n.buyer_company || n.buyer_name} at ₹${n.offer_price_per_kg}/Kg for ${n.offered_quantity_kg} Kg.`
+          }));
+          localStorage.setItem('kisan_negotiations', JSON.stringify(negotiations));
+          if (activeSection === 'negotiate') renderNegotiations();
+          if (activeSection === 'consumer' && activeConsumerTab === 'offers') renderConsumerOffers();
+          fetchConsumerMetrics();
+        }
+      }
+
+      // 2. Sync orders
+      const { data: dbOrders, error: ordErr } = await window.supabaseClient
+        .from('orders')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (!ordErr && dbOrders && dbOrders.length > 0) {
+        const hash = dbOrders.map(o => `${o.id}_${o.delivery_status}_${o.escrow_status}`).join('|');
+        if (hash !== lastKnownOrdersHash) {
+          lastKnownOrdersHash = hash;
+          const mappedOrders = dbOrders.map(o => {
+            const rawStat = (o.delivery_status || '').toLowerCase();
+            let normalizedStatus = 'Out for Shipment';
+            if (rawStat.includes('delivered') || o.escrow_status === 'escrow_released' || o.escrow_status === 'completed') {
+              normalizedStatus = 'Delivered';
+            } else if (rawStat.includes('transit')) {
+              normalizedStatus = 'In Transit';
+            } else {
+              normalizedStatus = 'Out for Shipment';
+            }
+
+            return {
+              id: o.id,
+              receiptNumber: `KS-TG-2026-${o.id ? o.id.slice(0, 5).toUpperCase() : Math.floor(10000 + Math.random()*90000)}`,
+              date: o.created_at ? new Date(o.created_at).toLocaleDateString('en-GB') : new Date().toLocaleDateString('en-GB'),
+              amount: Number(o.total_amount),
+              completed: normalizedStatus === 'Delivered',
+              status: normalizedStatus,
+              delivery_location: o.delivery_location || 'Bowenpally Modern Market Yard, Secunderabad, Telangana',
+              buyer: {
+                first_name: o.buyer_name,
+                phone: o.buyer_phone || '+91 98480 33412',
+                address: o.delivery_location || 'Bowenpally Modern Market Yard, Secunderabad, Telangana'
+              },
+              items: [
+                { name: o.crop_name, quantity: Number(o.quantity_kg), pricePerKg: Number(o.price_per_kg || 28), total: Number(o.total_amount) }
+              ],
+              route: {
+                origin: "Geesugonda, Warangal (17.9689, 79.5941)",
+                destination: `${o.delivery_location || 'Bowenpally Mandi, Secunderabad'} (17.4770, 78.4870)`,
+                distanceKm: 148,
+                logisticsPartner: "VRL Telangana Agri-Freight"
+              }
+            };
+          });
+          orders = deduplicateOrders(mappedOrders);
+          localStorage.setItem('kisan_orders', JSON.stringify(orders));
+          if (activeSection === 'orders') renderOrders();
+          if (activeSection === 'consumer-orders') renderConsumerOrders();
+        }
+      }
+    } catch (err) {
+      console.warn('Live sync poll notice:', err);
+    }
+  }
+
+  function initLiveSyncEngine() {
+    // Poll every 3.5 seconds
+    setInterval(() => {
+      if (!document.hidden && window.supabaseClient) {
+        syncLiveStateFromSupabase();
+      }
+    }, 3500);
+
+    // Sync immediately on tab focus
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && window.supabaseClient) {
+        syncLiveStateFromSupabase();
+      }
+    });
+  }
+
   // Initial Bootup Sequence: Correctly routes to Consumer or Farmer portal
   async function bootApplication() {
     await checkAuthStatus();
@@ -10977,6 +11280,8 @@ window.getCropTranslation = getCropTranslation;
       initVoiceSaathi();
     }
     loadSoilLabsData();
+    renderRecentGrievances();
+    initLiveSyncEngine();
 
     if (currentPortalRole === 'consumer') {
       updatePortalRoleUI();

@@ -557,10 +557,6 @@
             <span>Buyer Escrow Wallet</span>
             <span class="ml-auto text-[10px] font-bold text-emerald-700" id="drawerEscrowBalanceText">₹1,50,000</span>
           </a>
-          <a class="drawer-item" data-navigate="consumer-demands">
-            <i data-lucide="file-plus-2" class="w-5 h-5 text-purple-600"></i>
-            <span>Post Bulk Requirement</span>
-          </a>
           <a class="drawer-item" data-navigate="godowns">
             <i data-lucide="warehouse" class="w-5 h-5 text-yellow-600"></i>
             <span>Godowns & Mandi Storage</span>
@@ -2196,32 +2192,85 @@
 
         <!-- SECTION 17: CONTACT ADMIN & GRIEVANCE (FeedbackActivity) -->
         <section id="sectionFeedback" class="app-section hidden space-y-4">
-          <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm space-y-3">
-            <h2 class="text-lg font-bold text-gray-900">Contact Agriculture Helpline & Grievance</h2>
-            <p class="text-xs text-gray-600">
-              Submit your enquiry directly to Telangana Rythu Call Center & Agriculture Extension Officers:
-            </p>
+          <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+            <div>
+              <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <i data-lucide="message-square" class="w-5 h-5 text-purple-700"></i>
+                <span>Contact Agriculture Helpline & Grievance</span>
+              </h2>
+              <p class="text-xs text-gray-600 mt-1">
+                Submit your enquiry directly to Telangana Rythu Call Center (1800-180-1551) & Agriculture Extension Officers. You will receive an official tracking ticket instantly.
+              </p>
+            </div>
 
-            <form id="formFeedback" class="space-y-3 text-sm">
-              <div>
-                <label class="block text-xs font-semibold text-gray-600 mb-1">Crop / Department Category</label>
-                <select id="feedbackCategory" class="w-full px-3 py-2 border rounded-xl bg-white text-xs">
-                  <option value="Paddy">Paddy / Rice Cultivation</option>
-                  <option value="RythuBandhu">Rythu Bandhu & Rythu Bima</option>
-                  <option value="Loan">Loan & Interest Subsidies</option>
-                  <option value="Grading">Crop Variety & Specifications</option>
-                </select>
+            <!-- In-Page Grievance Success Confirmation Banner -->
+            <div id="grievanceSuccessBanner" class="hidden bg-emerald-50 border border-emerald-300 rounded-xl p-4 text-emerald-950 space-y-2.5">
+              <div class="flex items-center gap-2 font-bold text-sm text-emerald-800">
+                <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600 shrink-0"></i>
+                <span>Grievance Ticket Registered Successfully!</span>
+              </div>
+              <p class="text-xs text-emerald-800" id="grievanceTicketInfo">
+                Your ticket has been dispatched to Telangana Rythu Call Center & Agricultural Extension Officers.
+              </p>
+              <div class="flex flex-wrap gap-2 pt-1">
+                <button type="button" onclick="document.getElementById('grievanceSuccessBanner').classList.add('hidden'); document.getElementById('formFeedback').reset();" class="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold rounded-lg shadow-sm transition">
+                  + Submit Another Inquiry
+                </button>
+                <button type="button" onclick="navigateTo('inventory')" class="px-3 py-1.5 bg-white border border-emerald-300 text-emerald-800 hover:bg-emerald-50 text-xs font-semibold rounded-lg transition">
+                  Return to Dashboard
+                </button>
+              </div>
+            </div>
+
+            <form id="formFeedback" class="space-y-3.5 text-sm">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-semibold text-gray-700 mb-1">Crop / Department Category *</label>
+                  <select id="feedbackCategory" class="w-full px-3 py-2 border rounded-xl bg-white text-xs focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                    <option value="Paddy">Paddy / Rice Cultivation & Procurement</option>
+                    <option value="RythuBandhu">Rythu Bandhu & Rythu Bima DBT</option>
+                    <option value="Loan">Loan, KCC & Interest Subsidies</option>
+                    <option value="Grading">Crop Variety, Quality & Mandi Rates</option>
+                    <option value="Logistics">Logistics, Freight & Mandi Godowns</option>
+                    <option value="Other">General Agriculture & Extension Inquiry</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-semibold text-gray-700 mb-1">Contact Mobile Number *</label>
+                  <input type="tel" id="feedbackPhone" placeholder="10-digit mobile number" class="w-full px-3 py-2 border rounded-xl text-xs focus:ring-2 focus:ring-purple-500 focus:outline-none" />
+                </div>
               </div>
 
               <div>
-                <label class="block text-xs font-semibold text-gray-600 mb-1">Details / Grievance Content</label>
-                <textarea id="feedbackContent" rows="4" required placeholder="Describe your question or difficulty..." class="w-full px-3 py-2 border rounded-xl text-xs"></textarea>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Subject / Issue Summary *</label>
+                <input type="text" id="feedbackSubject" placeholder="e.g. Mandi weighing slip verification or Rythu Bandhu credit status" class="w-full px-3 py-2 border rounded-xl text-xs focus:ring-2 focus:ring-purple-500 focus:outline-none" />
               </div>
 
-              <button type="submit" class="w-full py-2.5 bg-purple-700 hover:bg-purple-800 text-white font-bold rounded-xl text-xs shadow transition">
-                Submit Grievance Ticket
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Details / Grievance Content *</label>
+                <textarea id="feedbackContent" rows="4" required placeholder="Describe your question, difficulty or dispute in detail..." class="w-full px-3 py-2 border rounded-xl text-xs focus:ring-2 focus:ring-purple-500 focus:outline-none"></textarea>
+              </div>
+
+              <button type="submit" id="btnSubmitGrievance" class="w-full py-2.5 bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white font-bold rounded-xl text-xs shadow-md transition flex items-center justify-center gap-2">
+                <i data-lucide="send" class="w-4 h-4"></i>
+                <span id="btnSubmitGrievanceText">Submit Grievance Ticket</span>
               </button>
             </form>
+
+            <!-- Recent Grievance History List -->
+            <div class="pt-4 border-t space-y-2">
+              <div class="flex items-center justify-between">
+                <h4 class="text-xs font-bold text-gray-700 flex items-center gap-1.5">
+                  <i data-lucide="history" class="w-3.5 h-3.5 text-purple-600"></i>
+                  <span>Your Submitted Grievance Tickets</span>
+                </h4>
+                <span class="text-[10px] text-gray-500 font-mono">Live Agriculture Extension Desk</span>
+              </div>
+              <div id="recentGrievancesList" class="space-y-2">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
           </div>
         </section>
 
@@ -2260,8 +2309,8 @@
             </div>
           </div>
 
-          <!-- Quick Consumer Metric Pills (4 Columns) -->
-          <div class="grid grid-cols-4 gap-2">
+          <!-- Quick Consumer Metric Pills (3 Columns) -->
+          <div class="grid grid-cols-3 gap-2.5">
             <div class="bg-white p-2.5 rounded-xl border border-gray-100 shadow-sm text-center cursor-pointer hover:border-amber-300 transition" onclick="switchConsumerTab('farmers')">
               <span class="text-[10px] text-gray-500 block font-medium">Farmers</span>
               <span id="consumerStatFarmers" class="text-xs md:text-sm font-bold text-emerald-600">5 Verified</span>
@@ -2274,13 +2323,9 @@
               <span class="text-[10px] text-gray-500 block font-medium">My Deals</span>
               <span id="consumerStatOffers" class="text-xs md:text-sm font-bold text-blue-600">3 Deals</span>
             </div>
-            <div class="bg-white p-2.5 rounded-xl border border-gray-100 shadow-sm text-center cursor-pointer hover:border-amber-300 transition" onclick="switchConsumerTab('demands')">
-              <span class="text-[10px] text-gray-500 block font-medium">Demands</span>
-              <span id="consumerStatDemands" class="text-xs md:text-sm font-bold text-purple-600">2 Active</span>
-            </div>
           </div>
 
-          <!-- Consumer Sub-Navigation Tabs (4 Tabs) -->
+          <!-- Consumer Sub-Navigation Tabs (3 Tabs) -->
           <div class="flex border-b border-gray-200 text-xs font-bold overflow-x-auto">
             <button id="tabConsumerFarmers" type="button" class="flex-1 pb-2.5 border-b-2 border-amber-600 text-amber-700 flex items-center justify-center gap-1 shrink-0 px-2" onclick="switchConsumerTab('farmers')">
               <i data-lucide="users" class="w-3.5 h-3.5"></i>
@@ -2293,10 +2338,6 @@
             <button id="tabConsumerOffers" type="button" class="flex-1 pb-2.5 text-gray-500 hover:text-gray-800 flex items-center justify-center gap-1 shrink-0 px-2" onclick="switchConsumerTab('offers')">
               <i data-lucide="handshake" class="w-3.5 h-3.5"></i>
               <span>My Deals (<span id="consumerOfferCount">0</span>)</span>
-            </button>
-            <button id="tabConsumerDemands" type="button" class="flex-1 pb-2.5 text-gray-500 hover:text-gray-800 flex items-center justify-center gap-1 shrink-0 px-2" onclick="switchConsumerTab('demands')">
-              <i data-lucide="file-plus-2" class="w-3.5 h-3.5"></i>
-              <span>Post Demand</span>
             </button>
           </div>
 
@@ -2332,75 +2373,6 @@
             </div>
             <div id="consumerOffersList" class="space-y-3">
               <!-- Dynamically populated with consumer's offers -->
-            </div>
-          </div>
-
-          <!-- SUB-VIEW 4: POST BULK PROCUREMENT REQUIREMENT -->
-          <div id="consumerDemandsView" class="hidden space-y-4">
-            <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-3">
-              <div class="flex items-center gap-2 text-gray-900 font-bold text-sm">
-                <div class="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
-                  <i data-lucide="megaphone" class="w-4 h-4"></i>
-                </div>
-                <span>Broadcast Procurement Requirement to Farmers</span>
-              </div>
-              <p class="text-xs text-gray-500">Post what produce you need in bulk. Farmers and farmer clusters across Telangana will receive your demand directly.</p>
-
-              <form id="formConsumerDemand" class="space-y-3 text-xs">
-                <div class="grid grid-cols-2 gap-3">
-                  <div>
-                    <label class="block font-semibold text-gray-700 mb-1">Crop / Commodity *</label>
-                    <select id="inputDemandCropName" class="w-full px-3 py-2 border rounded-xl bg-white font-medium focus:ring-2 focus:ring-amber-500 focus:outline-none">
-                      <option value="Telangana Sona Super Fine Paddy (RNR 15048)">Telangana Sona Paddy (RNR 15048)</option>
-                      <option value="Tandur Organic Red Gram (GI Arhar)">Tandur Red Gram (Arhar Dal)</option>
-                      <option value="Long Staple Telangana White Gold Cotton">Long Staple Cotton</option>
-                      <option value="Warangal Chilly (Teja / Wonder Hot)">Warangal Red Chilli (Teja)</option>
-                      <option value="Fresh Green Bhendi (Okra)">Bhendi (Okra)</option>
-                      <option value="Fresh Hybrid Tomato">Tomato (Warangal Cluster)</option>
-                      <option value="Nizamabad Organic Turmeric (Armoor Curcumin)">Nizamabad Turmeric</option>
-                      <option value="Highland Yellow Maize">Yellow Maize (Corn)</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label class="block font-semibold text-gray-700 mb-1">Produce Category</label>
-                    <select id="inputDemandCategory" class="w-full px-3 py-2 border rounded-xl bg-white font-medium focus:ring-2 focus:ring-amber-500 focus:outline-none">
-                      <option value="Paddy / Grains">Paddy / Grains</option>
-                      <option value="Pulses / Dal">Pulses / Dal</option>
-                      <option value="Cash Crop">Cash Crop</option>
-                      <option value="Spices">Spices</option>
-                      <option value="Vegetables">Vegetables</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                  <div>
-                    <label class="block font-semibold text-gray-700 mb-1">Quantity Needed (Kg) *</label>
-                    <input type="number" id="inputDemandQuantity" required min="100" placeholder="e.g. 2500" class="w-full px-3 py-2 border rounded-xl font-bold text-gray-800 focus:ring-2 focus:ring-amber-500 focus:outline-none" />
-                  </div>
-                  <div>
-                    <label class="block font-semibold text-gray-700 mb-1">Target Price (₹ / Kg) *</label>
-                    <input type="number" id="inputDemandPrice" required step="0.5" placeholder="e.g. 29" class="w-full px-3 py-2 border rounded-xl font-bold text-amber-700 focus:ring-2 focus:ring-amber-500 focus:outline-none" />
-                  </div>
-                </div>
-
-                <div>
-                  <label class="block font-semibold text-gray-700 mb-1">Decided Delivery Destination *</label>
-                  <input type="text" id="inputDemandDeliveryLocation" required class="w-full px-3 py-2 border rounded-xl bg-gray-50 text-gray-800 font-medium" />
-                </div>
-
-                <button type="submit" class="w-full py-2.5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-bold rounded-xl shadow transition flex items-center justify-center gap-2">
-                  <i data-lucide="send" class="w-4 h-4"></i>
-                  <span>Broadcast Requirement to Telangana Farmers</span>
-                </button>
-              </form>
-            </div>
-
-            <div class="space-y-2">
-              <h4 class="text-xs font-bold text-gray-700">Active Procurement Requirements Broadcasted:</h4>
-              <div id="consumerDemandsList" class="space-y-2.5">
-                <!-- Dynamically loaded from Supabase consumer_demands -->
-              </div>
             </div>
           </div>
         </section>
