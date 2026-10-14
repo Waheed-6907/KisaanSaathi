@@ -713,10 +713,10 @@
   function ensureOverlayElements() {
     if (document.getElementById('kisanTutorialSpotlightOverlay')) return;
 
-    // Main SVG Mask Overlay
+    // Main SVG Mask Overlay (pointer-events-none so underlying webpage is never blocked)
     const overlay = document.createElement('div');
     overlay.id = 'kisanTutorialSpotlightOverlay';
-    overlay.className = 'fixed inset-0 z-[9990] pointer-events-auto transition-opacity duration-300 hidden';
+    overlay.className = 'fixed inset-0 z-[9990] pointer-events-none transition-opacity duration-300 hidden';
     overlay.innerHTML = `
       <svg id="tutorialSvgMask" class="w-full h-full absolute inset-0 pointer-events-none">
         <defs>
@@ -736,10 +736,10 @@
     overlayEl = overlay;
     beaconEl = document.getElementById('tutorialBeacon');
 
-    // Floating Instruction Card
+    // Floating Instruction Card (pointer-events-auto so controls remain clickable)
     const card = document.createElement('div');
     card.id = 'kisanTutorialInstructionCard';
-    card.className = 'fixed z-[9995] max-w-[92vw] sm:max-w-md bg-white rounded-3xl shadow-2xl border-2 border-emerald-500/80 p-4 sm:p-5 transition-all duration-300 hidden';
+    card.className = 'fixed z-[9995] max-w-[92vw] sm:max-w-md bg-white rounded-3xl shadow-2xl border-2 border-emerald-500/80 p-4 sm:p-5 transition-all duration-300 pointer-events-auto hidden';
     card.innerHTML = `
       <div class="space-y-3">
         <!-- Header: Step & Farmer Avatar -->
@@ -929,17 +929,22 @@
     currentStepIndex = index;
     const step = steps[index];
 
-    // Check if target is inside drawer; if so, open the navigation drawer so farmer sees it
+    // Check if target is inside drawer; if so, open navigation drawer so farmer sees it
+    const navDrawer = document.getElementById('navDrawer');
+    const drawerBackdrop = document.getElementById('drawerBackdrop');
     if (step.target.startsWith('a[data-navigate=') || step.target.includes('drawer')) {
-      const drawer = document.getElementById('drawer');
-      const drawerOverlay = document.getElementById('drawerOverlay');
-      if (drawer && !drawer.classList.contains('open')) {
-        drawer.classList.add('open');
-        if (drawerOverlay) drawerOverlay.classList.remove('hidden');
+      if (navDrawer && !navDrawer.classList.contains('open')) {
+        navDrawer.classList.add('open');
+        if (drawerBackdrop) drawerBackdrop.classList.add('open');
       }
-    } else if (step.fallbackSection && typeof window.navigateTo === 'function') {
-      // If target is in a specific section, route there
-      window.navigateTo(step.fallbackSection);
+    } else {
+      if (navDrawer && navDrawer.classList.contains('open')) {
+        navDrawer.classList.remove('open');
+        if (drawerBackdrop) drawerBackdrop.classList.remove('open');
+      }
+      if (step.fallbackSection && typeof window.navigateTo === 'function') {
+        window.navigateTo(step.fallbackSection);
+      }
     }
 
     // Update Card UI
@@ -1009,15 +1014,16 @@
   function exitTutorial() {
     isTutorialActive = false;
     stopSpeech();
+    hideWelcomeModal();
     if (overlayEl) overlayEl.classList.add('hidden');
     if (cardEl) cardEl.classList.add('hidden');
     if (beaconEl) beaconEl.classList.add('hidden');
 
     // Close drawer if left open
-    const drawer = document.getElementById('drawer');
-    const drawerOverlay = document.getElementById('drawerOverlay');
-    if (drawer) drawer.classList.remove('open');
-    if (drawerOverlay) drawerOverlay.classList.add('hidden');
+    const navDrawer = document.getElementById('navDrawer');
+    const drawerBackdrop = document.getElementById('drawerBackdrop');
+    if (navDrawer) navDrawer.classList.remove('open');
+    if (drawerBackdrop) drawerBackdrop.classList.remove('open');
 
     // Mark completion in storage
     localStorage.setItem('kisan_tutorial_completed', 'true');
@@ -1065,13 +1071,20 @@
     let modal = document.getElementById('modalTutorialWelcome');
     if (!modal) return;
 
+    modal.classList.remove('hidden');
     modal.classList.add('open');
     updateWelcomeModalText(currentTutorialLang);
   }
 
   function hideWelcomeModal() {
+    stopSpeech();
     const modal = document.getElementById('modalTutorialWelcome');
-    if (modal) modal.classList.remove('open');
+    if (modal) {
+      modal.classList.remove('open');
+      modal.classList.add('hidden');
+    }
+    // Record that tutorial has been seen/skipped so it never auto-pops again
+    localStorage.setItem('kisan_tutorial_completed', 'true');
   }
 
   function updateWelcomeModalText(lang) {
@@ -1140,5 +1153,22 @@
       speakTutorialScript(`${data.welcomeTitle}. ${data.welcomeSubtitle}`, currentTutorialLang);
     }
   };
+
+  // Dismiss welcome modal when clicking backdrop outside card
+  if (typeof document !== 'undefined') {
+    const bindBackdrop = () => {
+      const modal = document.getElementById('modalTutorialWelcome');
+      if (modal) {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) hideWelcomeModal();
+        });
+      }
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', bindBackdrop);
+    } else {
+      bindBackdrop();
+    }
+  }
 
 })(window, document);

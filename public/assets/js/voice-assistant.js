@@ -869,7 +869,10 @@
   // 11. Assistant Panel UI & Language Switcher
   function openAssistantPanel() {
     const modal = document.getElementById('modalVoiceAssistant');
-    if (modal) modal.classList.add('open');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('open');
+    }
     updateAssistantUI();
   }
 
@@ -877,7 +880,10 @@
     stopSpeaking();
     stopListening();
     const modal = document.getElementById('modalVoiceAssistant');
-    if (modal) modal.classList.remove('open');
+    if (modal) {
+      modal.classList.remove('open');
+      modal.classList.add('hidden');
+    }
   }
 
   function setAssistantLanguage(lang) {
@@ -942,6 +948,14 @@
       speedSelect.addEventListener('change', (e) => {
         speechRate = parseFloat(e.target.value) || 0.95;
         localStorage.setItem('kisan_voice_rate', String(speechRate));
+      });
+    }
+
+    // Dismiss panel when clicking backdrop
+    const vaModal = document.getElementById('modalVoiceAssistant');
+    if (vaModal) {
+      vaModal.addEventListener('click', (e) => {
+        if (e.target === vaModal) closeAssistantPanel();
       });
     }
   }

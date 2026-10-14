@@ -3572,9 +3572,14 @@
   </div>
 
   <!-- FIRST-LOGIN WELCOME & LANGUAGE SELECTION MODAL (PHASE 1) -->
-  <div id="modalTutorialWelcome" class="modal-overlay z-[9999]">
-    <div id="welcomeModalCard" class="modal-content max-w-lg p-6 space-y-5 rounded-3xl border-2 border-emerald-400 shadow-2xl bg-white text-center">
+  <div id="modalTutorialWelcome" class="modal-overlay hidden z-[9999]">
+    <div id="welcomeModalCard" class="modal-content relative max-w-lg p-6 space-y-5 rounded-3xl border-2 border-emerald-400 shadow-2xl bg-white text-center">
       
+      <!-- Close Button (X) to easily dismiss modal -->
+      <button type="button" id="btnWelcomeModalCloseX" onclick="window.KisanTutorial.hideWelcomeModal()" class="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-700 rounded-full hover:bg-gray-100 transition z-10" title="Close">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
       <!-- Animated Farmer Guide Avatar -->
       <div class="mx-auto w-20 h-20 rounded-full bg-emerald-100 border-4 border-emerald-500 flex items-center justify-center shadow-lg tutorial-avatar-float overflow-hidden">
         <svg class="w-16 h-16 text-emerald-800" viewBox="0 0 64 64" fill="none">
@@ -3643,7 +3648,7 @@
   </div>
 
   <!-- PERSISTENT VOICE ASSISTANT BOTTOM SHEET & DIALOG -->
-  <div id="modalVoiceAssistant" class="modal-overlay z-[9980]">
+  <div id="modalVoiceAssistant" class="modal-overlay hidden z-[9980]">
     <div class="modal-content max-w-lg p-5 sm:p-6 space-y-4 rounded-3xl border-2 border-emerald-400 shadow-2xl bg-white">
       <!-- Header -->
       <div class="flex items-center justify-between border-b pb-3">

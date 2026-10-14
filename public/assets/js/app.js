@@ -502,12 +502,6 @@ function initKisanSaathi() {
     hideLoginScreen();
     navigateTo('inventory');
 
-    setTimeout(() => {
-      if (window.KisanTutorial && typeof window.KisanTutorial.showWelcomeModal === 'function') {
-        window.KisanTutorial.showWelcomeModal(false);
-      }
-    }, 700);
-
     // Clean URL query and hash (remove ?code=... or #access_token=...)
     if (window.location.search.includes('code=') || window.location.hash.includes('access_token=')) {
       const cleanUrl = window.location.origin + window.location.pathname;
@@ -672,6 +666,7 @@ function initKisanSaathi() {
           if (!insErr && inserted && inserted.length > 0) {
             activeProfile = inserted[0];
             console.log('✔ Auto-registered new Google farmer profile in Supabase:', newFarmerId);
+            window._isFirstTimeRegistration = true;
           } else {
             activeProfile = newProfile;
           }
@@ -694,6 +689,15 @@ function initKisanSaathi() {
 
     await setActiveFarmerSession(activeProfile, provider);
     showToast(`Welcome, ${googleName}! Logged in via Google.`);
+
+    if (window._isFirstTimeRegistration) {
+      window._isFirstTimeRegistration = false;
+      setTimeout(() => {
+        if (window.KisanTutorial && typeof window.KisanTutorial.showWelcomeModal === 'function') {
+          window.KisanTutorial.showWelcomeModal(true);
+        }
+      }, 800);
+    }
   }
 
   async function checkAuthStatus() {
@@ -1172,6 +1176,13 @@ function initKisanSaathi() {
           await setActiveFarmerSession(createdProfile, 'registered');
           showToast(`Welcome to KisanSaathi, ${fullName}! Your Farmer ID is ${farmerId}`);
 
+          // Tutorials should be ONLY for newly and first time registered users
+          setTimeout(() => {
+            if (window.KisanTutorial && typeof window.KisanTutorial.showWelcomeModal === 'function') {
+              window.KisanTutorial.showWelcomeModal(true);
+            }
+          }, 800);
+
         } catch (err) {
           console.error('Registration exception:', err);
           alert('Registration error: ' + err.message);
@@ -1423,6 +1434,14 @@ function initKisanSaathi() {
           createdProfile.delivery_address = deliveryAddress;
 
           await setActiveConsumerSession(createdProfile, 'registered');
+          showToast(`Welcome to KisanSaathi, ${contactName}! Your Buyer ID is ${consumerId}`);
+
+          // Tutorials should be ONLY for newly and first time registered users
+          setTimeout(() => {
+            if (window.KisanTutorial && typeof window.KisanTutorial.showWelcomeModal === 'function') {
+              window.KisanTutorial.showWelcomeModal(true);
+            }
+          }, 800);
         } catch (err) {
           console.error('Consumer registration error:', err);
           alert('Registration error: ' + err.message);
@@ -8787,11 +8806,6 @@ function initKisanSaathi() {
     } else {
       updatePortalRoleUI();
       navigateTo('inventory');
-      setTimeout(() => {
-        if (window.KisanTutorial && typeof window.KisanTutorial.showWelcomeModal === 'function') {
-          window.KisanTutorial.showWelcomeModal(false);
-        }
-      }, 700);
     }
   }
 

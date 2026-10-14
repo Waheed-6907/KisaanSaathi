@@ -338,6 +338,11 @@ body {
   pointer-events: auto;
 }
 
+.modal-overlay.hidden {
+  display: none !important;
+  pointer-events: none !important;
+}
+
 .modal-content {
   background: #ffffff;
   border-radius: 24px;
