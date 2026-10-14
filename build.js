@@ -16,7 +16,8 @@ const requiredFiles = [
   'vercel.json',
   'assets/data/labs.json',
   'assets/data/logistics.json',
-  'assets/data/market_prices.json'
+  'assets/data/market_prices.json',
+  'assets/data/crop_catalogue_90.json'
 ];
 
 let hasErrors = false;
@@ -80,7 +81,7 @@ for (const jsFile of jsFiles) {
 
 // 4. Validate JSON configurations
 console.log('\n[4/5] Validating JSON files...');
-const jsonFiles = ['package.json', 'vercel.json', 'assets/data/labs.json', 'assets/data/logistics.json', 'assets/data/market_prices.json'];
+const jsonFiles = ['package.json', 'vercel.json', 'assets/data/labs.json', 'assets/data/logistics.json', 'assets/data/market_prices.json', 'assets/data/crop_catalogue_90.json'];
 for (const jsonFile of jsonFiles) {
   const fullPath = path.join(__dirname, jsonFile);
   if (fs.existsSync(fullPath)) {

@@ -1,0 +1,2674 @@
+{
+  "version": "2.0.0",
+  "lastUpdated": "2026-10-14",
+  "totalCrops": 90,
+  "categories": {
+    "fruits": 30,
+    "vegetables": 30,
+    "grains_and_dry_commodities": 30
+  },
+  "crops": [
+    {
+      "id": "FRUIT_MANGO",
+      "slug": "mango",
+      "canonicalName": "Mango",
+      "teluguName": "మామిడి (మామిడి పండు)",
+      "hindiName": "आम",
+      "category": "fruit",
+      "subtype": "fruit",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Banganapalli",
+        "Dasheri",
+        "Totapuri",
+        "Benishan",
+        "Kesar",
+        "Neelum"
+      ],
+      "aliases": [
+        "mango",
+        "aam",
+        "mamidi",
+        "banganapalli",
+        "totapuri",
+        "kesar",
+        "alphonso"
+      ],
+      "marketDataMapping": {
+        "vmpId": "mango",
+        "agmarknetCommodity": "Mango",
+        "agmarknetId": "MANGO"
+      },
+      "mspInrPerQuintal": null,
+      "description": "King of fruits in Telangana, prime harvest April-June across Jagtial, Warangal and Khammam."
+    },
+    {
+      "id": "FRUIT_SWEET_ORANGE_MOSAMBI",
+      "slug": "sweet_orange_mosambi",
+      "canonicalName": "Sweet Orange (Mosambi)",
+      "teluguName": "బత్తాయి (మొసంబి)",
+      "hindiName": "मौसंबी / मीठा संतरा",
+      "category": "fruit",
+      "subtype": "fruit",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Sathgudi",
+        "Batavian",
+        "Mosambi Local"
+      ],
+      "aliases": [
+        "mosambi",
+        "sweet orange",
+        "bathayi",
+        "batayi",
+        "sathgudi",
+        "mousambi"
+      ],
+      "marketDataMapping": {
+        "vmpId": "mosambi",
+        "agmarknetCommodity": "Mosambi",
+        "agmarknetId": "MOSAMBI"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Major commercial citrus in Nalgonda and Suryapet districts, rich in vitamin C."
+    },
+    {
+      "id": "FRUIT_ACID_LIME",
+      "slug": "acid_lime",
+      "canonicalName": "Acid Lime (Kagzi Lime)",
+      "teluguName": "కాగిత నిమ్మ (నిమ్మకాయ)",
+      "hindiName": "कागजी नींबू",
+      "category": "fruit",
+      "subtype": "fruit",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Kagzi",
+        "Balaji",
+        "Pramalini",
+        "Vikram"
+      ],
+      "aliases": [
+        "acid lime",
+        "kagzi lime",
+        "nimma",
+        "nimbu",
+        "kagzi nimbu",
+        "small lime"
+      ],
+      "marketDataMapping": {
+        "vmpId": "lemon",
+        "agmarknetCommodity": "Lime",
+        "agmarknetId": "LIME"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Small round high-acid citrus fruit, heavily cultivated across Mahabubnagar and Nalgonda."
+    },
+    {
+      "id": "FRUIT_LEMON",
+      "slug": "lemon",
+      "canonicalName": "Lemon (Large / Eureka)",
+      "teluguName": "పెద్ద నిమ్మ (లెమన్)",
+      "hindiName": "बड़ा नींबू",
+      "category": "fruit",
+      "subtype": "fruit",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Eureka",
+        "Lisbon",
+        "Assam Lemon",
+        "Seedless"
+      ],
+      "aliases": [
+        "lemon",
+        "pedda nimma",
+        "big lemon",
+        "eureka lemon",
+        "yellow lemon"
+      ],
+      "marketDataMapping": {
+        "vmpId": "lemon",
+        "agmarknetCommodity": "Lemon",
+        "agmarknetId": "LEMON"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Larger oblong lemon distinct from small acid lime, grown for table juice and food service."
+    },
+    {
+      "id": "FRUIT_GUAVA",
+      "slug": "guava",
+      "canonicalName": "Guava",
+      "teluguName": "జామ (జామపండు)",
+      "hindiName": "अमरूद",
+      "category": "fruit",
+      "subtype": "fruit",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Allahabad Safeda",
+        "Lucknow 49 (Sardar)",
+        "Arka Kiran",
+        "Taiwan Pink",
+        "L-49"
+      ],
+      "aliases": [
+        "guava",
+        "jaama",
+        "amrood",
+        "peru",
+        "safeda",
+        "arka kiran"
+      ],
+      "marketDataMapping": {
+        "vmpId": "guava",
+        "agmarknetCommodity": "Guava",
+        "agmarknetId": "GUAVA"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Hardy fruit rich in dietary fiber and vitamin C, popular throughout Rangareddy and Medak."
+    },
+    {
+      "id": "FRUIT_PAPAYA",
+      "slug": "papaya",
+      "canonicalName": "Papaya",
+      "teluguName": "బొప్పాయి (బొప్పాయి పండు)",
+      "hindiName": "पपीता",
+      "category": "fruit",
+      "subtype": "fruit",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Red Lady 786",
+        "Taiwan",
+        "Pusa Dwarf",
+        "Coorg Honey Dew"
+      ],
+      "aliases": [
+        "papaya",
+        "boppayi",
+        "papita",
+        "red lady",
+        "boppaya"
+      ],
+      "marketDataMapping": {
+        "vmpId": "papaya",
+        "agmarknetCommodity": "Papaya",
+        "agmarknetId": "PAPAYA"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Tropical melon-like fruit grown round the year under drip irrigation in Telangana."
+    },
+    {
+      "id": "FRUIT_BANANA",
+      "slug": "banana",
+      "canonicalName": "Banana",
+      "teluguName": "అరటి (అరటిపండు)",
+      "hindiName": "केला",
+      "category": "fruit",
+      "subtype": "fruit",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Grand Naine (G9)",
+        "Robusta",
+        "Yelakki",
+        "Karpuravalli",
+        "Poovan"
+      ],
+      "aliases": [
+        "banana",
+        "arati",
+        "arati pandu",
+        "kela",
+        "grand naine",
+        "g9",
+        "yelakki"
+      ],
+      "marketDataMapping": {
+        "vmpId": "banana",
+        "agmarknetCommodity": "Banana",
+        "agmarknetId": "BANANA"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Staple fruit crop harvested continuously, transported via reefer networks to Hyderabad."
+    },
+    {
+      "id": "FRUIT_POMEGRANATE",
+      "slug": "pomegranate",
+      "canonicalName": "Pomegranate",
+      "teluguName": "దానిమ్మ (దానిమ్మ పండు)",
+      "hindiName": "अनार",
+      "category": "fruit",
+      "subtype": "fruit",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Bhagwa",
+        "Arakta",
+        "Ganesh",
+        "Ruby"
+      ],
+      "aliases": [
+        "pomegranate",
+        "danimma",
+        "anaar",
+        "anar",
+        "bhagwa"
+      ],
+      "marketDataMapping": {
+        "vmpId": "pomegranate",
+        "agmarknetCommodity": "Pomegranate",
+        "agmarknetId": "POMEGRANATE"
+      },
+      "mspInrPerQuintal": null,
+      "description": "High-value drought-tolerant fruit with deep red arils, grown in semi-arid zones."
+    },
+    {
+      "id": "FRUIT_GRAPES",
+      "slug": "grapes",
+      "canonicalName": "Grapes",
+      "teluguName": "ద్రాక్ష (ద్రాక్ష పండ్లు)",
+      "hindiName": "अंगूर",
+      "category": "fruit",
+      "subtype": "fruit",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Thompson Seedless",
+        "Sonaka",
+        "Anab-e-Shahi",
+        "Dilkush",
+        "Sharad Seedless"
+      ],
+      "aliases": [
+        "grapes",
+        "draksha",
+        "angoor",
+        "anab e shahi",
+        "thompson seedless",
+        "dilkush"
+      ],
+      "marketDataMapping": {
+        "vmpId": "grapes",
+        "agmarknetCommodity": "Grapes",
+        "agmarknetId": "GRAPES"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Famous Hyderabad grape belt produce, noted for sweet berry bunches and bower training."
+    },
+    {
+      "id": "FRUIT_SAPOTA",
+      "slug": "sapota_chikoo",
+      "canonicalName": "Sapota (Chikoo)",
+      "teluguName": "సపోటా (సపోటా పండు)",
+      "hindiName": "चीकू / सपोटा",
+      "category": "fruit",
+      "subtype": "fruit",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Cricket Ball",
+        "Kalipatti",
+        "PKM-1",
+        "Dwarapudi"
+      ],
+      "aliases": [
+        "sapota",
+        "chikoo",
+        "chiku",
+        "sapota pandu",
+        "cricket ball sapota"
+      ],
+      "marketDataMapping": {
+        "vmpId": "sapota",
+        "agmarknetCommodity": "Sapota",
+        "agmarknetId": "SAPOTA"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Sweet brownish gritty flesh fruit, prolific in Nizamabad and Rangareddy red loamy soils."
+    },
+    {
+      "id": "FRUIT_WATERMELON",
+      "slug": "watermelon",
+      "canonicalName": "Watermelon",
+      "teluguName": "పుచ్చకాయ (తర్బూజ)",
+      "hindiName": "तरबूज",
+      "category": "fruit",
+      "subtype": "fruit",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Sugar Baby",
+        "Black Diamond",
+        "Max",
+        "Arka Manik",
+        "Namdhari Hybrid"
+      ],
+      "aliases": [
+        "watermelon",
+        "puchakaya",
+        "tarbooz",
+        "tarbuz",
+        "water melon"
+      ],
+      "marketDataMapping": {
+        "vmpId": "watermelon",
+        "agmarknetCommodity": "Watermelon",
+        "agmarknetId": "WATERMELON"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Summer vine fruit with high water content, cultivated along riverbeds and drip farms."
+    },
+    {
+      "id": "FRUIT_MUSKMELON",
+      "slug": "muskmelon",
+      "canonicalName": "Muskmelon (Kharbuja)",
+      "teluguName": "ఖర్బూజా (కర్బూజ పండు)",
+      "hindiName": "खरबूजा",
+      "category": "fruit",
+      "subtype": "fruit",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Hara Madhu",
+        "Pusa Sharbati",
+        "Kajri",
+        "Durgapura Madhu"
+      ],
+      "aliases": [
+        "muskmelon",
+        "musk melon",
+        "kharbuja",
+        "karbooja",
+        "kharbooza"
+      ],
+      "marketDataMapping": {
+        "vmpId": "muskmelon",
+        "agmarknetCommodity": "Muskmelon",
+        "agmarknetId": "MUSKMELON"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Aromatic netted rind melon with sweet pale orange flesh, grown widely in rabi/summer."
+    },
+    {
+      "id": "FRUIT_CUSTARD_APPLE",
+      "slug": "custard_apple",
+      "canonicalName": "Custard Apple (Sitaphal)",
+      "teluguName": "సీతాఫలం (సీతాఫలం పండు)",
+      "hindiName": "शरीफा / सीताफल",
+      "category": "fruit",
+      "subtype": "fruit",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Balanagar",
+        "Arka Sahan",
+        "Washington",
+        "Mammoth"
+      ],
+      "aliases": [
+        "custard apple",
+        "sitaphal",
+        "seethaphal",
+        "sharifa",
+        "balanagar sitaphal"
+      ],
+      "marketDataMapping": {
+        "vmpId": "custardapple",
+        "agmarknetCommodity": "Custard Apple",
+        "agmarknetId": "CUSTARD_APPLE"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Telangana GI-associated native fruit, harvested from Balanagar and Mahabubnagar wild & cultivated tracts."
+    },
+    {
+      "id": "FRUIT_AMLA",
+      "slug": "amla",
+      "canonicalName": "Amla (Indian Gooseberry)",
+      "teluguName": "ఉసిరి (ఉసిరికాయ)",
+      "hindiName": "आंवला",
+      "category": "fruit",
+      "subtype": "fruit",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "NA-7",
+        "Banarasi",
+        "Krishna",
+        "Kanchan",
+        "Chakaiya"
+      ],
+      "aliases": [
+        "amla",
+        "usiri",
+        "usirikaya",
+        "aanwla",
+        "gooseberry",
+        "indian gooseberry"
+      ],
+      "marketDataMapping": {
+        "vmpId": "amla",
+        "agmarknetCommodity": "Amla",
+        "agmarknetId": "AMLA"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Ayurvedic fruit rich in ascorbic acid, grown in dry agro-ecological zones of Telangana."
+    },
+    {
+      "id": "FRUIT_BER",
+      "slug": "ber",
+      "canonicalName": "Ber (Indian Jujube)",
+      "teluguName": "రేగు పండు (గంగరేగు)",
+      "hindiName": "बेर",
+      "category": "fruit",
+      "subtype": "fruit",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Umran",
+        "Gola",
+        "Banarasi",
+        "Seb",
+        "Kaithali"
+      ],
+      "aliases": [
+        "ber",
+        "regu",
+        "regu pandu",
+        "gangaregu",
+        "jujube",
+        "indian plum",
+        "apple ber"
+      ],
+      "marketDataMapping": {
+        "vmpId": "ber",
+        "agmarknetCommodity": "Ber",
+        "agmarknetId": "BER"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Hardy dryland arid fruit with crisp sweet-tart flesh, popular in local rural markets."
+    },
+    {
+      "id": "FRUIT_APPLE",
+      "slug": "apple",
+      "canonicalName": "Apple",
+      "teluguName": "ఆపిల్ (సేబు పండు)",
+      "hindiName": "सेब",
+      "category": "fruit",
+      "subtype": "fruit",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Royal Delicious",
+        "Shimla",
+        "Kinnaur",
+        "Kashmir Golden",
+        "Red Chief"
+      ],
+      "aliases": [
+        "apple",
+        "seb",
+        "sebu",
+        "apple pandu",
+        "shimla apple"
+      ],
+      "marketDataMapping": {
+        "vmpId": "apple",
+        "agmarknetCommodity": "Apple",
+        "agmarknetId": "APPLE"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Temperate fruit traded in huge volumes at Bowenpally & Gaddiannaram wholesale terminal yards."
+    },
+    {
+      "id": "FRUIT_PINEAPPLE",
+      "slug": "pineapple",
+      "canonicalName": "Pineapple",
+      "teluguName": "అనాసపండు (అనాస)",
+      "hindiName": "अनानास",
+      "category": "fruit",
+      "subtype": "fruit",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Queen",
+        "Kew",
+        "Mauritius",
+        "Giant Kew"
+      ],
+      "aliases": [
+        "pineapple",
+        "anasa",
+        "anasa pandu",
+        "ananas",
+        "kew"
+      ],
+      "marketDataMapping": {
+        "vmpId": "pineapple",
+        "agmarknetCommodity": "Pineapple",
+        "agmarknetId": "PINEAPPLE"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Tropical spiny composite fruit traded widely in wholesale crates across mandi hubs."
+    },
+    {
+      "id": "FRUIT_DRAGON_FRUIT",
+      "slug": "dragon_fruit",
+      "canonicalName": "Dragon Fruit (Pitaya)",
+      "teluguName": "డ్రాగన్ ఫ్రూట్ (పిటాయ)",
+      "hindiName": "ड्रैगन फ्रूट / कमलम",
+      "category": "fruit",
+      "subtype": "fruit",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "White Flesh (Hylocereus undatus)",
+        "Red Flesh (H. polyrhizus)",
+        "Kamalam"
+      ],
+      "aliases": [
+        "dragon fruit",
+        "kamalam",
+        "pitaya",
+        "pitahaya",
+        "dragonfruit"
+      ],
+      "marketDataMapping": {
+        "vmpId": "dragonfruit",
+        "agmarknetCommodity": "Dragon Fruit",
+        "agmarknetId": "DRAGON_FRUIT"
+      },
+      "mspInrPerQuintal": null,
+      "description": "High-value climbing cactus crop expanding rapidly in Siddipet, Medak and Vikarabad."
+    },
+    {
+      "id": "FRUIT_JACKFRUIT",
+      "slug": "jackfruit",
+      "canonicalName": "Jackfruit",
+      "teluguName": "పనసపండు (పనసకాయ)",
+      "hindiName": "कटहल",
+      "category": "fruit",
+      "subtype": "fruit",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Palur 1",
+        "Varikka",
+        "Koozha",
+        "Local Sweet Flake"
+      ],
+      "aliases": [
+        "jackfruit",
+        "panasa",
+        "panasa pandu",
+        "kathal",
+        "jack fruit"
+      ],
+      "marketDataMapping": {
+        "vmpId": "jackfruit",
+        "agmarknetCommodity": "Jackfruit",
+        "agmarknetId": "JACKFRUIT"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Largest tree-borne fruit, sold both unripe as vegetable and ripe as sweet honey bulb dessert."
+    },
+    {
+      "id": "FRUIT_PEAR",
+      "slug": "pear",
+      "canonicalName": "Pear (Nashpati)",
+      "teluguName": "బేరి పండు (నాష్పాతి)",
+      "hindiName": "नाशपाती",
+      "category": "fruit",
+      "subtype": "fruit",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Patharnakh",
+        "Bartlett",
+        "Kashmir Nakh",
+        "China Pear"
+      ],
+      "aliases": [
+        "pear",
+        "nashpati",
+        "beri",
+        "beri pandu",
+        "babbu gosha"
+      ],
+      "marketDataMapping": {
+        "vmpId": "pear",
+        "agmarknetCommodity": "Pear",
+        "agmarknetId": "PEAR"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Crisp bell-shaped fruit traded across interstate wholesale freight channels."
+    },
+    {
+      "id": "FRUIT_SWEET_MELON",
+      "slug": "sweet_melon",
+      "canonicalName": "Sweet Melon (Cantaloupe)",
+      "teluguName": "తీపి ఖర్బూజ (కాంటాలూప్)",
+      "hindiName": "मीठा खरबूजा / कैंटालूप",
+      "category": "fruit",
+      "subtype": "fruit",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Cantaloupe",
+        "Honey Dew",
+        "Orange Flesh Hybrid"
+      ],
+      "aliases": [
+        "sweet melon",
+        "cantaloupe",
+        "honey dew",
+        "sweet kharbuja"
+      ],
+      "marketDataMapping": {
+        "vmpId": "muskmelon",
+        "agmarknetCommodity": "Sweet Melon",
+        "agmarknetId": "SWEET_MELON"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Distinct sweet round cantaloupe melon grown for commercial juice and salad bars."
+    },
+    {
+      "id": "FRUIT_STRAWBERRY",
+      "slug": "strawberry",
+      "canonicalName": "Strawberry",
+      "teluguName": "స్ట్రాబెర్రీ (స్ట్రాబెర్రీ పండు)",
+      "hindiName": "स्ट्रॉबेरी",
+      "category": "fruit",
+      "subtype": "fruit",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Camarosa",
+        "Sweet Charlie",
+        "Winter Dawn",
+        "Chandler"
+      ],
+      "aliases": [
+        "strawberry",
+        "straw berry",
+        "red berry"
+      ],
+      "marketDataMapping": {
+        "vmpId": "strawberry",
+        "agmarknetCommodity": "Strawberry",
+        "agmarknetId": "STRAWBERRY"
+      },
+      "mspInrPerQuintal": null,
+      "description": "High-margin berry grown in polyhouses near Hyderabad urban periphery."
+    },
+    {
+      "id": "FRUIT_COCONUT",
+      "slug": "coconut",
+      "canonicalName": "Coconut",
+      "teluguName": "కొబ్బరి కాయ (టెంకాయ)",
+      "hindiName": "नारियल",
+      "category": "fruit",
+      "subtype": "fruit",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "East Coast Tall",
+        "West Coast Tall",
+        "Ganga Bondam",
+        "TXD Hybrid"
+      ],
+      "aliases": [
+        "coconut",
+        "kobbari",
+        "tenkaya",
+        "nariyal",
+        "kobbari kaya"
+      ],
+      "marketDataMapping": {
+        "vmpId": "coconut",
+        "agmarknetCommodity": "Coconut",
+        "agmarknetId": "COCONUT"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Essential agricultural commodity produced in river canal belts and traded statewide."
+    },
+    {
+      "id": "FRUIT_DATES",
+      "slug": "dates",
+      "canonicalName": "Dates (Fresh / Semi-dry)",
+      "teluguName": "ఖర్జూరం (తాజా ఖర్జూర పండు)",
+      "hindiName": "खजूर",
+      "category": "fruit",
+      "subtype": "fruit",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Medjool",
+        "Barhi",
+        "Halawi",
+        "Khuneizi"
+      ],
+      "aliases": [
+        "dates",
+        "kharjooram",
+        "khajoor",
+        "barhi dates"
+      ],
+      "marketDataMapping": {
+        "vmpId": "dates",
+        "agmarknetCommodity": "Dates",
+        "agmarknetId": "DATES"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Desert palm fruit grown in trial arid pockets and traded in bulk wholesale mandi boxes."
+    },
+    {
+      "id": "FRUIT_SWEET_TAMARIND",
+      "slug": "sweet_tamarind",
+      "canonicalName": "Sweet Tamarind",
+      "teluguName": "తీపి చింతపండు (మధుర చింత)",
+      "hindiName": "मीठी इमली",
+      "category": "fruit",
+      "subtype": "fruit",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Thai Sweet",
+        "PKM-1",
+        "Local Sweet Selection"
+      ],
+      "aliases": [
+        "sweet tamarind",
+        "theepi chintapandu",
+        "meethi imli",
+        "sweet imli"
+      ],
+      "marketDataMapping": {
+        "vmpId": "tamarind",
+        "agmarknetCommodity": "Sweet Tamarind",
+        "agmarknetId": "SWEET_TAMARIND"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Specialty legume-fruit with sweet pulpy pods eaten fresh as dessert."
+    },
+    {
+      "id": "FRUIT_JAMUN",
+      "slug": "jamun",
+      "canonicalName": "Jamun (Black Plum)",
+      "teluguName": "నేరేడు పండు (అల్ల నేరేడు)",
+      "hindiName": "जामुन",
+      "category": "fruit",
+      "subtype": "fruit",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Konkan Bahadoli",
+        "Goma Priyanka",
+        "Desi Big Jamun"
+      ],
+      "aliases": [
+        "jamun",
+        "neredu",
+        "neredu pandu",
+        "black plum",
+        "alla neredu"
+      ],
+      "marketDataMapping": {
+        "vmpId": "jamun",
+        "agmarknetCommodity": "Jamun",
+        "agmarknetId": "JAMUN"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Deep purple anti-diabetic seasonal fruit harvested from forest fringes and orchards."
+    },
+    {
+      "id": "FRUIT_FIG",
+      "slug": "fig",
+      "canonicalName": "Fig (Anjeer)",
+      "teluguName": "అంజీర (అంజీర పండు)",
+      "hindiName": "अंजीर",
+      "category": "fruit",
+      "subtype": "fruit",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Poona Fig",
+        "Deanna",
+        "Dinkar",
+        "Brown Turkey"
+      ],
+      "aliases": [
+        "fig",
+        "anjeer",
+        "anjeera",
+        "anjeer pandu"
+      ],
+      "marketDataMapping": {
+        "vmpId": "fig",
+        "agmarknetCommodity": "Fig",
+        "agmarknetId": "FIG"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Subtropical bell-shaped fruit with sweet honey-like seeded pulp."
+    },
+    {
+      "id": "FRUIT_KIWI",
+      "slug": "kiwi",
+      "canonicalName": "Kiwi",
+      "teluguName": "కివి (కివి పండు)",
+      "hindiName": "कीवी",
+      "category": "fruit",
+      "subtype": "fruit",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Hayward",
+        "Allison",
+        "Bruno",
+        "Abbot"
+      ],
+      "aliases": [
+        "kiwi",
+        "kiwifruit",
+        "kiwi pandu",
+        "chinese gooseberry"
+      ],
+      "marketDataMapping": {
+        "vmpId": "kiwi",
+        "agmarknetCommodity": "Kiwi",
+        "agmarknetId": "KIWI"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Fuzzy brown oval fruit with emerald green flesh and black seeds, prominent in wholesale trade."
+    },
+    {
+      "id": "FRUIT_ORANGE_MANDARIN",
+      "slug": "orange_mandarin",
+      "canonicalName": "Mandarin Orange (Kamala)",
+      "teluguName": "కమలా పండు (నారింజ)",
+      "hindiName": "संतरा / कमला",
+      "category": "fruit",
+      "subtype": "fruit",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Nagpur Mandarin",
+        "Coorg Mandarin",
+        "Kinnow"
+      ],
+      "aliases": [
+        "mandarin",
+        "kamala",
+        "kamala pandu",
+        "santara",
+        "nagpur orange",
+        "kinnow"
+      ],
+      "marketDataMapping": {
+        "vmpId": "orange",
+        "agmarknetCommodity": "Orange",
+        "agmarknetId": "MANDARIN_ORANGE"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Loose-skinned bright orange citrus fruit distinct from tight-skinned Mosambi."
+    },
+    {
+      "id": "FRUIT_WOOD_APPLE",
+      "slug": "wood_apple",
+      "canonicalName": "Wood Apple (Bael)",
+      "teluguName": "వెలగ పండు (మారేడు కాయ)",
+      "hindiName": "बेल / कैथा",
+      "category": "fruit",
+      "subtype": "fruit",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Narendra Bael 5",
+        "Pant Urvashi",
+        "Desi Velaga"
+      ],
+      "aliases": [
+        "wood apple",
+        "bael",
+        "velaga",
+        "velaga pandu",
+        "bel",
+        "kaitha",
+        "maredu"
+      ],
+      "marketDataMapping": {
+        "vmpId": "woodapple",
+        "agmarknetCommodity": "Bael",
+        "agmarknetId": "BAEL"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Hard woody shelled sacred fruit with aromatic sticky brown medicinal pulp."
+    },
+    {
+      "id": "VEG_TOMATO",
+      "slug": "tomato",
+      "canonicalName": "Tomato",
+      "teluguName": "టమాటా (టమాట)",
+      "hindiName": "टमाटर",
+      "category": "vegetable",
+      "subtype": "vegetable",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Hybrid Round",
+        "Desi/Nati",
+        "Vaishali",
+        "Arka Rakshak",
+        "Sahu"
+      ],
+      "aliases": [
+        "tomato",
+        "tamata",
+        "tamatar",
+        "tomatobig",
+        "desi tomato"
+      ],
+      "marketDataMapping": {
+        "vmpId": "tomato",
+        "agmarknetCommodity": "Tomato",
+        "agmarknetId": "TOMATO"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Foremost commercial vegetable in Telangana, benchmarked daily at Bowenpally and Madanapalle."
+    },
+    {
+      "id": "VEG_ONION",
+      "slug": "onion",
+      "canonicalName": "Onion",
+      "teluguName": "ఉల్లిపాయ (ఎర్రగడ్డ)",
+      "hindiName": "प्याज",
+      "category": "vegetable",
+      "subtype": "vegetable",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Nashik Red",
+        "Bellary Red",
+        "Pusa Red",
+        "Agrifound Dark Red",
+        "Garwa"
+      ],
+      "aliases": [
+        "onion",
+        "ullipaya",
+        "pyaz",
+        "erragadda",
+        "onionbig",
+        "kanda"
+      ],
+      "marketDataMapping": {
+        "vmpId": "onionbig",
+        "agmarknetCommodity": "Onion",
+        "agmarknetId": "ONION"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Essential staple vegetable bulb with major wholesale arrivals in Malakpet and Bowenpally."
+    },
+    {
+      "id": "VEG_POTATO",
+      "slug": "potato",
+      "canonicalName": "Potato",
+      "teluguName": "బంగాళాదుంప (ఆలుగడ్డ)",
+      "hindiName": "आलू",
+      "category": "vegetable",
+      "subtype": "vegetable",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Jyoti",
+        "Kufri Chandramukhi",
+        "Kufri Lauvkar",
+        "Pukhraj"
+      ],
+      "aliases": [
+        "potato",
+        "bangaladumpa",
+        "aaloo",
+        "aloo",
+        "alugadda"
+      ],
+      "marketDataMapping": {
+        "vmpId": "potato",
+        "agmarknetCommodity": "Potato",
+        "agmarknetId": "POTATO"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Underground tuber crop with massive year-round cold storage volume across Telangana."
+    },
+    {
+      "id": "VEG_BRINJAL",
+      "slug": "brinjal",
+      "canonicalName": "Brinjal (Eggplant)",
+      "teluguName": "వంకాయ (వంకాయలు)",
+      "hindiName": "बैंगन",
+      "category": "vegetable",
+      "subtype": "vegetable",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Bhagyamati",
+        "Pusa Purple Long",
+        "Manjari Gota",
+        "Ravaiya",
+        "Green Round"
+      ],
+      "aliases": [
+        "brinjal",
+        "vankaya",
+        "baingan",
+        "eggplant",
+        "aubergine"
+      ],
+      "marketDataMapping": {
+        "vmpId": "brinjal",
+        "agmarknetCommodity": "Brinjal",
+        "agmarknetId": "BRINJAL"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Quintessential southern vegetable grown in purple striped, green and round cultivars."
+    },
+    {
+      "id": "VEG_OKRA",
+      "slug": "okra",
+      "canonicalName": "Okra (Ladies Finger)",
+      "teluguName": "బెండకాయ (బెండ)",
+      "hindiName": "भिंडी",
+      "category": "vegetable",
+      "subtype": "vegetable",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Pusa Sawani",
+        "Arka Anamika",
+        "Mahyco 10",
+        "Radhika Hybrid"
+      ],
+      "aliases": [
+        "okra",
+        "bendakaya",
+        "bhindi",
+        "ladies finger",
+        "lady finger",
+        "ladiesfinger"
+      ],
+      "marketDataMapping": {
+        "vmpId": "ladiesfinger",
+        "agmarknetCommodity": "Bhindi(Ladies Finger)",
+        "agmarknetId": "BHINDI"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Mucilaginous green pod crop cultivated extensively under warm Telangana climate."
+    },
+    {
+      "id": "VEG_GREEN_CHILLI",
+      "slug": "green_chilli",
+      "canonicalName": "Green Chilli",
+      "teluguName": "పచ్చిమిర్చి (పచ్చి మిరపకాయ)",
+      "hindiName": "हरी मिर्च",
+      "category": "vegetable",
+      "subtype": "vegetable",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "G4",
+        "Teja Green",
+        "Jwala",
+        "Sitara",
+        "Armoor Local"
+      ],
+      "aliases": [
+        "green chilli",
+        "pachimirchi",
+        "hari mirch",
+        "greenchili",
+        "chilli"
+      ],
+      "marketDataMapping": {
+        "vmpId": "greenchili",
+        "agmarknetCommodity": "Green Chilli",
+        "agmarknetId": "GREEN_CHILLI"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Pungent vegetable pods essential in every Indian kitchen, major crop in Armoor and Warangal."
+    },
+    {
+      "id": "VEG_CAPSICUM",
+      "slug": "capsicum",
+      "canonicalName": "Capsicum (Bell Pepper)",
+      "teluguName": "కాప్సికమ్ (బెంగళూరు మిర్చి)",
+      "hindiName": "शिमला मिर्च",
+      "category": "vegetable",
+      "subtype": "vegetable",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "California Wonder",
+        "Bharat",
+        "Indra Green",
+        "Yellow Wonder"
+      ],
+      "aliases": [
+        "capsicum",
+        "shimla mirch",
+        "bell pepper",
+        "capsicumbig"
+      ],
+      "marketDataMapping": {
+        "vmpId": "capsicum",
+        "agmarknetCommodity": "Capsicum",
+        "agmarknetId": "CAPSICUM"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Mild thick-walled pepper grown in polyhouses and open fields in Medak and Shamshabad."
+    },
+    {
+      "id": "VEG_CABBAGE",
+      "slug": "cabbage",
+      "canonicalName": "Cabbage",
+      "teluguName": "క్యాబేజీ (క్యాబేజి)",
+      "hindiName": "पत्ता गोभी / बंदगोभी",
+      "category": "vegetable",
+      "subtype": "vegetable",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Golden Acre",
+        "Pride of India",
+        "Pusa Drumhead",
+        "Green Express"
+      ],
+      "aliases": [
+        "cabbage",
+        "patta gobhi",
+        "cabbage head"
+      ],
+      "marketDataMapping": {
+        "vmpId": "cabbage",
+        "agmarknetCommodity": "Cabbage",
+        "agmarknetId": "CABBAGE"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Dense leafy head cruciferous vegetable traded year-round in bulk mandi sacks."
+    },
+    {
+      "id": "VEG_CAULIFLOWER",
+      "slug": "cauliflower",
+      "canonicalName": "Cauliflower",
+      "teluguName": "క్యాలీఫ్లవర్ (గోబీ పువ్వు)",
+      "hindiName": "फूलगोभी",
+      "category": "vegetable",
+      "subtype": "vegetable",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Pusa Snowball",
+        "Early Kunwari",
+        "White Contessa",
+        "Barkha Hybrid"
+      ],
+      "aliases": [
+        "cauliflower",
+        "phool gobhi",
+        "cauli flower",
+        "gobi"
+      ],
+      "marketDataMapping": {
+        "vmpId": "cauliflower",
+        "agmarknetCommodity": "Cauliflower",
+        "agmarknetId": "CAULIFLOWER"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Compact white curd vegetable harvested during cooler months across Rangareddy."
+    },
+    {
+      "id": "VEG_CARROT",
+      "slug": "carrot",
+      "canonicalName": "Carrot",
+      "teluguName": "క్యారెట్ (గాజరగడ్డ)",
+      "hindiName": "गाजर",
+      "category": "vegetable",
+      "subtype": "vegetable",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Pusa Kesar",
+        "Kuroda",
+        "Nantes",
+        "Red Desi"
+      ],
+      "aliases": [
+        "carrot",
+        "gajar",
+        "gajaragadda"
+      ],
+      "marketDataMapping": {
+        "vmpId": "carrot",
+        "agmarknetCommodity": "Carrot",
+        "agmarknetId": "CARROT"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Taproot vegetable rich in beta-carotene, sold washed in 50kg bags at mandis."
+    },
+    {
+      "id": "VEG_BEETROOT",
+      "slug": "beetroot",
+      "canonicalName": "Beetroot",
+      "teluguName": "బీట్‌రూట్ (బీట్ రూట్)",
+      "hindiName": "चुकंदर",
+      "category": "vegetable",
+      "subtype": "vegetable",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Crimson Globe",
+        "Detroit Dark Red"
+      ],
+      "aliases": [
+        "beetroot",
+        "chukandar",
+        "beet root"
+      ],
+      "marketDataMapping": {
+        "vmpId": "beetroot",
+        "agmarknetCommodity": "Beetroot",
+        "agmarknetId": "BEETROOT"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Deep red round root vegetable grown in rabi seasons."
+    },
+    {
+      "id": "VEG_RADISH",
+      "slug": "radish",
+      "canonicalName": "Radish",
+      "teluguName": "ముల్లంగి (ముల్లంగి గడ్డ)",
+      "hindiName": "मूली",
+      "category": "vegetable",
+      "subtype": "vegetable",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Pusa Chetki",
+        "Japanese White",
+        "Arka Nishant",
+        "Pusa Himani"
+      ],
+      "aliases": [
+        "radish",
+        "mullangi",
+        "mooli",
+        "white radish"
+      ],
+      "marketDataMapping": {
+        "vmpId": "radish",
+        "agmarknetCommodity": "Raddish",
+        "agmarknetId": "RADISH"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Pungent white root harvested within 40-50 days of sowing."
+    },
+    {
+      "id": "VEG_CUCUMBER",
+      "slug": "cucumber",
+      "canonicalName": "Cucumber",
+      "teluguName": "దోసకాయ (కీర దోసకాయ)",
+      "hindiName": "खीरा / ककड़ी",
+      "category": "vegetable",
+      "subtype": "vegetable",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Keera Green",
+        "Malini",
+        "Poinsette",
+        "Yellow Cooking Dosakaya"
+      ],
+      "aliases": [
+        "cucumber",
+        "keera",
+        "dosakaya",
+        "kheera",
+        "kakdi"
+      ],
+      "marketDataMapping": {
+        "vmpId": "cucumber",
+        "agmarknetCommodity": "Cucumber",
+        "agmarknetId": "CUCUMBER"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Cooling vine crop, includes salad keera and traditional yellow culinary dosakaya."
+    },
+    {
+      "id": "VEG_BOTTLE_GOURD",
+      "slug": "bottle_gourd",
+      "canonicalName": "Bottle Gourd",
+      "teluguName": "సొరకాయ (ఆనపకాయ)",
+      "hindiName": "लौकी / घिया",
+      "category": "vegetable",
+      "subtype": "vegetable",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Pusa Naveen",
+        "Arka Bahar",
+        "Warangal Long Local"
+      ],
+      "aliases": [
+        "bottle gourd",
+        "sorakaya",
+        "anapakaya",
+        "lauki",
+        "ghiya",
+        "bottlegourd"
+      ],
+      "marketDataMapping": {
+        "vmpId": "bottlegourd",
+        "agmarknetCommodity": "Bottle Gourd",
+        "agmarknetId": "BOTTLE_GOURD"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Cylindrical light green cucurbit, highly demanded across Hyderabad canteens."
+    },
+    {
+      "id": "VEG_RIDGE_GOURD",
+      "slug": "ridge_gourd",
+      "canonicalName": "Ridge Gourd",
+      "teluguName": "బీరకాయ (బీర)",
+      "hindiName": "तुरई / तोरी",
+      "category": "vegetable",
+      "subtype": "vegetable",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Pusa Nasdar",
+        "Arka Sumeet",
+        "Surekha Hybrid"
+      ],
+      "aliases": [
+        "ridge gourd",
+        "beerakaya",
+        "turai",
+        "tori",
+        "ridgegourd"
+      ],
+      "marketDataMapping": {
+        "vmpId": "ridgegourd",
+        "agmarknetCommodity": "Ridgeguard(Tori)",
+        "agmarknetId": "RIDGE_GOURD"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Dark green ribbed gourd grown on pandals and trellises across rural Telangana."
+    },
+    {
+      "id": "VEG_BITTER_GOURD",
+      "slug": "bitter_gourd",
+      "canonicalName": "Bitter Gourd",
+      "teluguName": "కాకరకాయ (కాకర)",
+      "hindiName": "करेला",
+      "category": "vegetable",
+      "subtype": "vegetable",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Pusa Do Mausmi",
+        "Coimbatore Long",
+        "Chaman Hybrid",
+        "White Bitter Gourd"
+      ],
+      "aliases": [
+        "bitter gourd",
+        "kakarakaya",
+        "karela",
+        "bittergourd"
+      ],
+      "marketDataMapping": {
+        "vmpId": "bittergourd",
+        "agmarknetCommodity": "Bitter Gourd",
+        "agmarknetId": "BITTER_GOURD"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Warty bitter cucurbit widely consumed for blood-sugar regulating properties."
+    },
+    {
+      "id": "VEG_SNAKE_GOURD",
+      "slug": "snake_gourd",
+      "canonicalName": "Snake Gourd",
+      "teluguName": "పొట్లకాయ (పొట్ల)",
+      "hindiName": "चिचिंडा / पडवल",
+      "category": "vegetable",
+      "subtype": "vegetable",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "PKM-1",
+        "Coimbatore Short",
+        "White Striped Long"
+      ],
+      "aliases": [
+        "snake gourd",
+        "potlakaya",
+        "chichinda",
+        "snakegourd"
+      ],
+      "marketDataMapping": {
+        "vmpId": "snakegourd",
+        "agmarknetCommodity": "Snakeguard",
+        "agmarknetId": "SNAKE_GOURD"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Elongated striped gourd with delicate white flesh, grown in trellis gardens."
+    },
+    {
+      "id": "VEG_SPONGE_GOURD",
+      "slug": "sponge_gourd",
+      "canonicalName": "Sponge Gourd",
+      "teluguName": "నేతి బీరకాయ (గిల్కీ)",
+      "hindiName": "गिलकी / नेनुआ",
+      "category": "vegetable",
+      "subtype": "vegetable",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Pusa Chikni",
+        "Green Long Local"
+      ],
+      "aliases": [
+        "sponge gourd",
+        "neti beerakaya",
+        "gilki",
+        "nenua",
+        "spongegourd"
+      ],
+      "marketDataMapping": {
+        "vmpId": "spongegourd",
+        "agmarknetCommodity": "Sponge Gourd",
+        "agmarknetId": "SPONGE_GOURD"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Smooth cylindrical gourd tender inside, distinct from ribbed ridge gourd."
+    },
+    {
+      "id": "VEG_ASH_GOURD",
+      "slug": "ash_gourd",
+      "canonicalName": "Ash Gourd",
+      "teluguName": "బూడిద గుమ్మడికాయ (గుమ్మడి)",
+      "hindiName": "पेठा / सफेद कद्दू",
+      "category": "vegetable",
+      "subtype": "vegetable",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Co-1",
+        "Mudaliar",
+        "APA-1"
+      ],
+      "aliases": [
+        "ash gourd",
+        "budida gummadikaya",
+        "petha",
+        "white pumpkin",
+        "ashgourd"
+      ],
+      "marketDataMapping": {
+        "vmpId": "ashgourd",
+        "agmarknetCommodity": "Ashgourd",
+        "agmarknetId": "ASH_GOURD"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Waxy white-powder coated large melon with exceptional storage life."
+    },
+    {
+      "id": "VEG_PUMPKIN",
+      "slug": "pumpkin",
+      "canonicalName": "Pumpkin",
+      "teluguName": "తీపి గుమ్మడికాయ (ఎర్ర గుమ్మడి)",
+      "hindiName": "कद्दू / सीताफल",
+      "category": "vegetable",
+      "subtype": "vegetable",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Arka Chandan",
+        "Pusa Vishwas",
+        "Local Round"
+      ],
+      "aliases": [
+        "pumpkin",
+        "theepi gummadikaya",
+        "kaddu",
+        "red pumpkin",
+        "sweet pumpkin"
+      ],
+      "marketDataMapping": {
+        "vmpId": "pumpkin",
+        "agmarknetCommodity": "Pumpkin",
+        "agmarknetId": "PUMPKIN"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Orange-fleshed ribbed winter squash grown in river basin soils."
+    },
+    {
+      "id": "VEG_DRUMSTICK",
+      "slug": "drumstick",
+      "canonicalName": "Drumstick Pods",
+      "teluguName": "మునగకాయలు (మునగ)",
+      "hindiName": "सहजन / मुनगा",
+      "category": "vegetable",
+      "subtype": "vegetable",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "PKM-1",
+        "PKM-2",
+        "ODC-3",
+        "Bhagya"
+      ],
+      "aliases": [
+        "drumstick",
+        "munagakayalu",
+        "sahjan",
+        "moringa pods",
+        "moringa"
+      ],
+      "marketDataMapping": {
+        "vmpId": "drumstick",
+        "agmarknetCommodity": "Drumstick",
+        "agmarknetId": "DRUMSTICK"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Long nutrient-rich moringa seed pods, key ingredient in traditional sambar."
+    },
+    {
+      "id": "VEG_FRENCH_BEANS",
+      "slug": "french_beans",
+      "canonicalName": "French Beans",
+      "teluguName": "ఫ్రెంచ్ బీన్స్ (బీన్స్)",
+      "hindiName": "फ्रेंच बीन्स",
+      "category": "vegetable",
+      "subtype": "vegetable",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Contender",
+        "Arka Komal",
+        "Pusa Parvati"
+      ],
+      "aliases": [
+        "french beans",
+        "beans",
+        "french bean",
+        "green beans"
+      ],
+      "marketDataMapping": {
+        "vmpId": "frenchbeans",
+        "agmarknetCommodity": "French Beans (Frasbean)",
+        "agmarknetId": "FRENCH_BEANS"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Slender tender green pods grown on bush and pole supports."
+    },
+    {
+      "id": "VEG_GREEN_PEAS",
+      "slug": "green_peas",
+      "canonicalName": "Green Peas",
+      "teluguName": "బఠానీలు (పచ్చి బఠానీ)",
+      "hindiName": "हरी मटर",
+      "category": "vegetable",
+      "subtype": "vegetable",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Arkel",
+        "Azad P-1",
+        "Bonneville",
+        "GS-10"
+      ],
+      "aliases": [
+        "green peas",
+        "bataneelu",
+        "matar",
+        "peas",
+        "hari matar"
+      ],
+      "marketDataMapping": {
+        "vmpId": "greenpeas",
+        "agmarknetCommodity": "Peas Green",
+        "agmarknetId": "GREEN_PEAS"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Sweet green pod seeds in high demand in winter and processing industries."
+    },
+    {
+      "id": "VEG_CLUSTER_BEANS",
+      "slug": "cluster_beans",
+      "canonicalName": "Cluster Beans (Guar)",
+      "teluguName": "గోరుచిక్కుడు (గోరు చిక్కుడుకాయ)",
+      "hindiName": "ग्वार फली",
+      "category": "vegetable",
+      "subtype": "vegetable",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Pusa Domausami",
+        "HG 365",
+        "RGC 936"
+      ],
+      "aliases": [
+        "cluster beans",
+        "goruchikkudu",
+        "gawar",
+        "guar phali",
+        "cluster bean"
+      ],
+      "marketDataMapping": {
+        "vmpId": "clusterbeans",
+        "agmarknetCommodity": "Cluster Beans",
+        "agmarknetId": "CLUSTER_BEANS"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Sturdy drought-tolerant legume pods grown for table vegetable and guar gum."
+    },
+    {
+      "id": "VEG_BROAD_BEANS",
+      "slug": "broad_beans",
+      "canonicalName": "Broad Beans (Chikkudu)",
+      "teluguName": "చిక్కుడుకాయ (నాటు చిక్కుడు)",
+      "hindiName": "बाकला / सेम फली",
+      "category": "vegetable",
+      "subtype": "vegetable",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Pusa Sumeet",
+        "Local Desi Chikkudu",
+        "Pusa Early Prolific"
+      ],
+      "aliases": [
+        "broad beans",
+        "chikkudukaya",
+        "sem phali",
+        "faba bean",
+        "bakla"
+      ],
+      "marketDataMapping": {
+        "vmpId": "broadbeans",
+        "agmarknetCommodity": "Broad Beans",
+        "agmarknetId": "BROAD_BEANS"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Flat textured winter bean pods beloved in Telangana sankranti festive cuisine."
+    },
+    {
+      "id": "VEG_SPINACH",
+      "slug": "spinach",
+      "canonicalName": "Spinach (Palak)",
+      "teluguName": "పాలకూర (పాలకూర ఆకులు)",
+      "hindiName": "पालक",
+      "category": "vegetable",
+      "subtype": "vegetable",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "All Green",
+        "Pusa All Green",
+        "Harit Shobha",
+        "Banarasi"
+      ],
+      "aliases": [
+        "spinach",
+        "palak",
+        "palakura",
+        "palak leaves"
+      ],
+      "marketDataMapping": {
+        "vmpId": "spinach",
+        "agmarknetCommodity": "Spinach",
+        "agmarknetId": "SPINACH"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Major leafy vegetable packed with iron and calcium, harvested daily in suburban peri-urban tracts."
+    },
+    {
+      "id": "VEG_AMARANTH_LEAVES",
+      "slug": "amaranth_leaves",
+      "canonicalName": "Amaranth Leaves (Thotakura)",
+      "teluguName": "తోటకూర (తోటకూర ఆకులు)",
+      "hindiName": "चौलाई",
+      "category": "vegetable",
+      "subtype": "vegetable",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Co-1",
+        "Badi Chaulai",
+        "Pusa Chhoti",
+        "Red Amaranth"
+      ],
+      "aliases": [
+        "amaranth leaves",
+        "thotakura",
+        "chaulai",
+        "thotakura aakulu",
+        "amaranth"
+      ],
+      "marketDataMapping": {
+        "vmpId": "amaranthleaves",
+        "agmarknetCommodity": "Amaranthus",
+        "agmarknetId": "AMARANTH_LEAVES"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Telangana household staple green leafy vegetable grown rapidly under sunny climate."
+    },
+    {
+      "id": "VEG_CORIANDER_LEAVES",
+      "slug": "coriander_leaves",
+      "canonicalName": "Coriander Leaves",
+      "teluguName": "కొత్తిమీర (కొత్తిమీర ఆకులు)",
+      "hindiName": "धनिया पत्ती",
+      "category": "vegetable",
+      "subtype": "vegetable",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Sadhana",
+        "Swati",
+        "Pant Haritima",
+        "Local Desi"
+      ],
+      "aliases": [
+        "coriander leaves",
+        "kothimeera",
+        "dhaniya",
+        "coriander",
+        "kothimera"
+      ],
+      "marketDataMapping": {
+        "vmpId": "corianderleaves",
+        "agmarknetCommodity": "Coriander(Leaves)",
+        "agmarknetId": "CORIANDER_LEAVES"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Aromatic garnish herb traded daily in bundled bunches across all rythu bazars."
+    },
+    {
+      "id": "VEG_FENUGREEK_LEAVES",
+      "slug": "fenugreek_leaves",
+      "canonicalName": "Fenugreek Leaves (Methi)",
+      "teluguName": "మెంతికూర (మెంతి ఆకులు)",
+      "hindiName": "मेथी पत्ती",
+      "category": "vegetable",
+      "subtype": "vegetable",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Pusa Early Bunching",
+        "Kasuri Methi",
+        "Local Small Methi"
+      ],
+      "aliases": [
+        "fenugreek leaves",
+        "menthikura",
+        "methi",
+        "menthi aakulu",
+        "fenugreek"
+      ],
+      "marketDataMapping": {
+        "vmpId": "fenugreekleaves",
+        "agmarknetCommodity": "Methi(Leaves)",
+        "agmarknetId": "METHI_LEAVES"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Nutritious bittersweet greens harvested young for dal and paratha cooking."
+    },
+    {
+      "id": "VEG_SWEET_CORN",
+      "slug": "sweet_corn",
+      "canonicalName": "Sweet Corn",
+      "teluguName": "తీపి మొక్కజొన్న (స్వీట్ కార్న్)",
+      "hindiName": "स्वीट कॉर्न / मीठा भुट्टा",
+      "category": "vegetable",
+      "subtype": "vegetable",
+      "primaryUnit": "1kg",
+      "varieties": [
+        "Sugar 75",
+        "Madhuri",
+        "Priya Hybrid"
+      ],
+      "aliases": [
+        "sweet corn",
+        "theepi mokkajonna",
+        "sweetcorn",
+        "bhutta",
+        "sweet maize"
+      ],
+      "marketDataMapping": {
+        "vmpId": "sweetcorn",
+        "agmarknetCommodity": "Sweet Corn",
+        "agmarknetId": "SWEET_CORN"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Succulent tender cobs traded fresh as vegetable, distinct from mature grain maize."
+    },
+    {
+      "id": "GRAIN_PADDY_GENERIC",
+      "slug": "paddy_generic",
+      "canonicalName": "Paddy (Common / Generic)",
+      "teluguName": "వరి ధాన్యం (సాధారణ రకం)",
+      "hindiName": "धान (सामान्य)",
+      "category": "grain_dry_commodity",
+      "subtype": "cereal",
+      "primaryUnit": "100kg",
+      "varieties": [
+        "IR-64",
+        "Swarna (MTU 7029)",
+        "Jaya",
+        "Common Grade-A"
+      ],
+      "aliases": [
+        "paddy",
+        "dhaanya",
+        "dhaanyam",
+        "dhan",
+        "common paddy",
+        "rice grain"
+      ],
+      "marketDataMapping": {
+        "vmpId": null,
+        "agmarknetCommodity": "Paddy(Dhan)(Common)",
+        "agmarknetId": "PADDY_COMMON"
+      },
+      "mspInrPerQuintal": 2300,
+      "description": "Benchmark common paddy grade traded under GoI MSP procurement in all Telangana PACs."
+    },
+    {
+      "id": "GRAIN_PADDY_TELANGANA_SONA",
+      "slug": "paddy_telangana_sona",
+      "canonicalName": "Telangana Sona Paddy (RNR 15048)",
+      "teluguName": "తెలంగాణ సోనా వరి ధాన్యం (RNR 15048)",
+      "hindiName": "तेलंगाना सोना धान",
+      "category": "grain_dry_commodity",
+      "subtype": "cereal",
+      "primaryUnit": "100kg",
+      "varieties": [
+        "RNR 15048 (Low Glycemic Index Rice)"
+      ],
+      "aliases": [
+        "telangana sona",
+        "rnr 15048",
+        "telangana sona paddy",
+        "sona masoori",
+        "low gi rice"
+      ],
+      "marketDataMapping": {
+        "vmpId": null,
+        "agmarknetCommodity": "Paddy(Dhan)(Grade A)",
+        "agmarknetId": "PADDY_TELANGANA_SONA"
+      },
+      "mspInrPerQuintal": 2320,
+      "description": "Flagship Telangana PJTSAU low-GI super fine rice variety with premium market realization."
+    },
+    {
+      "id": "GRAIN_PADDY_BPT_5204",
+      "slug": "paddy_bpt_5204",
+      "canonicalName": "BPT 5204 Paddy (Samba Mahsuri)",
+      "teluguName": "సాంబ మసూరి వరి ధాన్యం (BPT 5204)",
+      "hindiName": "सांभा मसूरी धान (BPT 5204)",
+      "category": "grain_dry_commodity",
+      "subtype": "cereal",
+      "primaryUnit": "100kg",
+      "varieties": [
+        "BPT 5204 Samba Mahsuri"
+      ],
+      "aliases": [
+        "bpt 5204",
+        "samba masoori",
+        "samba mahsuri",
+        "bpt paddy"
+      ],
+      "marketDataMapping": {
+        "vmpId": null,
+        "agmarknetCommodity": "Paddy(Dhan)(Fine)",
+        "agmarknetId": "PADDY_BPT_5204"
+      },
+      "mspInrPerQuintal": 2320,
+      "description": "Standard premium fine grain paddy prized for table rice cooking quality."
+    },
+    {
+      "id": "GRAIN_PADDY_MTU_1010",
+      "slug": "paddy_mtu_1010",
+      "canonicalName": "MTU 1010 Paddy (Cottondora Sannalu)",
+      "teluguName": "ఎంటీయూ 1010 వరి ధాన్యం (కాటన్‌దొర సన్నాలు)",
+      "hindiName": "एमटीयू 1010 धान",
+      "category": "grain_dry_commodity",
+      "subtype": "cereal",
+      "primaryUnit": "100kg",
+      "varieties": [
+        "MTU 1010 Cottondora Sannalu"
+      ],
+      "aliases": [
+        "mtu 1010",
+        "cottondora sannalu",
+        "mtu paddy"
+      ],
+      "marketDataMapping": {
+        "vmpId": null,
+        "agmarknetCommodity": "Paddy(Dhan)(Common)",
+        "agmarknetId": "PADDY_MTU_1010"
+      },
+      "mspInrPerQuintal": 2300,
+      "description": "Short duration rabi paddy high yielding variety widespread in Karimnagar and Warangal."
+    },
+    {
+      "id": "GRAIN_PADDY_JAGTIAL_SANNALU",
+      "slug": "paddy_jagtial_sannalu",
+      "canonicalName": "Jagtial Sannalu Paddy (JGL 1798)",
+      "teluguName": "జగిత్యాల సన్నాలు వరి ధాన్యం (JGL 1798)",
+      "hindiName": "जगतियाल सन्नालु धान",
+      "category": "grain_dry_commodity",
+      "subtype": "cereal",
+      "primaryUnit": "100kg",
+      "varieties": [
+        "JGL 1798 Jagtial Sannalu"
+      ],
+      "aliases": [
+        "jagtial sannalu",
+        "jgl 1798",
+        "jgl paddy"
+      ],
+      "marketDataMapping": {
+        "vmpId": null,
+        "agmarknetCommodity": "Paddy(Dhan)(Fine)",
+        "agmarknetId": "PADDY_JGL_1798"
+      },
+      "mspInrPerQuintal": 2320,
+      "description": "Blast-resistant fine grain variety bred specifically at Regional Agricultural Research Station, Jagtial."
+    },
+    {
+      "id": "GRAIN_WHEAT",
+      "slug": "wheat",
+      "canonicalName": "Wheat",
+      "teluguName": "గోధుమలు (గోధుమ గింజలు)",
+      "hindiName": "गेहूं",
+      "category": "grain_dry_commodity",
+      "subtype": "cereal",
+      "primaryUnit": "100kg",
+      "varieties": [
+        "Sharbati",
+        "Lokwan",
+        "HD 2967",
+        "PBW 343"
+      ],
+      "aliases": [
+        "wheat",
+        "godhumalu",
+        "gehun",
+        "sharbati wheat",
+        "lokwan"
+      ],
+      "marketDataMapping": {
+        "vmpId": null,
+        "agmarknetCommodity": "Wheat",
+        "agmarknetId": "WHEAT"
+      },
+      "mspInrPerQuintal": 2425,
+      "description": "Major cereal grain traded in huge lots in Bowenpally & Nizamabad yards."
+    },
+    {
+      "id": "GRAIN_MAIZE",
+      "slug": "maize",
+      "canonicalName": "Maize (Makka Grain)",
+      "teluguName": "మొక్కజొన్న గింజలు (మక్కలు)",
+      "hindiName": "मक्का",
+      "category": "grain_dry_commodity",
+      "subtype": "cereal",
+      "primaryUnit": "100kg",
+      "varieties": [
+        "Yellow Hybrid",
+        "Pioneer 3396",
+        "DKC 9108",
+        "Kaveri 50"
+      ],
+      "aliases": [
+        "maize",
+        "makka",
+        "mokkajonna",
+        "corn grain",
+        "yellow maize"
+      ],
+      "marketDataMapping": {
+        "vmpId": null,
+        "agmarknetCommodity": "Maize",
+        "agmarknetId": "MAIZE"
+      },
+      "mspInrPerQuintal": 2225,
+      "description": "Principal feed and starch cereal traded heavily at Badepally and Nizamabad mandis."
+    },
+    {
+      "id": "GRAIN_JOWAR",
+      "slug": "jowar",
+      "canonicalName": "Jowar (Sorghum)",
+      "teluguName": "జొన్నలు (తెల్ల జొన్నలు)",
+      "hindiName": "ज्वार",
+      "category": "grain_dry_commodity",
+      "subtype": "cereal",
+      "primaryUnit": "100kg",
+      "varieties": [
+        "CSH 14",
+        "Maldandi (M 35-1)",
+        "CSV 15",
+        "Yellow Jowar"
+      ],
+      "aliases": [
+        "jowar",
+        "jonnalu",
+        "sorghum",
+        "maldandi",
+        "great millet"
+      ],
+      "marketDataMapping": {
+        "vmpId": null,
+        "agmarknetCommodity": "Jowar(Sorghum)",
+        "agmarknetId": "JOWAR"
+      },
+      "mspInrPerQuintal": 3371,
+      "description": "Drought hardy staple coarse cereal cultivated across Adilabad and Mahabubnagar drylands."
+    },
+    {
+      "id": "GRAIN_BAJRA",
+      "slug": "bajra",
+      "canonicalName": "Bajra (Pearl Millet)",
+      "teluguName": "సజ్జలు (సజ్జ ధాన్యం)",
+      "hindiName": "बाजरा",
+      "category": "grain_dry_commodity",
+      "subtype": "cereal",
+      "primaryUnit": "100kg",
+      "varieties": [
+        "ICTP 8203",
+        "HHB 67",
+        "Proagro 9444"
+      ],
+      "aliases": [
+        "bajra",
+        "sajjalu",
+        "pearl millet",
+        "kambu"
+      ],
+      "marketDataMapping": {
+        "vmpId": null,
+        "agmarknetCommodity": "Bajra(Pearl Millet/Cumbu)",
+        "agmarknetId": "BAJRA"
+      },
+      "mspInrPerQuintal": 2625,
+      "description": "Nutritious drought resilient grain with high iron content grown in dry sandy loams."
+    },
+    {
+      "id": "GRAIN_RAGI",
+      "slug": "ragi",
+      "canonicalName": "Ragi (Finger Millet)",
+      "teluguName": "రాగులు (తైదులు)",
+      "hindiName": "रागी / मडुआ",
+      "category": "grain_dry_commodity",
+      "subtype": "millet",
+      "primaryUnit": "100kg",
+      "varieties": [
+        "GPU 28",
+        "VL 149",
+        "Vakula",
+        "Bhairabi"
+      ],
+      "aliases": [
+        "ragi",
+        "ragulu",
+        "thaidulu",
+        "finger millet",
+        "nachni"
+      ],
+      "marketDataMapping": {
+        "vmpId": null,
+        "agmarknetCommodity": "Ragi (Finger Millet)",
+        "agmarknetId": "RAGI"
+      },
+      "mspInrPerQuintal": 4290,
+      "description": "Calcium-dense nutritious Shree Anna millet prominent in healthy diets and weaning foods."
+    },
+    {
+      "id": "GRAIN_FOXTAIL_MILLET",
+      "slug": "foxtail_millet",
+      "canonicalName": "Foxtail Millet (Korralu)",
+      "teluguName": "కొర్రలు (నవధాన్య కొర్రలు)",
+      "hindiName": "कंगनी",
+      "category": "grain_dry_commodity",
+      "subtype": "millet",
+      "primaryUnit": "100kg",
+      "varieties": [
+        "Suryanandi",
+        "SiA 3085",
+        "Prasad"
+      ],
+      "aliases": [
+        "foxtail millet",
+        "korralu",
+        "kangni",
+        "tenai",
+        "navane"
+      ],
+      "marketDataMapping": {
+        "vmpId": null,
+        "agmarknetCommodity": "Foxtail Millet",
+        "agmarknetId": "FOXTAIL_MILLET"
+      },
+      "mspInrPerQuintal": 3500,
+      "description": "Popular low glycemic traditional small millet with rich golden seed coats."
+    },
+    {
+      "id": "GRAIN_LITTLE_MILLET",
+      "slug": "little_millet",
+      "canonicalName": "Little Millet (Samalu)",
+      "teluguName": "సామలు (చిరుధాన్యం)",
+      "hindiName": "कुटकी",
+      "category": "grain_dry_commodity",
+      "subtype": "millet",
+      "primaryUnit": "100kg",
+      "varieties": [
+        "OLM 203",
+        "Sukshema",
+        "JK 8"
+      ],
+      "aliases": [
+        "little millet",
+        "samalu",
+        "kutki",
+        "sama",
+        "samai"
+      ],
+      "marketDataMapping": {
+        "vmpId": null,
+        "agmarknetCommodity": "Little Millet",
+        "agmarknetId": "LITTLE_MILLET"
+      },
+      "mspInrPerQuintal": 3400,
+      "description": "Fast-maturing drought escaping indigenous millet grown in tribal and rainfed belts."
+    },
+    {
+      "id": "GRAIN_KODO_MILLET",
+      "slug": "kodo_millet",
+      "canonicalName": "Kodo Millet (Arikelu)",
+      "teluguName": "అరికెలు (చిరుధాన్యం)",
+      "hindiName": "कोदो",
+      "category": "grain_dry_commodity",
+      "subtype": "millet",
+      "primaryUnit": "100kg",
+      "varieties": [
+        "GPUK 3",
+        "RBK 155",
+        "TNAU 86"
+      ],
+      "aliases": [
+        "kodo millet",
+        "arikelu",
+        "kodo",
+        "varagu"
+      ],
+      "marketDataMapping": {
+        "vmpId": null,
+        "agmarknetCommodity": "Kodo Millet",
+        "agmarknetId": "KODO_MILLET"
+      },
+      "mspInrPerQuintal": 3600,
+      "description": "Hardy high-fiber millet grain with exceptional anti-diabetic dietary qualities."
+    },
+    {
+      "id": "GRAIN_BARNYARD_MILLET",
+      "slug": "barnyard_millet",
+      "canonicalName": "Barnyard Millet (Oodalu)",
+      "teluguName": "ఊదలు (చిరుధాన్యం)",
+      "hindiName": "सांवां / झंगोरा",
+      "category": "grain_dry_commodity",
+      "subtype": "millet",
+      "primaryUnit": "100kg",
+      "varieties": [
+        "PRJ 1",
+        "VL 207",
+        "Madira"
+      ],
+      "aliases": [
+        "barnyard millet",
+        "oodalu",
+        "sanwa",
+        "samvat",
+        "jhangora"
+      ],
+      "marketDataMapping": {
+        "vmpId": null,
+        "agmarknetCommodity": "Barnyard Millet",
+        "agmarknetId": "BARNYARD_MILLET"
+      },
+      "mspInrPerQuintal": 3500,
+      "description": "Quick growing cereal grain commonly consumed during fasting and as prebiotic fiber."
+    },
+    {
+      "id": "GRAIN_PROSO_MILLET",
+      "slug": "proso_millet",
+      "canonicalName": "Proso Millet (Varigalu)",
+      "teluguName": "వరిగలు (చీనా ధాన్యం)",
+      "hindiName": "चीना",
+      "category": "grain_dry_commodity",
+      "subtype": "millet",
+      "primaryUnit": "100kg",
+      "varieties": [
+        "TNAU 202",
+        "DHPM 2769",
+        "Co-5"
+      ],
+      "aliases": [
+        "proso millet",
+        "varigalu",
+        "cheena",
+        "barri",
+        "white millet"
+      ],
+      "marketDataMapping": {
+        "vmpId": null,
+        "agmarknetCommodity": "Proso Millet",
+        "agmarknetId": "PROSO_MILLET"
+      },
+      "mspInrPerQuintal": 3400,
+      "description": "Smooth shiny golden millet grain with the lowest water footprint among cereals."
+    },
+    {
+      "id": "GRAIN_RED_GRAM",
+      "slug": "red_gram",
+      "canonicalName": "Red Gram (Arhar / Tur / Pigeonpea)",
+      "teluguName": "కందులు (తొగరి పప్పు)",
+      "hindiName": "अरहर / तूर दाल",
+      "category": "grain_dry_commodity",
+      "subtype": "pulse",
+      "primaryUnit": "100kg",
+      "varieties": [
+        "Tandur GI Red Gram",
+        "PRG 176",
+        "Asha (ICPL 87119)",
+        "WRG 65"
+      ],
+      "aliases": [
+        "red gram",
+        "arhar",
+        "tur",
+        "kandulu",
+        "tandur dal",
+        "pigeon pea"
+      ],
+      "marketDataMapping": {
+        "vmpId": null,
+        "agmarknetCommodity": "Arhar (Tur/Red Gram)(Whole)",
+        "agmarknetId": "RED_GRAM"
+      },
+      "mspInrPerQuintal": 7550,
+      "description": "Primary pulse crop with GI-tagged Tandur red gram, traded heavily in Vikarabad and Tandur."
+    },
+    {
+      "id": "GRAIN_GREEN_GRAM",
+      "slug": "green_gram",
+      "canonicalName": "Green Gram (Moong)",
+      "teluguName": "పెసలు (పచ్చ పెసలు)",
+      "hindiName": "मूंग",
+      "category": "grain_dry_commodity",
+      "subtype": "pulse",
+      "primaryUnit": "100kg",
+      "varieties": [
+        "WGG 42",
+        "MGG 295",
+        "Pusa Vishal",
+        "IPM 02-3"
+      ],
+      "aliases": [
+        "green gram",
+        "moong",
+        "pesalu",
+        "mung bean",
+        "green moong"
+      ],
+      "marketDataMapping": {
+        "vmpId": null,
+        "agmarknetCommodity": "Green Gram (Moong)(Whole)",
+        "agmarknetId": "GREEN_GRAM"
+      },
+      "mspInrPerQuintal": 8682,
+      "description": "Quick 65-day kharif and rabi pulse grain rich in digestible plant proteins."
+    },
+    {
+      "id": "GRAIN_BLACK_GRAM",
+      "slug": "black_gram",
+      "canonicalName": "Black Gram (Urad)",
+      "teluguName": "మినుములు (ఉద్ది పప్పు)",
+      "hindiName": "उड़द",
+      "category": "grain_dry_commodity",
+      "subtype": "pulse",
+      "primaryUnit": "100kg",
+      "varieties": [
+        "PU 31",
+        "LBG 752",
+        "T-9",
+        "MBG 207"
+      ],
+      "aliases": [
+        "black gram",
+        "urad",
+        "minumulu",
+        "black matpe",
+        "mash dal"
+      ],
+      "marketDataMapping": {
+        "vmpId": null,
+        "agmarknetCommodity": "Black Gram (Urd Beans)(Whole)",
+        "agmarknetId": "BLACK_GRAM"
+      },
+      "mspInrPerQuintal": 7400,
+      "description": "Essential pulse for dosa and idli batter fermentation, grown in Nizamabad and Khammam."
+    },
+    {
+      "id": "GRAIN_BENGAL_GRAM",
+      "slug": "bengal_gram",
+      "canonicalName": "Bengal Gram (Desi Chana / Chickpea)",
+      "teluguName": "శనగలు (దేశవాళీ శనగలు)",
+      "hindiName": "चना (देसी चना)",
+      "category": "grain_dry_commodity",
+      "subtype": "pulse",
+      "primaryUnit": "100kg",
+      "varieties": [
+        "JG 11",
+        "JAKI 9218",
+        "Annigeri",
+        "KAK 2 (Kabuli)"
+      ],
+      "aliases": [
+        "bengal gram",
+        "chana",
+        "senagalu",
+        "chickpea",
+        "desi chana"
+      ],
+      "marketDataMapping": {
+        "vmpId": null,
+        "agmarknetCommodity": "Bengal Gram(Gram)(Whole)",
+        "agmarknetId": "BENGAL_GRAM"
+      },
+      "mspInrPerQuintal": 5650,
+      "description": "Major rabi pulse grown on black cotton soils of Adilabad and Nizamabad."
+    },
+    {
+      "id": "GRAIN_HORSE_GRAM",
+      "slug": "horse_gram",
+      "canonicalName": "Horse Gram (Ulavalu)",
+      "teluguName": "ఉలవలు (గుర్రం శనగలు)",
+      "hindiName": "कुलथी",
+      "category": "grain_dry_commodity",
+      "subtype": "pulse",
+      "primaryUnit": "100kg",
+      "varieties": [
+        "CRIDA 18R",
+        "Madhu",
+        "PHG 9"
+      ],
+      "aliases": [
+        "horse gram",
+        "ulavalu",
+        "kulthi",
+        "gahat"
+      ],
+      "marketDataMapping": {
+        "vmpId": null,
+        "agmarknetCommodity": "Kulthi(Horse Gram)",
+        "agmarknetId": "HORSE_GRAM"
+      },
+      "mspInrPerQuintal": 3800,
+      "description": "Protein and iron-packed rustic legume widely used in traditional Telangana ulava charu."
+    },
+    {
+      "id": "GRAIN_COWPEA",
+      "slug": "cowpea",
+      "canonicalName": "Cowpea (Lobia / Bobbarlu)",
+      "teluguName": "బొబ్బర్లు (అలచందలు)",
+      "hindiName": "लोबिया",
+      "category": "grain_dry_commodity",
+      "subtype": "pulse",
+      "primaryUnit": "100kg",
+      "varieties": [
+        "Gomati",
+        "Pusa Komal",
+        "C 152",
+        "Local Bobbarlu"
+      ],
+      "aliases": [
+        "cowpea",
+        "bobbarlu",
+        "alachandalu",
+        "lobia",
+        "black eyed pea"
+      ],
+      "marketDataMapping": {
+        "vmpId": null,
+        "agmarknetCommodity": "Cowpea (Lobia/Karamani)",
+        "agmarknetId": "COWPEA"
+      },
+      "mspInrPerQuintal": 4800,
+      "description": "Drought hardy multipurpose pulse grown for dry grain as well as soil nitrogen enrichment."
+    },
+    {
+      "id": "GRAIN_SOYBEAN",
+      "slug": "soybean",
+      "canonicalName": "Soybean",
+      "teluguName": "సోయాబీన్ (సోయా గింజలు)",
+      "hindiName": "सोयाबीन",
+      "category": "grain_dry_commodity",
+      "subtype": "pulse",
+      "primaryUnit": "100kg",
+      "varieties": [
+        "JS 335",
+        "JS 93-05",
+        "NRC 37",
+        "MACS 1407"
+      ],
+      "aliases": [
+        "soybean",
+        "soya bean",
+        "soyabean",
+        "soya"
+      ],
+      "marketDataMapping": {
+        "vmpId": null,
+        "agmarknetCommodity": "Soyabean",
+        "agmarknetId": "SOYBEAN"
+      },
+      "mspInrPerQuintal": 4892,
+      "description": "High-protein commercial oil-pulse crop cultivated on wide scale in Adilabad and Nirmal."
+    },
+    {
+      "id": "GRAIN_GROUNDNUT",
+      "slug": "groundnut",
+      "canonicalName": "Groundnut (Peanut Pods / Kernels)",
+      "teluguName": "వేరుశనగ (పల్లీలు / కాయలు)",
+      "hindiName": "मूंगफली",
+      "category": "grain_dry_commodity",
+      "subtype": "oilseed",
+      "primaryUnit": "100kg",
+      "varieties": [
+        "Kadiri 6",
+        "TMV 2",
+        "TAG 24",
+        "Narayani",
+        "K 9"
+      ],
+      "aliases": [
+        "groundnut",
+        "verusanaga",
+        "peanut",
+        "moongphali",
+        "pallilu"
+      ],
+      "marketDataMapping": {
+        "vmpId": null,
+        "agmarknetCommodity": "Groundnut",
+        "agmarknetId": "GROUNDNUT"
+      },
+      "mspInrPerQuintal": 6783,
+      "description": "Foremost edible oilseed of Telangana with intense trading at Mahabubnagar & Gadwal mandis."
+    },
+    {
+      "id": "GRAIN_SESAME",
+      "slug": "sesame",
+      "canonicalName": "Sesame (Til / Gingelly)",
+      "teluguName": "నువ్వులు (తెల్ల / నల్ల నువ్వులు)",
+      "hindiName": "तिल",
+      "category": "grain_dry_commodity",
+      "subtype": "oilseed",
+      "primaryUnit": "100kg",
+      "varieties": [
+        "Swetha",
+        "Rajeshwari",
+        "GT 10",
+        "Hima"
+      ],
+      "aliases": [
+        "sesame",
+        "nuvvulu",
+        "til",
+        "gingelly",
+        "sesame seeds"
+      ],
+      "marketDataMapping": {
+        "vmpId": null,
+        "agmarknetCommodity": "Sesamum(Sesame,Gingelly,Til)",
+        "agmarknetId": "SESAME"
+      },
+      "mspInrPerQuintal": 9267,
+      "description": "Premium high-value ancient oilseed crop grown in summer and kharif seasons."
+    },
+    {
+      "id": "GRAIN_SUNFLOWER_SEED",
+      "slug": "sunflower_seed",
+      "canonicalName": "Sunflower Seed",
+      "teluguName": "పొద్దుతిరుగుడు విత్తనాలు",
+      "hindiName": "सूरजमुखी बीज",
+      "category": "grain_dry_commodity",
+      "subtype": "oilseed",
+      "primaryUnit": "100kg",
+      "varieties": [
+        "KBSH 44",
+        "DRSH 1",
+        "Morden",
+        "Sunbred 275"
+      ],
+      "aliases": [
+        "sunflower seed",
+        "podduthirugudu",
+        "surajmukhi",
+        "sunflower"
+      ],
+      "marketDataMapping": {
+        "vmpId": null,
+        "agmarknetCommodity": "Sunflower",
+        "agmarknetId": "SUNFLOWER"
+      },
+      "mspInrPerQuintal": 7280,
+      "description": "Heart-healthy edible oilseed crop grown in Nizamabad, Medak and Warangal districts."
+    },
+    {
+      "id": "GRAIN_CASTOR_SEED",
+      "slug": "castor_seed",
+      "canonicalName": "Castor Seed",
+      "teluguName": "ఆముదం విత్తనాలు (ఆముదాలు)",
+      "hindiName": "अरंडी बीज",
+      "category": "grain_dry_commodity",
+      "subtype": "oilseed",
+      "primaryUnit": "100kg",
+      "varieties": [
+        "DCH 519",
+        "Kranthi",
+        "GCH 7",
+        "PCH 111"
+      ],
+      "aliases": [
+        "castor seed",
+        "aamudam",
+        "arandi",
+        "castor"
+      ],
+      "marketDataMapping": {
+        "vmpId": null,
+        "agmarknetCommodity": "Castor Seed",
+        "agmarknetId": "CASTOR_SEED"
+      },
+      "mspInrPerQuintal": 6000,
+      "description": "Industrial non-edible oilseed with deep drought tolerance, grown in Mahabubnagar and Nalgonda."
+    },
+    {
+      "id": "GRAIN_SAFFLOWER_SEED",
+      "slug": "safflower_seed",
+      "canonicalName": "Safflower Seed (Kardi)",
+      "teluguName": "కుసుమలు (కుసుమ విత్తనాలు)",
+      "hindiName": "कुसुम बीज",
+      "category": "grain_dry_commodity",
+      "subtype": "oilseed",
+      "primaryUnit": "100kg",
+      "varieties": [
+        "Manjira",
+        "TSF 1",
+        "PBNS 12",
+        "Nari-NH-1"
+      ],
+      "aliases": [
+        "safflower seed",
+        "kusumalu",
+        "kardi",
+        "kusum"
+      ],
+      "marketDataMapping": {
+        "vmpId": null,
+        "agmarknetCommodity": "Safflower",
+        "agmarknetId": "SAFFLOWER"
+      },
+      "mspInrPerQuintal": 5800,
+      "description": "Rabi spiny oilseed containing high linoleic fatty acids for heart-healthy oil."
+    },
+    {
+      "id": "GRAIN_MUSTARD_SEED",
+      "slug": "mustard_seed",
+      "canonicalName": "Mustard Seed (Rai / Sarson)",
+      "teluguName": "ఆవాలు (ఆవ గింజలు)",
+      "hindiName": "सरसों / राई",
+      "category": "grain_dry_commodity",
+      "subtype": "oilseed",
+      "primaryUnit": "100kg",
+      "varieties": [
+        "Pusa Bold",
+        "Kranti",
+        "Varuna",
+        "Giriraj"
+      ],
+      "aliases": [
+        "mustard seed",
+        "aavaalu",
+        "sarson",
+        "rai",
+        "mustard"
+      ],
+      "marketDataMapping": {
+        "vmpId": null,
+        "agmarknetCommodity": "Mustard",
+        "agmarknetId": "MUSTARD"
+      },
+      "mspInrPerQuintal": 5650,
+      "description": "Pungent spice-oilseed traded in significant quantities in northern Telangana borders."
+    },
+    {
+      "id": "GRAIN_NIGER_SEED",
+      "slug": "niger_seed",
+      "canonicalName": "Niger Seed (Ramtil / Olasalu)",
+      "teluguName": "ఒలసలు (కార్ల విత్తనాలు)",
+      "hindiName": "रामतिल",
+      "category": "grain_dry_commodity",
+      "subtype": "oilseed",
+      "primaryUnit": "100kg",
+      "varieties": [
+        "RCR 18",
+        "Deomali",
+        "JNC 6"
+      ],
+      "aliases": [
+        "niger seed",
+        "ramtil",
+        "olasalu",
+        "karla",
+        "niger"
+      ],
+      "marketDataMapping": {
+        "vmpId": null,
+        "agmarknetCommodity": "Niger Seed (Ramtil)",
+        "agmarknetId": "NIGER_SEED"
+      },
+      "mspInrPerQuintal": 8717,
+      "description": "Minor oilseed cultivated primarily in undulating tribal tracts of Adilabad and Khammam."
+    },
+    {
+      "id": "GRAIN_DRIED_RED_CHILLI",
+      "slug": "dried_red_chilli",
+      "canonicalName": "Dried Red Chilli",
+      "teluguName": "ఎండు మిర్చి (ఎండిన మిరపకాయలు)",
+      "hindiName": "सूखी लाल मिर्च",
+      "category": "grain_dry_commodity",
+      "subtype": "spice",
+      "primaryUnit": "100kg",
+      "varieties": [
+        "Teja (S17)",
+        "Guntur Sannam (S4)",
+        "Byadgi",
+        "Wonder Hot",
+        "US 341"
+      ],
+      "aliases": [
+        "dried red chilli",
+        "endu mirchi",
+        "dry chilli",
+        "lal mirch",
+        "teja mirchi",
+        "red chilli"
+      ],
+      "marketDataMapping": {
+        "vmpId": null,
+        "agmarknetCommodity": "Dry Chillies",
+        "agmarknetId": "DRY_CHILLIES"
+      },
+      "mspInrPerQuintal": null,
+      "description": "Premier commercial spice crop traded in Asia's largest chilli yards at Khammam and Warangal."
+    }
+  ]
+}

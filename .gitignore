@@ -42,3 +42,10 @@ temp/
 
 .vercel
 .env*
+
+# Python & ML
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
