@@ -464,10 +464,6 @@
             <span data-i18n="nav_market_dashboard">Daily Market Prices</span>
             <span class="ml-auto text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded-full">Live</span>
           </a>
-          <a class="drawer-item" data-navigate="quality">
-            <i data-lucide="scan-line" class="w-5 h-5 text-indigo-600"></i>
-            <span data-i18n="nav_quality">Crop Quality Prediction (AI)</span>
-          </a>
           <a class="drawer-item" data-navigate="negotiate">
             <i data-lucide="handshake" class="w-5 h-5 text-amber-600"></i>
             <span data-i18n="nav_negotiate">Price Negotiations</span>
@@ -489,10 +485,6 @@
           <a class="drawer-item" data-navigate="soil">
             <i data-lucide="test-tube" class="w-5 h-5 text-teal-600"></i>
             <span data-i18n="nav_soil">Soil Testing Labs & Card</span>
-          </a>
-          <a class="drawer-item" data-navigate="info">
-            <i data-lucide="book-open" class="w-5 h-5 text-rose-600"></i>
-            <span data-i18n="nav_info">Advisory & Information Hub</span>
           </a>
           <a class="drawer-item" data-navigate="godowns">
             <i data-lucide="warehouse" class="w-5 h-5 text-yellow-600"></i>
@@ -516,10 +508,6 @@
           <a class="drawer-item" data-navigate="feedback">
             <i data-lucide="message-square" class="w-5 h-5 text-slate-600"></i>
             <span data-i18n="nav_feedback">Contact Admin / Grievance</span>
-          </a>
-          <a class="drawer-item" data-navigate="screenshots">
-            <i data-lucide="images" class="w-5 h-5 text-violet-600"></i>
-            <span>Original App Showcase (15 Screens)</span>
           </a>
           <a class="drawer-item" data-navigate="about">
             <i data-lucide="info" class="w-5 h-5 text-gray-600"></i>
@@ -668,244 +656,6 @@
             </div>
           </div>
 
-          <!-- SECTION 1B: APMC MANDI BENCHMARK & DAY-DATE-YEAR PREFERENCE PRICING WIDGET -->
-          <div id="inventoryMandiWidget" class="bg-white rounded-2xl border border-emerald-200 shadow-sm p-4 space-y-3.5">
-            <!-- Header Row -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-gray-100">
-              <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-sm">
-                  <i data-lucide="trending-up" class="w-4 h-4"></i>
-                </div>
-                <div>
-                  <h3 class="font-bold text-gray-900 text-sm flex items-center gap-2">
-                    <span>APMC Mandi Rate Benchmark</span>
-                    <span id="invPriceLivePill" class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
-                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
-                      <span>Real-Time Today</span>
-                    </span>
-                  </h3>
-                  <p class="text-[11px] text-gray-500">Official AGMARKNET trade rates & date preference price finder</p>
-                </div>
-              </div>
-
-              <!-- Quick Date Preset Toggles -->
-              <div class="flex items-center gap-1.5 self-start sm:self-auto">
-                <button type="button" id="btnDatePresetToday" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 transition flex items-center gap-1">
-                  <i data-lucide="zap" class="w-3 h-3"></i> Today
-                </button>
-                <button type="button" id="btnDatePresetYesterday" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition">
-                  Yesterday
-                </button>
-                <button type="button" id="btnToggleCustomDate" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 transition flex items-center gap-1">
-                  <i data-lucide="calendar" class="w-3 h-3"></i> Preference Filter
-                </button>
-              </div>
-            </div>
-
-            <!-- PREFERENCE DATE FILTER (Day / Month / Year & Calendar) -->
-            <div id="invDateFilterContainer" class="bg-gradient-to-r from-emerald-50/60 to-purple-50/40 p-3 rounded-xl border border-emerald-100 space-y-2.5">
-              <div class="flex items-center justify-between text-xs">
-                <span class="font-bold text-gray-700 flex items-center gap-1">
-                  <i data-lucide="calendar-days" class="w-3.5 h-3.5 text-emerald-700"></i>
-                  <span>Price Preference Date Filter (Day &bull; Month &bull; Year):</span>
-                </span>
-                <span id="invDateFilterFeedback" class="text-[11px] font-semibold text-emerald-800">
-                  Trade Date: 14 Oct 2026
-                </span>
-              </div>
-
-              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                <!-- Day Select -->
-                <div>
-                  <label for="invPrefDay" class="block text-[10px] uppercase font-bold text-gray-500 mb-0.5">Day</label>
-                  <select id="invPrefDay" class="w-full px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 bg-white focus:ring-1 focus:ring-emerald-500">
-                    <!-- 01 to 31 populated in app.js -->
-                  </select>
-                </div>
-
-                <!-- Month Select -->
-                <div>
-                  <label for="invPrefMonth" class="block text-[10px] uppercase font-bold text-gray-500 mb-0.5">Month</label>
-                  <select id="invPrefMonth" class="w-full px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 bg-white focus:ring-1 focus:ring-emerald-500">
-                    <option value="01">Jan (January)</option>
-                    <option value="02">Feb (February)</option>
-                    <option value="03">Mar (March)</option>
-                    <option value="04">Apr (April)</option>
-                    <option value="05">May (May)</option>
-                    <option value="06">Jun (June)</option>
-                    <option value="07">Jul (July)</option>
-                    <option value="08">Aug (August)</option>
-                    <option value="09">Sep (September)</option>
-                    <option value="10" selected>Oct (October)</option>
-                    <option value="11">Nov (November)</option>
-                    <option value="12">Dec (December)</option>
-                  </select>
-                </div>
-
-                <!-- Year Select -->
-                <div>
-                  <label for="invPrefYear" class="block text-[10px] uppercase font-bold text-gray-500 mb-0.5">Year</label>
-                  <select id="invPrefYear" class="w-full px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 bg-white focus:ring-1 focus:ring-emerald-500">
-                    <option value="2026" selected>2026 (Current)</option>
-                    <option value="2025">2025 (Historical)</option>
-                    <option value="2024">2024 (Historical)</option>
-                  </select>
-                </div>
-
-                <!-- Or Direct Native Date Picker -->
-                <div>
-                  <label for="invPrefNativeDate" class="block text-[10px] uppercase font-bold text-gray-500 mb-0.5">Calendar Date</label>
-                  <input type="date" id="invPrefNativeDate" value="2026-10-14" class="w-full px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 bg-white focus:ring-1 focus:ring-emerald-500" />
-                </div>
-              </div>
-            </div>
-
-            <!-- COMMODITY & MANDI SELECTION -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-0.5">
-              <div>
-                <label for="invPriceCommoditySelect" class="block text-xs font-bold text-gray-700 mb-1">
-                  Select Crop for Mandi Benchmark:
-                </label>
-                <select id="invPriceCommoditySelect" class="w-full px-3 py-2 text-xs font-bold rounded-xl border border-gray-300 bg-white focus:ring-2 focus:ring-emerald-500">
-                  <option value="PADDY_COMMON">Paddy (Telangana Sona / Common)</option>
-                  <option value="COTTON">Cotton (Kapas - Long Staple)</option>
-                  <option value="TURMERIC">Turmeric (Nizamabad Finger)</option>
-                  <option value="CHILLI_RED">Chilli Red (Teja Dry)</option>
-                  <option value="MAIZE">Maize (Makka)</option>
-                  <option value="BENGAL_GRAM">Bengal Gram (Desi Chana)</option>
-                  <option value="TOMATO">Tomato (Hybrid / Local)</option>
-                  <option value="ONION">Onion (Common Red)</option>
-                </select>
-              </div>
-
-              <div>
-                <label for="invPriceMandiSelect" class="block text-xs font-bold text-gray-700 mb-1">
-                  APMC Market Yard (Telangana):
-                </label>
-                <select id="invPriceMandiSelect" class="w-full px-3 py-2 text-xs font-bold rounded-xl border border-gray-300 bg-white focus:ring-2 focus:ring-emerald-500">
-                  <option value="TG_MKT_ENUMAMULA">Enumamula (Warangal) - Major Mandi</option>
-                  <option value="TG_MKT_BOWENPALLY">Bowenpally (Secunderabad) - Terminal Yard</option>
-                  <option value="TG_MKT_NIZAMABAD">Nizamabad APMC Yard</option>
-                  <option value="TG_MKT_KHAMMAM">Khammam Mandi</option>
-                  <option value="TG_MKT_SURYAPET">Suryapet APMC Yard</option>
-                  <option value="TG_MKT_BADEPALLY">Badepally (Jadcherla)</option>
-                  <option value="TG_MKT_KARIMNAGAR">Karimnagar APMC</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- ACTIVE PRICE DISPLAY CARD -->
-            <div id="invPriceResultCard" class="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-3">
-              <!-- Rates row -->
-              <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
-                <div>
-                  <div class="flex items-center gap-2">
-                    <span id="invPriceCropBadge" class="font-extrabold text-sm text-gray-900">Telangana Sona Paddy</span>
-                    <span id="invPriceVarietyBadge" class="text-[10px] text-gray-500 bg-white px-2 py-0.5 rounded border border-gray-200">FAQ Grade</span>
-                  </div>
-                  <div class="flex items-baseline gap-2 mt-1">
-                    <span id="invPriceModalRate" class="text-2xl sm:text-3xl font-extrabold text-emerald-800">₹2,742</span>
-                    <span class="text-xs text-gray-500 font-semibold">/ Quintal</span>
-                    <span id="invPricePerKg" class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
-                      ₹27.42 / Kg
-                    </span>
-                  </div>
-                </div>
-
-                <!-- Range and Arrivals -->
-                <div class="text-right sm:text-right border-t sm:border-t-0 pt-2 sm:pt-0 border-gray-200 space-y-0.5">
-                  <div class="text-xs text-gray-600">
-                    Range: <span id="invPriceMinMax" class="font-bold text-gray-800">₹2,671 - ₹2,802</span> /Qtl
-                  </div>
-                  <div class="text-xs text-gray-600">
-                    Arrivals: <span id="invPriceArrivals" class="font-bold text-gray-800">3,450 Quintals</span>
-                  </div>
-                  <div id="invPriceMspBadge" class="text-[11px] font-bold text-emerald-700">
-                    🟢 +₹442 (+19.2%) Above MSP (₹2,300/Qtl)
-                  </div>
-                </div>
-              </div>
-
-              <!-- Official Authority & Date Provenance Footnote -->
-              <div class="pt-2 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center text-[10px] text-gray-500 gap-1">
-                <div class="flex items-center gap-1.5">
-                  <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-600"></i>
-                  <span id="invPriceProvenanceText">Source: AGMARKNET Bulletin &bull; DMI, Ministry of Agriculture GoI</span>
-                </div>
-                <div id="invPriceObservationDateText" class="font-semibold text-gray-700">
-                  Observed Date: 2026-10-14 (Real-time feed)
-                </div>
-              </div>
-            </div>
-
-            <!-- EXPANDABLE ACTION TOOLS (Inter-Mandi Spread & Net Payout Calculator) -->
-            <div class="pt-1 flex flex-wrap gap-2 text-xs">
-              <button type="button" id="btnToggleMandiSpread" class="px-3 py-1.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 font-semibold flex items-center gap-1.5 transition">
-                <i data-lucide="arrow-left-right" class="w-3.5 h-3.5 text-purple-600"></i>
-                <span>Compare Other Telangana Mandis</span>
-              </button>
-              <button type="button" id="btnToggleNetCalculator" class="px-3 py-1.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 font-semibold flex items-center gap-1.5 transition">
-                <i data-lucide="calculator" class="w-3.5 h-3.5 text-emerald-600"></i>
-                <span>Calculate Net Realization from My Stock</span>
-              </button>
-              <button type="button" id="btnSyncWithInventoryPrice" class="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold flex items-center gap-1.5 shadow-sm transition ml-auto">
-                <i data-lucide="check-check" class="w-3.5 h-3.5"></i>
-                <span>Apply Benchmark to My Crop</span>
-              </button>
-            </div>
-
-            <!-- MANDI SPREAD CONTAINER (Hidden by default) -->
-            <div id="invMandiSpreadContainer" class="hidden bg-gray-50 p-3 rounded-xl border border-gray-200 space-y-2 text-xs">
-              <div class="flex items-center justify-between font-bold text-gray-800">
-                <span>Inter-Mandi Price Comparison for Selected Date</span>
-                <span id="invSpreadBadge" class="text-[11px] text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">Top spread: ₹180/Qtl</span>
-              </div>
-              <div id="invMandiSpreadList" class="space-y-1.5">
-                <!-- Dynamically populated -->
-              </div>
-              <p class="text-[10px] text-gray-500 italic pt-1">
-                💡 Tip: If transport cost to another yard exceeds the price spread, selling at your nearest APMC yard gives higher net returns.
-              </p>
-            </div>
-
-            <!-- NET RETURN CALCULATOR CONTAINER (Hidden by default) -->
-            <div id="invNetCalcContainer" class="hidden bg-gradient-to-br from-slate-900 to-emerald-950 text-white p-4 rounded-2xl shadow space-y-3 text-xs">
-              <div class="flex justify-between items-center">
-                <h4 class="font-bold text-sm text-emerald-300 flex items-center gap-1.5">
-                  <i data-lucide="wallet" class="w-4 h-4"></i>
-                  <span>Net Take-Home Harvest Realization</span>
-                </h4>
-                <span class="text-[10px] text-slate-300">Deterministic Net Payout</span>
-              </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-slate-900">
-                <div>
-                  <label class="block text-[10px] font-bold text-slate-300 mb-0.5">Produce Quantity (Quintals):</label>
-                  <input type="number" id="invCalcQuantity" value="50" min="1" class="w-full px-2.5 py-1.5 rounded-lg text-xs font-bold" />
-                </div>
-                <div>
-                  <label class="block text-[10px] font-bold text-slate-300 mb-0.5">Transport Haulage (₹/Qtl):</label>
-                  <input type="number" id="invCalcTransport" value="45" min="0" class="w-full px-2.5 py-1.5 rounded-lg text-xs font-bold" />
-                </div>
-                <div>
-                  <label class="block text-[10px] font-bold text-slate-300 mb-0.5">Bagging & Labor (₹/Qtl):</label>
-                  <input type="number" id="invCalcBagging" value="25" min="0" class="w-full px-2.5 py-1.5 rounded-lg text-xs font-bold" />
-                </div>
-              </div>
-
-              <div id="invCalcFinancialSummary" class="bg-white/10 backdrop-blur-sm p-3 rounded-xl space-y-2 border border-white/10">
-                <div class="flex justify-between items-center">
-                  <span class="text-xs text-slate-200">Estimated Net Payout (in hand):</span>
-                  <span id="invCalcNetTotal" class="text-xl sm:text-2xl font-black text-emerald-400">₹1,30,830</span>
-                </div>
-                <div class="flex justify-between text-[11px] text-slate-300 pt-1 border-t border-white/10">
-                  <span>Gross Mandi Value: <strong id="invCalcGrossVal" class="text-white">₹1,37,100</strong></span>
-                  <span class="text-red-300">Total Deductions: <strong id="invCalcDeductionsVal">-₹6,270</strong></span>
-                </div>
-              </div>
-            </div>
-          </div>
-
           <!-- Filter & Category Tabs -->
           <div class="flex items-center justify-between pt-1">
             <h3 class="font-bold text-gray-800 text-sm md:text-base" data-i18n="your_inventory">Your Crop Inventory</h3>
@@ -944,7 +694,7 @@
               <div id="uploadPlaceholder" class="space-y-2 py-4">
                 <i data-lucide="camera" class="w-10 h-10 text-purple-600 mx-auto"></i>
                 <p class="text-xs font-semibold text-purple-900" data-i18n="upload_image_hint">Tap to take photo or upload crop sample</p>
-                <p class="text-[11px] text-gray-500">Auto AI Quality & Fair Price prediction will run</p>
+                <p class="text-[11px] text-gray-500">Auto AI Crop Recognition & Live Mandi Price lookup will run</p>
               </div>
               <img id="uploadImagePreview" src="" alt="Preview" class="hidden max-h-48 rounded-xl mx-auto object-cover shadow-md" />
               
@@ -952,8 +702,8 @@
               <div id="aiScanningIndicator" class="hidden absolute inset-0 bg-purple-900/60 rounded-2xl flex flex-col items-center justify-center text-white backdrop-blur-xs">
                 <div class="scanning-line"></div>
                 <i data-lucide="sparkles" class="w-8 h-8 text-cyan-300 animate-spin mb-2"></i>
-                <p class="font-bold text-sm text-cyan-200">ML Model Analyzing Grain Quality...</p>
-                <p class="text-xs text-white/80">Estimating purity, moisture & price</p>
+                <p class="font-bold text-sm text-cyan-200">ML Model Identifying Crop & Variety...</p>
+                <p class="text-xs text-white/80">Matching against 90+ agricultural produce classes</p>
               </div>
             </div>
 
@@ -1335,104 +1085,6 @@
           </div>
         </section>
 
-        <!-- SECTION 3: CROP QUALITY PREDICTION (QualityTesting & QualityTestResultActivity) -->
-        <section id="sectionQuality" class="app-section hidden space-y-4">
-          <div class="bg-gradient-to-br from-indigo-900 to-purple-900 text-white p-5 rounded-2xl shadow-md space-y-2">
-            <div class="flex items-center gap-2">
-              <i data-lucide="scan-line" class="w-6 h-6 text-cyan-300"></i>
-              <h2 class="text-lg font-bold" data-i18n="quality_prediction">AI Crop Quality Prediction</h2>
-            </div>
-            <p class="text-xs text-indigo-200">
-              Computer Vision grading of grain purity, moisture percentage, damaged kernels and foreign matter compliance for Telangana farmers.
-            </p>
-          </div>
-
-          <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm space-y-4">
-            <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1.5" data-i18n="select_category">Select Crop Category</label>
-              <select id="qualitySelectCategory" class="w-full px-3 py-2.5 border rounded-xl focus:ring-2 focus:ring-purple-500 bg-white text-sm font-medium">
-                <option value="Paddy (Telangana Sona / Sona Masoori)">Paddy / Rice (धान - तेलंगाना सोना / सोना मसूरी)</option>
-                <option value="Tandur Red Gram (Arhar)">Red Gram / Arhar Dal (तंदूर अरहर दाल)</option>
-                <option value="Wheat">Wheat (गेहूँ)</option>
-                <option value="Other">Other Agricultural Produce</option>
-              </select>
-            </div>
-
-            <!-- Upload Box -->
-            <div class="border-2 border-dashed border-indigo-200 rounded-2xl p-6 text-center bg-indigo-50/40 hover:bg-indigo-50 transition cursor-pointer relative" id="qualityDropArea">
-              <input type="file" id="qualityImageInput" accept="image/*" class="hidden" />
-              <div id="qualityUploadPrompt" class="space-y-2">
-                <i data-lucide="microscope" class="w-10 h-10 text-indigo-600 mx-auto"></i>
-                <p class="text-xs font-bold text-indigo-950">Tap to upload grain photo for testing</p>
-                <p class="text-[11px] text-gray-500">Or use one of the test samples below</p>
-              </div>
-              <img id="qualityPreviewImg" src="" alt="Sample" class="hidden max-h-52 rounded-xl mx-auto object-cover shadow-sm" />
-            </div>
-
-            <!-- Sample Buttons for Quick Evaluation -->
-            <div class="flex flex-wrap gap-2 text-xs">
-              <span class="text-gray-500 self-center">Instant Test Samples:</span>
-              <button type="button" class="btn-quality-sample px-3 py-1 bg-purple-50 hover:bg-purple-100 text-purple-800 rounded-lg font-medium border border-purple-200" data-img="assets/raw/paddy.png" data-cat="Paddy (Telangana Sona / Sona Masoori)">🌾 Paddy Sample A</button>
-              <button type="button" class="btn-quality-sample px-3 py-1 bg-purple-50 hover:bg-purple-100 text-purple-800 rounded-lg font-medium border border-purple-200" data-img="assets/raw/arhar.png" data-cat="Tandur Red Gram (Arhar)">🥣 Tandur Dal Sample B</button>
-              <button type="button" class="btn-quality-sample px-3 py-1 bg-purple-50 hover:bg-purple-100 text-purple-800 rounded-lg font-medium border border-purple-200" data-img="assets/raw/cropquality.jpeg" data-cat="Paddy (Telangana Sona / Sona Masoori)">🔬 Macro Grain C</button>
-            </div>
-
-            <button id="btnRunQualityTest" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition flex items-center justify-center gap-2">
-              <i data-lucide="sparkles" class="w-5 h-5 text-cyan-300"></i>
-              <span>Run Automated Quality Inspection</span>
-            </button>
-          </div>
-
-          <!-- Quality Result Card (Appears after testing) -->
-          <div id="qualityResultCard" class="hidden bg-white p-5 rounded-2xl border-2 border-emerald-400 shadow-md space-y-4">
-            <div class="flex items-center justify-between border-b pb-3">
-              <div>
-                <span class="text-xs text-gray-500 uppercase font-semibold">Test Report Certificate</span>
-                <h3 id="resCropName" class="text-lg font-bold text-gray-900">Telangana Sona Paddy</h3>
-              </div>
-              <span id="resBadgeGrade" class="px-3 py-1 rounded-full text-xs font-bold badge-premium">Premium Grade</span>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3 text-sm">
-              <div class="bg-gray-50 p-3 rounded-xl">
-                <span class="text-xs text-gray-500 block">Overall Quality Ratio</span>
-                <span id="resRatio" class="text-xl font-extrabold text-emerald-600">89 / 100</span>
-              </div>
-              <div class="bg-gray-50 p-3 rounded-xl">
-                <span class="text-xs text-gray-500 block">Fair Mandi Price</span>
-                <span id="resPriceRange" class="text-xl font-extrabold text-purple-700">₹50 - ₹56 / Kg</span>
-              </div>
-            </div>
-
-            <div class="space-y-2 text-xs">
-              <div class="flex justify-between">
-                <span class="text-gray-600">Moisture Content</span>
-                <span class="font-bold text-gray-900">10.8% (Optimal &lt; 12%)</span>
-              </div>
-              <div class="w-full bg-gray-200 rounded-full h-1.5">
-                <div class="bg-emerald-500 h-1.5 rounded-full" style="width: 88%"></div>
-              </div>
-
-              <div class="flex justify-between">
-                <span class="text-gray-600">Foreign Matter & Immature Grain</span>
-                <span class="font-bold text-gray-900">0.6% (Well within Grade 1)</span>
-              </div>
-              <div class="w-full bg-gray-200 rounded-full h-1.5">
-                <div class="bg-emerald-500 h-1.5 rounded-full" style="width: 94%"></div>
-              </div>
-            </div>
-
-            <div class="pt-2 flex gap-2">
-              <button id="btnPushToInventory" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow transition flex items-center justify-center gap-1.5">
-                <i data-lucide="plus" class="w-4 h-4"></i> Add to My Inventory
-              </button>
-              <button id="btnShareCertificate" class="px-4 py-2.5 border border-gray-300 hover:bg-gray-50 rounded-xl font-medium text-xs text-gray-700 transition">
-                Print Report
-              </button>
-            </div>
-          </div>
-        </section>
-
         <!-- SECTION 4: PRICE NEGOTIATIONS (NegotiatedActivity) -->
         <section id="sectionNegotiations" class="app-section hidden space-y-4">
           <div class="flex items-center justify-between">
@@ -1750,58 +1402,6 @@
           </div>
 
           <div id="soilLabsListContainer" class="space-y-2.5">
-            <!-- Dynamically populated -->
-          </div>
-        </section>
-
-        <!-- SECTION 9: ADVISORY & INFORMATION HUB (InformationFragment) -->
-        <section id="sectionInfo" class="app-section hidden space-y-4">
-          <div class="flex items-center justify-between">
-            <h2 class="text-lg font-bold text-gray-900" data-i18n="nav_info">Advisory & Knowledge Hub</h2>
-            <span class="text-xs text-purple-700 font-semibold">Telangana Agriculture Dept</span>
-          </div>
-
-          <!-- Advisory Navigation Grid -->
-          <div class="grid grid-cols-2 gap-2.5">
-            <div class="kisan-card p-4 cursor-pointer hover:border-purple-300 transition text-center" onclick="showInfoSubSection('cropProduction')">
-              <img src="assets/raw/crop_production_opt.jpg" alt="Crops" class="w-16 h-16 mx-auto rounded-xl object-cover mb-2" />
-              <h4 class="font-bold text-xs md:text-sm text-gray-800" data-i18n="crop_production_card_title">Crop Production Methods</h4>
-              <p class="text-[11px] text-gray-500 mt-0.5">Paddy, Arhar & Chilli</p>
-            </div>
-
-            <div class="kisan-card p-4 cursor-pointer hover:border-purple-300 transition text-center" onclick="showInfoSubSection('cropTreatment')">
-              <img src="assets/raw/treat.jpg" alt="Treatment" class="w-16 h-16 mx-auto rounded-xl object-cover mb-2" />
-              <h4 class="font-bold text-xs md:text-sm text-gray-800" data-i18n="treatment_card_title">Crop Disease Remedies</h4>
-              <p class="text-[11px] text-gray-500 mt-0.5">Organic Pest Sprays & Traps</p>
-            </div>
-
-            <div class="kisan-card p-4 cursor-pointer hover:border-purple-300 transition text-center" onclick="showInfoSubSection('horticulture')">
-              <img src="assets/raw/horticulture_main.jpg" alt="Horticulture" class="w-16 h-16 mx-auto rounded-xl object-cover mb-2" />
-              <h4 class="font-bold text-xs md:text-sm text-gray-800" data-i18n="horticulture_card_title">Horticulture Methods</h4>
-              <p class="text-[11px] text-gray-500 mt-0.5">Banganapalli, Banana & Guava</p>
-            </div>
-
-            <div class="kisan-card p-4 cursor-pointer hover:border-purple-300 transition text-center" onclick="showInfoSubSection('policies')">
-              <img src="assets/raw/govp.png" alt="Schemes" class="w-16 h-16 mx-auto rounded-xl object-contain mb-2" />
-              <h4 class="font-bold text-xs md:text-sm text-gray-800" data-i18n="policy_card_title">Government Schemes</h4>
-              <p class="text-[11px] text-gray-500 mt-0.5">Rythu Bandhu, PMFBY & KCC</p>
-            </div>
-
-            <div class="kisan-card p-4 cursor-pointer hover:border-purple-300 transition text-center" onclick="navigateTo('godowns')">
-              <img src="assets/raw/godown.jpg" alt="Godowns" class="w-16 h-16 mx-auto rounded-xl object-cover mb-2" />
-              <h4 class="font-bold text-xs md:text-sm text-gray-800" data-i18n="godown">Godowns & Warehouses</h4>
-              <p class="text-[11px] text-gray-500 mt-0.5">Enumamula & State Storages</p>
-            </div>
-
-            <div class="kisan-card p-4 cursor-pointer hover:border-purple-300 transition text-center" onclick="navigateTo('soil')">
-              <img src="assets/raw/shc2.jpg" alt="Soil" class="w-16 h-16 mx-auto rounded-xl object-cover mb-2" />
-              <h4 class="font-bold text-xs md:text-sm text-gray-800" data-i18n="storage_card_title">Soil Health Card</h4>
-              <p class="text-[11px] text-gray-500 mt-0.5">Telangana Labs Directory</p>
-            </div>
-          </div>
-
-          <!-- Dynamic Sub-view Container for Selected Knowledge Article -->
-          <div id="infoSubArticleContainer" class="hidden bg-white p-5 rounded-2xl border border-gray-100 shadow-sm space-y-4">
             <!-- Dynamically populated -->
           </div>
         </section>
@@ -2567,7 +2167,7 @@
               <h2 class="text-lg font-bold">Team ForeverKnights</h2>
             </div>
             <p class="text-xs text-purple-200 leading-relaxed">
-              KisanSaathi: Technology-driven Direct Farm-to-Buyer Marketplace, Crop Quality AI Grading & Value Addition for Farmers.
+              KisanSaathi: Technology-driven Direct Farm-to-Buyer Marketplace, Live Mandi Price Intelligence & Fair Trade for Farmers.
             </p>
             <p class="text-[11px] text-white/70">
               Department of Agriculture & Farmers Welfare, Telangana. Developed and maintained by Team ForeverKnights.
@@ -2577,22 +2177,6 @@
           <h3 class="font-bold text-sm text-gray-800">Core Team Members</h3>
           <div id="teamGrid" class="grid grid-cols-1 md:grid-cols-3 gap-3">
             <!-- Dynamically populated with the 3 specified team members -->
-          </div>
-        </section>
-
-        <!-- SECTION 16: ORIGINAL APP SCREENSHOTS GALLERY (ss1.png to ss15.png) -->
-        <section id="sectionScreenshots" class="app-section hidden space-y-4">
-          <div class="flex items-center justify-between">
-            <h2 class="text-lg font-bold text-gray-900">Original App Architecture Showcase</h2>
-            <span class="text-xs bg-purple-100 text-purple-800 font-bold px-2.5 py-1 rounded-full">15 Reference Screens</span>
-          </div>
-
-          <p class="text-xs text-gray-600">
-            Reference screen flows from the core platform repository:
-          </p>
-
-          <div id="screenshotsGrid" class="grid grid-cols-2 md:grid-cols-3 gap-3">
-            <!-- Dynamically populated -->
           </div>
         </section>
 
@@ -2611,7 +2195,7 @@
                   <option value="Paddy">Paddy / Rice Cultivation</option>
                   <option value="RythuBandhu">Rythu Bandhu & Rythu Bima</option>
                   <option value="Loan">Loan & Interest Subsidies</option>
-                  <option value="Quality">Crop Quality Certification</option>
+                  <option value="Grading">Crop Variety & Specifications</option>
                 </select>
               </div>
 
@@ -2925,13 +2509,13 @@
             <i data-lucide="home" class="w-5 h-5 mb-0.5"></i>
             <span data-i18n="title_home">Home</span>
           </button>
-          <button class="nav-item" data-navigate="info">
-            <i data-lucide="info" class="w-5 h-5 mb-0.5"></i>
-            <span data-i18n="title_info">Info</span>
+          <button class="nav-item" data-navigate="market-dashboard">
+            <i data-lucide="trending-up" class="w-5 h-5 mb-0.5"></i>
+            <span>Market</span>
           </button>
-          <button class="nav-item" data-navigate="quality">
-            <i data-lucide="scan-line" class="w-5 h-5 mb-0.5"></i>
-            <span data-i18n="title_quality">Quality</span>
+          <button class="nav-item" data-navigate="orders">
+            <i data-lucide="truck" class="w-5 h-5 mb-0.5"></i>
+            <span data-i18n="title_orders">Orders</span>
           </button>
           <button class="nav-item" data-navigate="chat">
             <i data-lucide="message-circle" class="w-5 h-5 mb-0.5"></i>
