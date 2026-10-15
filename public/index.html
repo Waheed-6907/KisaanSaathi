@@ -2309,23 +2309,30 @@
             </div>
           </div>
 
-          <!-- Quick Consumer Metric Pills (3 Columns) -->
-          <div class="grid grid-cols-3 gap-2.5">
-            <div class="bg-white p-2.5 rounded-xl border border-gray-100 shadow-sm text-center cursor-pointer hover:border-amber-300 transition" onclick="switchConsumerTab('farmers')">
+          <!-- Quick Consumer Metric Pills (4 Columns) -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div class="bg-white p-2 rounded-xl border border-gray-100 shadow-sm text-center cursor-pointer hover:border-amber-300 transition" onclick="switchConsumerTab('farmers')">
               <span class="text-[10px] text-gray-500 block font-medium">Farmers</span>
               <span id="consumerStatFarmers" class="text-xs md:text-sm font-bold text-emerald-600">5 Verified</span>
             </div>
-            <div class="bg-white p-2.5 rounded-xl border border-gray-100 shadow-sm text-center cursor-pointer hover:border-amber-300 transition" onclick="switchConsumerTab('marketplace')">
+            <div class="bg-white p-2 rounded-xl border border-gray-100 shadow-sm text-center cursor-pointer hover:border-amber-300 transition" onclick="switchConsumerTab('marketplace')">
               <span class="text-[10px] text-gray-500 block font-medium">Marketplace</span>
               <span id="consumerStatCrops" class="text-xs md:text-sm font-bold text-amber-600">11 Crops</span>
             </div>
-            <div class="bg-white p-2.5 rounded-xl border border-gray-100 shadow-sm text-center cursor-pointer hover:border-amber-300 transition" onclick="switchConsumerTab('offers')">
+            <div class="bg-white p-2 rounded-xl border border-gray-100 shadow-sm text-center cursor-pointer hover:border-amber-300 transition" onclick="switchConsumerTab('offers')">
               <span class="text-[10px] text-gray-500 block font-medium">My Deals</span>
               <span id="consumerStatOffers" class="text-xs md:text-sm font-bold text-blue-600">3 Deals</span>
             </div>
+            <div class="bg-white p-2 rounded-xl border border-blue-100 shadow-sm text-center cursor-pointer hover:border-blue-300 transition" onclick="navigateTo('consumer-orders')">
+              <span class="text-[10px] text-blue-600 block font-medium">Deliveries</span>
+              <span id="consumerStatInbound" class="text-xs md:text-sm font-bold text-blue-700 flex items-center justify-center gap-1">
+                <i data-lucide="truck" class="w-3.5 h-3.5"></i>
+                <span>Inbound &rarr;</span>
+              </span>
+            </div>
           </div>
 
-          <!-- Consumer Sub-Navigation Tabs (3 Tabs) -->
+          <!-- Consumer Sub-Navigation Tabs (4 Tabs) -->
           <div class="flex border-b border-gray-200 text-xs font-bold overflow-x-auto">
             <button id="tabConsumerFarmers" type="button" class="flex-1 pb-2.5 border-b-2 border-amber-600 text-amber-700 flex items-center justify-center gap-1 shrink-0 px-2" onclick="switchConsumerTab('farmers')">
               <i data-lucide="users" class="w-3.5 h-3.5"></i>
@@ -2338,6 +2345,10 @@
             <button id="tabConsumerOffers" type="button" class="flex-1 pb-2.5 text-gray-500 hover:text-gray-800 flex items-center justify-center gap-1 shrink-0 px-2" onclick="switchConsumerTab('offers')">
               <i data-lucide="handshake" class="w-3.5 h-3.5"></i>
               <span>My Deals (<span id="consumerOfferCount">0</span>)</span>
+            </button>
+            <button id="tabConsumerDeliveries" type="button" class="flex-1 pb-2.5 text-blue-600 hover:text-blue-800 flex items-center justify-center gap-1 shrink-0 px-2" onclick="navigateTo('consumer-orders')">
+              <i data-lucide="truck" class="w-3.5 h-3.5"></i>
+              <span>Deliveries</span>
             </button>
           </div>
 
@@ -2379,6 +2390,14 @@
 
         <!-- SECTION 19: CONSUMER INBOUND DELIVERIES & FLEET TRACKING -->
         <section id="sectionConsumerOrders" class="app-section hidden space-y-4">
+          <div class="flex items-center justify-between">
+            <button onclick="navigateTo('consumer')" type="button" class="text-xs font-bold text-gray-700 hover:text-black flex items-center gap-1.5 bg-white border border-gray-200 px-3 py-1.5 rounded-xl shadow-xs transition">
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>
+              <span>Back to Consumer Dashboard</span>
+            </button>
+            <span class="text-xs text-blue-700 font-bold bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-xl">3-Phase Live Delivery</span>
+          </div>
+
           <div class="bg-gradient-to-r from-blue-700 via-indigo-700 to-blue-800 text-white p-4.5 rounded-2xl shadow-md space-y-2.5">
             <div class="flex items-center justify-between">
               <div>
@@ -3697,6 +3716,32 @@
           <!-- Dynamically rendered -->
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Live Interactive Status Notification Popup Modal with Web Audio Synthesizer -->
+  <div id="statusPopupNotification" class="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] max-w-md w-[92%] transition-all duration-500 transform -translate-y-28 opacity-0 pointer-events-none">
+    <div id="statusPopupCard" class="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border-2 border-emerald-500 p-4 flex items-start gap-3 relative">
+      <div id="statusPopupIconWrapper" class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+        <i id="statusPopupIcon" data-lucide="bell" class="w-5 h-5"></i>
+      </div>
+      <div class="flex-1 min-w-0 pr-6">
+        <div class="flex items-center gap-1.5">
+          <span id="statusPopupBadge" class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Deal Accepted</span>
+          <span class="text-[10px] text-gray-400">Just now</span>
+        </div>
+        <h4 id="statusPopupTitle" class="text-sm font-bold text-gray-900 mt-0.5 truncate">Status Update</h4>
+        <p id="statusPopupMessage" class="text-xs text-gray-600 mt-0.5 leading-relaxed">Details of the update</p>
+        <div id="statusPopupActionRow" class="mt-2.5 pt-2 border-t border-gray-100 flex items-center justify-end gap-2">
+          <button id="statusPopupActionBtn" type="button" class="px-3 py-1.5 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-xl transition shadow-xs flex items-center gap-1">
+            <span id="statusPopupActionText">View Details</span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+      <button id="statusPopupCloseBtn" type="button" onclick="closeStatusPopup()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 p-1 rounded-lg hover:bg-gray-100 transition">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
     </div>
   </div>
 

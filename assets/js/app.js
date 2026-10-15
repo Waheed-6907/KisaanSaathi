@@ -2451,6 +2451,165 @@ window.getCropTranslation = getCropTranslation;
     }, 3200);
   }
 
+  // Web Audio API Synthesizer for instant, dependency-free notification sounds
+  function playNotificationSound(type = 'success') {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      if (ctx.state === 'suspended') {
+        ctx.resume();
+      }
+      const now = ctx.currentTime;
+
+      if (type === 'success' || type === 'accepted' || type === 'delivered') {
+        // Cheerful ascending arpeggio (C5 -> E5 -> G5 -> C6)
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.09);
+          gain.gain.setValueAtTime(0.18, now + idx * 0.09);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.09 + 0.32);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + idx * 0.09);
+          osc.stop(now + idx * 0.09 + 0.35);
+        });
+      } else if (type === 'transit' || type === 'offer') {
+        // High crisp notification alert chime (E5 -> A5)
+        const notes = [659.25, 880.00];
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.12);
+          gain.gain.setValueAtTime(0.2, now + idx * 0.12);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.12 + 0.28);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + idx * 0.12);
+          osc.stop(now + idx * 0.12 + 0.3);
+        });
+      } else if (type === 'declined' || type === 'rejected') {
+        // Descending gentle tone (E4 -> C4)
+        const notes = [329.63, 261.63];
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.15);
+          gain.gain.setValueAtTime(0.15, now + idx * 0.15);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.15 + 0.3);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + idx * 0.15);
+          osc.stop(now + idx * 0.15 + 0.35);
+        });
+      }
+    } catch (e) {
+      console.warn('Audio chime notice:', e);
+    }
+  }
+  window.playNotificationSound = playNotificationSound;
+
+  let statusPopupTimer = null;
+  function showStatusPopup({ title, message, type = 'accepted', actionText = null, actionFn = null, icon = null }) {
+    const popup = document.getElementById('statusPopupNotification');
+    if (!popup) {
+      showToast(message);
+      return;
+    }
+
+    const card = document.getElementById('statusPopupCard');
+    const iconWrapper = document.getElementById('statusPopupIconWrapper');
+    const iconEl = document.getElementById('statusPopupIcon');
+    const badgeEl = document.getElementById('statusPopupBadge');
+    const titleEl = document.getElementById('statusPopupTitle');
+    const msgEl = document.getElementById('statusPopupMessage');
+    const actionRow = document.getElementById('statusPopupActionRow');
+    const actionBtn = document.getElementById('statusPopupActionBtn');
+    const actionTextEl = document.getElementById('statusPopupActionText');
+
+    if (titleEl) titleEl.textContent = title;
+    if (msgEl) msgEl.textContent = message;
+
+    // Styling by type
+    if (card && iconWrapper && badgeEl) {
+      card.className = 'bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border-2 p-4 flex items-start gap-3 relative';
+      if (type === 'accepted') {
+        card.classList.add('border-emerald-500');
+        iconWrapper.className = 'w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0';
+        badgeEl.className = 'text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800';
+        badgeEl.textContent = 'Deal Accepted';
+        if (iconEl) iconEl.setAttribute('data-lucide', icon || 'check-circle');
+      } else if (type === 'delivered') {
+        card.classList.add('border-emerald-600');
+        iconWrapper.className = 'w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0';
+        badgeEl.className = 'text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900';
+        badgeEl.textContent = 'Delivered';
+        if (iconEl) iconEl.setAttribute('data-lucide', icon || 'shield-check');
+      } else if (type === 'transit') {
+        card.classList.add('border-blue-500');
+        iconWrapper.className = 'w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0';
+        badgeEl.className = 'text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-100 text-blue-800';
+        badgeEl.textContent = 'In Transit';
+        if (iconEl) iconEl.setAttribute('data-lucide', icon || 'truck');
+      } else if (type === 'offer') {
+        card.classList.add('border-amber-500');
+        iconWrapper.className = 'w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0';
+        badgeEl.className = 'text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-100 text-amber-800';
+        badgeEl.textContent = 'New Offer';
+        if (iconEl) iconEl.setAttribute('data-lucide', icon || 'handshake');
+      } else if (type === 'declined' || type === 'rejected') {
+        card.classList.add('border-rose-400');
+        iconWrapper.className = 'w-10 h-10 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0';
+        badgeEl.className = 'text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-100 text-rose-800';
+        badgeEl.textContent = 'Offer Declined';
+        if (iconEl) iconEl.setAttribute('data-lucide', icon || 'x-circle');
+      }
+    }
+
+    if (actionBtn && actionTextEl && actionRow) {
+      if (actionText && typeof actionFn === 'function') {
+        actionTextEl.textContent = actionText;
+        actionRow.classList.remove('hidden');
+        actionBtn.onclick = () => {
+          closeStatusPopup();
+          actionFn();
+        };
+      } else {
+        actionRow.classList.add('hidden');
+      }
+    }
+
+    if (window.lucide) lucide.createIcons();
+
+    // Play synthesized chime
+    playNotificationSound(type);
+
+    // Show popup
+    popup.classList.remove('-translate-y-28', 'opacity-0', 'pointer-events-none');
+    popup.classList.add('translate-y-0', 'opacity-100', 'pointer-events-auto');
+
+    // Auto dismiss after 7.5 seconds
+    if (statusPopupTimer) clearTimeout(statusPopupTimer);
+    statusPopupTimer = setTimeout(() => {
+      closeStatusPopup();
+    }, 7500);
+  }
+  window.showStatusPopup = showStatusPopup;
+
+  function closeStatusPopup() {
+    const popup = document.getElementById('statusPopupNotification');
+    if (!popup) return;
+    popup.classList.remove('translate-y-0', 'opacity-100', 'pointer-events-auto');
+    popup.classList.add('-translate-y-28', 'opacity-0', 'pointer-events-none');
+    if (statusPopupTimer) clearTimeout(statusPopupTimer);
+  }
+  window.closeStatusPopup = closeStatusPopup;
+
   // =========================================================================
   // AUTHENTICATION & SUPABASE INTEGRATION CONTROLLER
   // =========================================================================
@@ -5395,13 +5554,26 @@ window.getCropTranslation = getCropTranslation;
         }
       }
 
+      showStatusPopup({
+        title: 'Deal Accepted!',
+        message: `You accepted ${nego.buyer?.name || 'the buyer'}'s offer for ${nego.itemTitle} at ₹${nego.proposedPrice}/Kg. Produce is marked Out for Shipment.`,
+        type: 'accepted',
+        icon: 'check-circle',
+        actionText: 'View Dispatch Order',
+        actionFn: () => navigateTo('orders')
+      });
+
       // Broadcast update across open tabs/windows
       if (typeof broadcastLiveUpdate === 'function') {
         broadcastLiveUpdate('NEGOTIATION_ACCEPTED', { 
           negoId: nego.id, 
           crop: nego.itemTitle, 
+          price: nego.proposedPrice,
+          qty: nego.quantity,
           status: 'accepted',
-          buyer: nego.buyer?.name 
+          buyer: nego.buyer?.name,
+          farmer: currentFarmerName || 'K. Ramarao Reddy',
+          location: decidedLocation
         });
       }
 
@@ -5423,8 +5595,21 @@ window.getCropTranslation = getCropTranslation;
         } catch (e) {}
       }
 
+      showStatusPopup({
+        title: 'Offer Declined',
+        message: `You declined the counter-offer for ${nego.itemTitle}. Asking price maintained.`,
+        type: 'declined',
+        icon: 'x-circle'
+      });
+
       if (typeof broadcastLiveUpdate === 'function') {
-        broadcastLiveUpdate('NEGOTIATION_REJECTED', { negoId, status: 'rejected' });
+        broadcastLiveUpdate('NEGOTIATION_REJECTED', { 
+          negoId, 
+          crop: nego.itemTitle,
+          status: 'rejected',
+          buyer: nego.buyer?.name,
+          farmer: currentFarmerName || 'Telangana Farmer'
+        });
       }
 
       showToast('Counter offer declined.');
@@ -5567,31 +5752,62 @@ window.getCropTranslation = getCropTranslation;
     }
     localStorage.setItem('kisan_orders', JSON.stringify(orders));
 
+    const cropTitle = order.items?.[0]?.name || order.crop_name || 'Agro Produce';
+    const buyerName = order.buyer?.first_name || order.buyer?.name || order.buyer_name || 'Consumer';
+    const destination = order.delivery_location || order.buyer?.address || currentDeliveryAddress;
+
     if (window.supabaseClient) {
       try {
+        let updated = false;
         if (order.id && !String(order.id).startsWith('ORD-')) {
-          await window.supabaseClient.from('orders').update({
+          const { data } = await window.supabaseClient.from('orders').update({
             delivery_status: nextStatus,
             escrow_status: nextStatus === 'Delivered' ? 'escrow_released' : 'in_transit'
-          }).eq('id', order.id);
-        } else if (order.items?.[0]?.name) {
-          await window.supabaseClient.from('orders').update({
+          }).eq('id', order.id).select();
+          if (data && data.length > 0) updated = true;
+        }
+        if (!updated && order.items?.[0]?.name) {
+          const { data } = await window.supabaseClient.from('orders').update({
             delivery_status: nextStatus,
             escrow_status: nextStatus === 'Delivered' ? 'escrow_released' : 'in_transit'
-          }).eq('crop_name', order.items[0].name);
+          }).eq('crop_name', order.items[0].name).select();
+          if (data && data.length > 0) updated = true;
+          if (!updated) {
+            const cropPrefix = order.items[0].name.split(' ')[0];
+            await window.supabaseClient.from('orders').update({
+              delivery_status: nextStatus,
+              escrow_status: nextStatus === 'Delivered' ? 'escrow_released' : 'in_transit'
+            }).ilike('crop_name', `%${cropPrefix}%`);
+          }
         }
       } catch (e) {
         console.warn('Supabase delivery status sync notice:', e);
       }
     }
 
+    // Farmer-side popup notification with sound
+    showStatusPopup({
+      title: nextStatus === 'Delivered' ? 'Delivery Fulfilled!' : 'Shipment In Transit',
+      message: `Shipment for ${buyerName} (${cropTitle}) is now ${nextStatus.toUpperCase()} to ${destination}.`,
+      type: nextStatus === 'Delivered' ? 'delivered' : 'transit',
+      icon: nextStatus === 'Delivered' ? 'shield-check' : 'truck'
+    });
+
     if (typeof broadcastLiveUpdate === 'function') {
-      broadcastLiveUpdate('ORDER_STATUS_CHANGED', { orderId, nextStatus });
+      broadcastLiveUpdate('ORDER_STATUS_CHANGED', { 
+        orderId: order.id, 
+        nextStatus,
+        crop: cropTitle,
+        buyer: buyerName,
+        farmer: currentFarmerName || 'K. Ramarao Reddy',
+        location: destination
+      });
     }
 
     showToast(`Shipment updated to: ${nextStatus}!`);
     renderOrders();
     if (typeof renderConsumerOrders === 'function') renderConsumerOrders();
+    if (typeof renderConsumerOffers === 'function') renderConsumerOffers();
   };
 
   // Interactive Map & Order Details Modal
@@ -10623,16 +10839,59 @@ window.getCropTranslation = getCropTranslation;
             </div>
           </div>
 
-          ${isAccepted ? `
-            <div class="pt-1 flex items-center justify-between text-xs text-emerald-800 font-semibold bg-emerald-50 p-2 rounded-xl border border-emerald-200">
-              <span class="flex items-center gap-1.5 font-bold">
-                <i data-lucide="package-check" class="w-4 h-4 text-emerald-600"></i> Deal Accepted: Out for Shipment
-              </span>
-              <button type="button" onclick="navigateTo('consumer-orders')" class="underline font-bold text-emerald-900 hover:text-emerald-950">
-                Track 3-Phase Delivery &rarr;
-              </button>
-            </div>
-          ` : isPending ? `
+          ${isAccepted ? (() => {
+            const allLocalOrders = [...orders, ...(JSON.parse(localStorage.getItem('kisan_orders') || '[]'))];
+            const linkedOrder = allLocalOrders.find(lo => 
+              lo.negotiation_id === o.id ||
+              (lo.items?.[0]?.name && o.crop_name && (lo.items[0].name === o.crop_name || lo.items[0].name.includes(o.crop_name) || o.crop_name.includes(lo.items[0].name)))
+            );
+            
+            const rawDeliveryStatus = (linkedOrder?.status || linkedOrder?.delivery_status || 'Out for Shipment').toLowerCase();
+            let orderPhase = 1;
+            if (rawDeliveryStatus.includes('deliver') || linkedOrder?.completed) {
+              orderPhase = 3;
+            } else if (rawDeliveryStatus.includes('transit') || rawDeliveryStatus.includes('shipping') || rawDeliveryStatus.includes('route')) {
+              orderPhase = 2;
+            } else {
+              orderPhase = 1;
+            }
+
+            const deliveryBadgeText = orderPhase === 3 ? '✅ Phase 3: Delivered' : orderPhase === 2 ? '🚚 Phase 2: In Transit' : '📦 Phase 1: Out for Shipment';
+            const deliveryBadgeClass = orderPhase === 3 ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : orderPhase === 2 ? 'bg-blue-100 text-blue-800 border-blue-300 animate-pulse' : 'bg-amber-100 text-amber-800 border-amber-300';
+
+            return `
+              <div class="p-3 bg-gradient-to-r from-gray-50 to-blue-50/50 rounded-xl border border-blue-200 space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+                    <i data-lucide="truck" class="w-4 h-4 text-blue-600"></i> Live Delivery Status:
+                  </span>
+                  <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border ${deliveryBadgeClass}">
+                    ${deliveryBadgeText}
+                  </span>
+                </div>
+
+                <!-- 3-Phase Stepper Tracker on Deal Card -->
+                <div class="grid grid-cols-3 gap-1 pt-1 text-center">
+                  <div class="p-1.5 rounded-lg border text-[11px] ${orderPhase >= 1 ? 'bg-white border-blue-300 font-bold text-blue-800 shadow-xs' : 'bg-gray-100 text-gray-400'}">
+                    <span>1. Out for Shipment</span>
+                  </div>
+                  <div class="p-1.5 rounded-lg border text-[11px] ${orderPhase === 2 ? 'bg-blue-600 text-white font-bold shadow-xs animate-pulse' : orderPhase === 3 ? 'bg-white border-emerald-300 font-bold text-emerald-700' : 'bg-gray-100 text-gray-400'}">
+                    <span>2. In Transit</span>
+                  </div>
+                  <div class="p-1.5 rounded-lg border text-[11px] ${orderPhase === 3 ? 'bg-emerald-600 text-white font-bold shadow-xs' : 'bg-gray-100 text-gray-400'}">
+                    <span>3. Delivered</span>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-1 text-[11px] border-t border-blue-100/60">
+                  <span class="text-gray-500 italic">Farmer logistics active</span>
+                  <button type="button" onclick="navigateTo('consumer-orders')" class="font-bold text-blue-700 hover:text-blue-900 underline flex items-center gap-1">
+                    <span>Full Fleet Logistics &rarr;</span>
+                  </button>
+                </div>
+              </div>
+            `;
+          })() : isPending ? `
             <p class="text-[11px] text-gray-500 italic">This offer is live on the farmer's counter-offer desk. You will be notified upon decision.</p>
           ` : `
             <p class="text-[11px] text-gray-500 italic">Offer was declined by the farmer. You can place a revised counter-offer from the marketplace.</p>
@@ -10674,8 +10933,47 @@ window.getCropTranslation = getCropTranslation;
         total_amount: o.amount || 27500,
         delivery_location: o.delivery_location || currentDeliveryAddress,
         delivery_status: o.status || 'Out for Shipment',
-        escrow_status: o.completed ? 'completed' : 'escrow_locked'
+        escrow_status: o.completed ? 'completed' : 'escrow_locked',
+        completed: !!o.completed
       }));
+    }
+
+    // Merge and overlay local orders so recent dispatches/updates show immediately
+    const localOrders = JSON.parse(localStorage.getItem('kisan_orders') || '[]');
+    const allLocalOrders = [...orders, ...localOrders];
+    if (allLocalOrders.length > 0) {
+      inboundOrders.forEach(o => {
+        const localMatch = allLocalOrders.find(lo => 
+          lo.id === o.id || 
+          lo.negotiation_id === o.id ||
+          (lo.items?.[0]?.name && o.crop_name && (lo.items[0].name === o.crop_name || lo.items[0].name.includes(o.crop_name) || o.crop_name.includes(lo.items[0].name)))
+        );
+        if (localMatch && localMatch.status) {
+          o.delivery_status = localMatch.status;
+          o.status = localMatch.status;
+          if (localMatch.completed !== undefined) o.completed = localMatch.completed;
+        }
+      });
+
+      allLocalOrders.forEach(lo => {
+        const crop = lo.items?.[0]?.name || lo.crop_name || '';
+        const exists = inboundOrders.some(o => o.id === lo.id || o.crop_name === crop);
+        if (!exists && crop) {
+          inboundOrders.unshift({
+            id: lo.id,
+            crop_name: crop,
+            farmer_id: lo.farmer_id || 'FARMER-TG-7721',
+            farmer_name: lo.farmer_name || 'Telangana Farmer Cluster',
+            farmer_phone: lo.farmer_phone || '9848022334',
+            quantity_kg: lo.items?.[0]?.quantity || 1000,
+            total_amount: lo.amount || 27500,
+            delivery_location: lo.delivery_location || currentDeliveryAddress,
+            delivery_status: lo.status || 'Out for Shipment',
+            status: lo.status || 'Out for Shipment',
+            completed: !!lo.completed
+          });
+        }
+      });
     }
 
     // Strict deduplication of inbound deliveries
@@ -10706,9 +11004,9 @@ window.getCropTranslation = getCropTranslation;
     container.innerHTML = inboundOrders.map(o => {
       const rawStatus = (o.delivery_status || o.status || 'Out for Shipment').toLowerCase();
       let phase = 1; // 1 = Out for Shipment, 2 = In Transit, 3 = Delivered
-      if (rawStatus.includes('delivered') || o.escrow_status === 'escrow_released' || o.escrow_status === 'completed' || o.completed) {
+      if (rawStatus.includes('deliver') || o.completed) {
         phase = 3;
-      } else if (rawStatus.includes('transit')) {
+      } else if (rawStatus.includes('transit') || rawStatus.includes('shipping') || rawStatus.includes('route')) {
         phase = 2;
       } else {
         phase = 1; // Out for Shipment
@@ -11038,6 +11336,28 @@ window.getCropTranslation = getCropTranslation;
       }
 
       document.getElementById('modalConsumerOffer').classList.remove('open');
+
+      showStatusPopup({
+        title: 'Offer Sent to Farmer Desk!',
+        message: `Your offer for ${cropName} at ₹${offerPrice}/Kg (${offerQty} Kg) was sent to the farmer. You will be notified on decision.`,
+        type: 'offer',
+        icon: 'handshake',
+        actionText: 'View My Deals',
+        actionFn: () => { navigateTo('consumer'); switchConsumerTab('offers'); }
+      });
+
+      if (typeof broadcastLiveUpdate === 'function') {
+        broadcastLiveUpdate('CONSUMER_OFFER_PLACED', {
+          crop: cropName,
+          price: offerPrice,
+          qty: offerQty,
+          buyer: buyerName,
+          farmerId: targetFarmerId,
+          farmerName: 'Telangana Farmer',
+          location: decidedLocation
+        });
+      }
+
       showToast(`Offer of ₹${(offerPrice * offerQty).toLocaleString('en-IN')} sent to farmer's desk!`);
       switchConsumerTab('offers');
     });
@@ -11209,6 +11529,67 @@ window.getCropTranslation = getCropTranslation;
     if (window.supabaseClient) {
       await syncLiveStateFromSupabase();
     }
+
+    // Role-specific interactive popups with sound upon receiving live events
+    if (msg.type === 'NEGOTIATION_ACCEPTED') {
+      if (currentPortalRole === 'consumer') {
+        showStatusPopup({
+          title: '🎉 Deal Accepted by Farmer!',
+          message: `${msg.payload.farmer || 'The farmer'} accepted your offer for ${msg.payload.crop || 'produce'} at ₹${msg.payload.price || 0}/Kg! Phase 1 (Out for Shipment) is active.`,
+          type: 'accepted',
+          icon: 'package-check',
+          actionText: 'Track Delivery',
+          actionFn: () => navigateTo('consumer-orders')
+        });
+      }
+    } else if (msg.type === 'NEGOTIATION_REJECTED') {
+      if (currentPortalRole === 'consumer') {
+        showStatusPopup({
+          title: 'Offer Declined',
+          message: `${msg.payload.farmer || 'The farmer'} declined your counter-offer for ${msg.payload.crop || 'produce'}. You can submit a revised offer.`,
+          type: 'declined',
+          icon: 'x-circle',
+          actionText: 'Browse Marketplace',
+          actionFn: () => { navigateTo('consumer'); switchConsumerTab('marketplace'); }
+        });
+      }
+    } else if (msg.type === 'CONSUMER_OFFER_PLACED') {
+      if (currentPortalRole === 'farmer') {
+        showStatusPopup({
+          title: '🔔 New Counter-Offer Received!',
+          message: `${msg.payload.buyer || 'A buyer'} offered ₹${msg.payload.price}/Kg for ${msg.payload.crop} (${msg.payload.qty} Kg). Review on your Negotiation Desk.`,
+          type: 'offer',
+          icon: 'handshake',
+          actionText: 'Review Offer',
+          actionFn: () => navigateTo('negotiate')
+        });
+      }
+    } else if (msg.type === 'ORDER_STATUS_CHANGED') {
+      const nextStatus = msg.payload.nextStatus || 'In Transit';
+      const isDelivered = nextStatus.toLowerCase().includes('deliver');
+      if (currentPortalRole === 'consumer') {
+        showStatusPopup({
+          title: isDelivered ? '✅ Delivery Fulfilled!' : '🚚 Produce In Transit!',
+          message: isDelivered ? 
+            `Your shipment of ${msg.payload.crop || 'produce'} has arrived at ${msg.payload.location || 'your delivery location'}. Escrow released to farmer DBT!` :
+            `Your order of ${msg.payload.crop || 'produce'} is now IN TRANSIT! Transporting to ${msg.payload.location || 'your market yard'}.`,
+          type: isDelivered ? 'delivered' : 'transit',
+          icon: isDelivered ? 'shield-check' : 'truck',
+          actionText: 'View Inbound Deliveries',
+          actionFn: () => navigateTo('consumer-orders')
+        });
+      } else if (currentPortalRole === 'farmer') {
+        showStatusPopup({
+          title: isDelivered ? 'Delivery Complete!' : 'Produce In Transit',
+          message: isDelivered ? 
+            `Shipment of ${msg.payload.crop || 'produce'} marked Delivered. Escrow settlement confirmed!` :
+            `Shipment of ${msg.payload.crop || 'produce'} is now In Transit.`,
+          type: isDelivered ? 'delivered' : 'transit',
+          icon: isDelivered ? 'shield-check' : 'truck'
+        });
+      }
+    }
+
     if (activeSection === 'negotiate' && typeof renderNegotiations === 'function') renderNegotiations();
     if (activeSection === 'orders' && typeof renderOrders === 'function') renderOrders();
     if (typeof renderConsumerOffers === 'function' && document.getElementById('consumerOffersList')) renderConsumerOffers();
