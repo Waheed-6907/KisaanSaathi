@@ -3375,6 +3375,13 @@ window.getCropTranslation = getCropTranslation;
   window.switchConsumerLoginTab = switchConsumerLoginTab;
 
   async function handleSignOut() {
+    if (window.KisanFirebaseAuth) {
+      try {
+        await window.KisanFirebaseAuth.signOut();
+      } catch (e) {
+        console.warn('Firebase signout notice:', e);
+      }
+    }
     if (window.supabaseClient) {
       try {
         await window.supabaseClient.auth.signOut();
@@ -3395,12 +3402,66 @@ window.getCropTranslation = getCropTranslation;
   window.handleSignOut = handleSignOut;
 
   // ============================================================
-  // KISAAN & CONSUMER AADHAAR & SMS OTP VERIFICATION ENGINE
+  // KISAAN & CONSUMER FIREBASE PHONE AUTH & OTP VERIFICATION
   // ============================================================
+  function switchFarmerLoginMethod(method) {
+    const otpSec = document.getElementById('farmerLoginOtpModeSection');
+    const pinSec = document.getElementById('farmerLoginPinModeSection');
+    const btnOtp = document.getElementById('btnFarmerLoginMethodOtp');
+    const btnPin = document.getElementById('btnFarmerLoginMethodPin');
+
+    if (method === 'otp') {
+      if (otpSec) otpSec.classList.remove('hidden');
+      if (pinSec) pinSec.classList.add('hidden');
+      if (btnOtp) btnOtp.className = 'flex-1 py-1.5 rounded-lg bg-purple-700 text-white shadow-sm transition flex items-center justify-center gap-1.5';
+      if (btnPin) btnPin.className = 'flex-1 py-1.5 rounded-lg text-purple-900 hover:bg-purple-100 transition flex items-center justify-center gap-1.5';
+    } else {
+      if (otpSec) otpSec.classList.add('hidden');
+      if (pinSec) pinSec.classList.remove('hidden');
+      if (btnOtp) btnOtp.className = 'flex-1 py-1.5 rounded-lg text-purple-900 hover:bg-purple-100 transition flex items-center justify-center gap-1.5';
+      if (btnPin) btnPin.className = 'flex-1 py-1.5 rounded-lg bg-purple-700 text-white shadow-sm transition flex items-center justify-center gap-1.5';
+    }
+  }
+  window.switchFarmerLoginMethod = switchFarmerLoginMethod;
+
+  function switchConsumerLoginMethod(method) {
+    const otpSec = document.getElementById('consumerLoginOtpModeSection');
+    const pinSec = document.getElementById('consumerLoginPinModeSection');
+    const btnOtp = document.getElementById('btnConsumerLoginMethodOtp');
+    const btnPin = document.getElementById('btnConsumerLoginMethodPin');
+
+    if (method === 'otp') {
+      if (otpSec) otpSec.classList.remove('hidden');
+      if (pinSec) pinSec.classList.add('hidden');
+      if (btnOtp) btnOtp.className = 'flex-1 py-1.5 rounded-lg bg-amber-600 text-white shadow-sm transition flex items-center justify-center gap-1.5';
+      if (btnPin) btnPin.className = 'flex-1 py-1.5 rounded-lg text-amber-900 hover:bg-amber-100 transition flex items-center justify-center gap-1.5';
+    } else {
+      if (otpSec) otpSec.classList.add('hidden');
+      if (pinSec) pinSec.classList.remove('hidden');
+      if (btnOtp) btnOtp.className = 'flex-1 py-1.5 rounded-lg text-amber-900 hover:bg-amber-100 transition flex items-center justify-center gap-1.5';
+      if (btnPin) btnPin.className = 'flex-1 py-1.5 rounded-lg bg-amber-600 text-white shadow-sm transition flex items-center justify-center gap-1.5';
+    }
+  }
+  window.switchConsumerLoginMethod = switchConsumerLoginMethod;
+
+  const farmerLoginOtpState = {
+    phone: '',
+    timerInterval: null,
+    secondsRemaining: 0
+  };
+
+  const consumerLoginOtpState = {
+    phone: '',
+    timerInterval: null,
+    secondsRemaining: 0
+  };
+
   const farmerOtpState = {
     phone: '',
     aadhar: '',
     verified: false,
+    firebaseUid: null,
+    idToken: null,
     tokenData: null,
     timerInterval: null,
     secondsRemaining: 0
@@ -3410,53 +3471,397 @@ window.getCropTranslation = getCropTranslation;
     phone: '',
     aadhar: '',
     verified: false,
+    firebaseUid: null,
+    idToken: null,
     tokenData: null,
     timerInterval: null,
     secondsRemaining: 0
   };
 
-  async function requestOtpApi(body) {
+  function startFarmerLoginOtpCountdown(durationSeconds = 300) {
+    const timerElem = document.getElementById('farmerLoginOtpTimer');
+    const resendBtn = document.getElementById('btnFarmerResendLoginOtp');
+    if (farmerLoginOtpState.timerInterval) clearInterval(farmerLoginOtpState.timerInterval);
+    farmerLoginOtpState.secondsRemaining = durationSeconds;
+    if (resendBtn) resendBtn.disabled = true;
+
+    function renderTime() {
+      const mins = Math.floor(farmerLoginOtpState.secondsRemaining / 60);
+      const secs = farmerLoginOtpState.secondsRemaining % 60;
+      if (timerElem) timerElem.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      if (durationSeconds - farmerLoginOtpState.secondsRemaining >= 30 && resendBtn) {
+        resendBtn.disabled = false;
+      }
+    }
+
+    renderTime();
+    farmerLoginOtpState.timerInterval = setInterval(() => {
+      farmerLoginOtpState.secondsRemaining--;
+      if (farmerLoginOtpState.secondsRemaining <= 0) {
+        clearInterval(farmerLoginOtpState.timerInterval);
+        farmerLoginOtpState.timerInterval = null;
+        if (timerElem) timerElem.textContent = 'Expired';
+        if (resendBtn) resendBtn.disabled = false;
+      } else {
+        renderTime();
+      }
+    }, 1000);
+  }
+
+  function startConsumerLoginOtpCountdown(durationSeconds = 300) {
+    const timerElem = document.getElementById('consumerLoginOtpTimer');
+    const resendBtn = document.getElementById('btnConsumerResendLoginOtp');
+    if (consumerLoginOtpState.timerInterval) clearInterval(consumerLoginOtpState.timerInterval);
+    consumerLoginOtpState.secondsRemaining = durationSeconds;
+    if (resendBtn) resendBtn.disabled = true;
+
+    function renderTime() {
+      const mins = Math.floor(consumerLoginOtpState.secondsRemaining / 60);
+      const secs = consumerLoginOtpState.secondsRemaining % 60;
+      if (timerElem) timerElem.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      if (durationSeconds - consumerLoginOtpState.secondsRemaining >= 30 && resendBtn) {
+        resendBtn.disabled = false;
+      }
+    }
+
+    renderTime();
+    consumerLoginOtpState.timerInterval = setInterval(() => {
+      consumerLoginOtpState.secondsRemaining--;
+      if (consumerLoginOtpState.secondsRemaining <= 0) {
+        clearInterval(consumerLoginOtpState.timerInterval);
+        consumerLoginOtpState.timerInterval = null;
+        if (timerElem) timerElem.textContent = 'Expired';
+        if (resendBtn) resendBtn.disabled = false;
+      } else {
+        renderTime();
+      }
+    }, 1000);
+  }
+
+  async function sendFarmerLoginOtp() {
+    const phoneInput = document.getElementById('loginPhoneNumber');
+    const sendBtn = document.getElementById('btnFarmerSendLoginOtp');
+    const sendBtnText = document.getElementById('btnFarmerSendLoginOtpText');
+    const otpSection = document.getElementById('farmerLoginOtpSection');
+    const otpStatus = document.getElementById('farmerLoginOtpStatus');
+    const otpCodeInput = document.getElementById('farmerLoginOtpCode');
+
+    const rawPhone = phoneInput ? phoneInput.value.replace(/\D/g, '').slice(-10) : '';
+    if (!rawPhone || rawPhone.length !== 10) {
+      alert('Please enter your 10-digit registered mobile number.');
+      if (phoneInput) phoneInput.focus();
+      return;
+    }
+
+    if (sendBtn) sendBtn.disabled = true;
+    if (sendBtnText) sendBtnText.textContent = 'Sending SMS OTP...';
+    if (otpStatus) otpStatus.innerHTML = '<span class="text-gray-500">Connecting to Firebase Phone Authentication...</span>';
+
     try {
-      let res = await fetch('/api/otp', {
+      if (!window.KisanFirebaseAuth) {
+        throw new Error('Firebase Authentication is initializing. Please wait a moment.');
+      }
+
+      await window.KisanFirebaseAuth.sendOtp(rawPhone, 'loginFarmerRecaptcha');
+      farmerLoginOtpState.phone = rawPhone;
+
+      if (otpSection) otpSection.classList.remove('hidden');
+      if (otpCodeInput) {
+        otpCodeInput.value = '';
+        otpCodeInput.focus();
+      }
+
+      startFarmerLoginOtpCountdown(300);
+
+      if (otpStatus) {
+        otpStatus.innerHTML = `<span class="text-emerald-700 font-semibold">✔ Verification code sent via SMS to +91 ${rawPhone}. Please check your phone messages.</span>`;
+      }
+      showToast(`SMS OTP sent to +91 ${rawPhone}`);
+
+    } catch (err) {
+      console.error('Farmer Login OTP dispatch error:', err);
+      if (otpStatus) {
+        otpStatus.innerHTML = `<span class="text-red-600 font-semibold">✖ ${err.message}</span>`;
+      }
+      alert('Could not send OTP: ' + err.message);
+    } finally {
+      if (sendBtn) sendBtn.disabled = false;
+      if (sendBtnText) sendBtnText.textContent = 'Resend Code via SMS';
+    }
+  }
+
+  async function verifyFarmerLoginOtp() {
+    const phoneInput = document.getElementById('loginPhoneNumber');
+    const otpCodeInput = document.getElementById('farmerLoginOtpCode');
+    const verifyBtn = document.getElementById('btnFarmerVerifyLoginOtp');
+    const verifyBtnText = document.getElementById('btnFarmerVerifyLoginOtpText');
+    const otpStatus = document.getElementById('farmerLoginOtpStatus');
+
+    const cleanPhone = phoneInput ? phoneInput.value.replace(/\D/g, '').slice(-10) : '';
+    const code = otpCodeInput ? otpCodeInput.value.trim() : '';
+
+    if (!code || code.length !== 6) {
+      alert('Please enter the 6-digit code received via SMS.');
+      if (otpCodeInput) otpCodeInput.focus();
+      return;
+    }
+
+    if (verifyBtn) verifyBtn.disabled = true;
+    if (verifyBtnText) verifyBtnText.textContent = 'Verifying...';
+
+    try {
+      if (!window.KisanFirebaseAuth) {
+        throw new Error('Firebase Authentication is offline.');
+      }
+
+      const fbResult = await window.KisanFirebaseAuth.verifyOtp(code);
+      const idToken = fbResult.idToken;
+
+      if (otpStatus) {
+        otpStatus.innerHTML = '<span class="text-purple-700">Verifying identity and resolving farmer profile...</span>';
+      }
+
+      // Verify Firebase ID Token on server and match Supabase profile
+      let serverRes = null;
+      try {
+        const res = await fetch('/api/auth/verify-firebase', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idToken, role: 'farmer' })
+        });
+        serverRes = await res.json();
+      } catch (e) {
+        console.warn('Server verification route notice:', e);
+      }
+
+      let farmerProfile = serverRes?.profile || null;
+      if (!farmerProfile && window.supabaseClient) {
+        const { data } = await window.supabaseClient
+          .from('profiles')
+          .select('*')
+          .or(`phone.eq.${cleanPhone},phone.eq.+91${cleanPhone},firebase_uid.eq.${fbResult.uid}`);
+        if (data && data.length > 0) {
+          farmerProfile = data.find(p => p.role === 'farmer') || data[0];
+        }
+      }
+
+      if (farmerProfile) {
+        if (farmerLoginOtpState.timerInterval) clearInterval(farmerLoginOtpState.timerInterval);
+        await setActiveFarmerSession(farmerProfile, 'firebase_phone');
+        showToast(`Welcome back, ${farmerProfile.full_name}! (Verified via Phone OTP)`);
+        return;
+      }
+
+      // Unregistered phone number -> Seamless transition to Registration
+      alert(`✔ Mobile +91 ${cleanPhone} successfully verified via Firebase SMS!\n\nNo farmer profile exists yet for this number. Please enter your name to complete your registration.`);
+      switchLoginTab('register');
+      const regPhone = document.getElementById('regPhoneNumber');
+      if (regPhone) regPhone.value = cleanPhone;
+      farmerOtpState.verified = true;
+      farmerOtpState.phone = cleanPhone;
+      farmerOtpState.firebaseUid = fbResult.uid;
+      const badge = document.getElementById('regPhoneVerifiedBadge');
+      if (badge) {
+        badge.classList.remove('hidden');
+        badge.classList.add('inline-flex');
+      }
+
+    } catch (err) {
+      console.error('Farmer login verification error:', err);
+      if (otpStatus) {
+        otpStatus.innerHTML = `<span class="text-red-600 font-bold">✖ ${err.message}</span>`;
+      }
+      alert('Verification failed: ' + err.message);
+    } finally {
+      if (verifyBtn) verifyBtn.disabled = false;
+      if (verifyBtnText) verifyBtnText.textContent = 'Verify & Login';
+    }
+  }
+
+  function changeFarmerLoginPhone() {
+    const otpSection = document.getElementById('farmerLoginOtpSection');
+    const otpCodeInput = document.getElementById('farmerLoginOtpCode');
+    const phoneInput = document.getElementById('loginPhoneNumber');
+    if (farmerLoginOtpState.timerInterval) clearInterval(farmerLoginOtpState.timerInterval);
+    if (otpSection) otpSection.classList.add('hidden');
+    if (otpCodeInput) otpCodeInput.value = '';
+    if (window.KisanFirebaseAuth) window.KisanFirebaseAuth.resetRecaptcha();
+    if (phoneInput) {
+      phoneInput.focus();
+      phoneInput.select();
+    }
+  }
+
+  async function sendConsumerLoginOtp() {
+    const phoneInput = document.getElementById('consumerLoginPhone');
+    const sendBtn = document.getElementById('btnConsumerSendLoginOtp');
+    const sendBtnText = document.getElementById('btnConsumerSendLoginOtpText');
+    const otpSection = document.getElementById('consumerLoginOtpSection');
+    const otpStatus = document.getElementById('consumerLoginOtpStatus');
+    const otpCodeInput = document.getElementById('consumerLoginOtpCode');
+
+    const rawPhone = phoneInput ? phoneInput.value.replace(/\D/g, '').slice(-10) : '';
+    if (!rawPhone || rawPhone.length !== 10) {
+      alert('Please enter your 10-digit registered buyer/consumer mobile number.');
+      if (phoneInput) phoneInput.focus();
+      return;
+    }
+
+    if (sendBtn) sendBtn.disabled = true;
+    if (sendBtnText) sendBtnText.textContent = 'Sending SMS OTP...';
+    if (otpStatus) otpStatus.innerHTML = '<span class="text-gray-500">Connecting to Firebase Phone Authentication...</span>';
+
+    try {
+      if (!window.KisanFirebaseAuth) {
+        throw new Error('Firebase Authentication is initializing. Please wait a moment.');
+      }
+
+      await window.KisanFirebaseAuth.sendOtp(rawPhone, 'loginConsumerRecaptcha');
+      consumerLoginOtpState.phone = rawPhone;
+
+      if (otpSection) otpSection.classList.remove('hidden');
+      if (otpCodeInput) {
+        otpCodeInput.value = '';
+        otpCodeInput.focus();
+      }
+
+      startConsumerLoginOtpCountdown(300);
+
+      if (otpStatus) {
+        otpStatus.innerHTML = `<span class="text-emerald-700 font-semibold">✔ Verification code sent via SMS to +91 ${rawPhone}. Please check your phone messages.</span>`;
+      }
+      showToast(`SMS OTP sent to +91 ${rawPhone}`);
+
+    } catch (err) {
+      console.error('Consumer Login OTP dispatch error:', err);
+      if (otpStatus) {
+        otpStatus.innerHTML = `<span class="text-red-600 font-semibold">✖ ${err.message}</span>`;
+      }
+      alert('Could not send OTP: ' + err.message);
+    } finally {
+      if (sendBtn) sendBtn.disabled = false;
+      if (sendBtnText) sendBtnText.textContent = 'Resend Code via SMS';
+    }
+  }
+
+  async function verifyConsumerLoginOtp() {
+    const phoneInput = document.getElementById('consumerLoginPhone');
+    const otpCodeInput = document.getElementById('consumerLoginOtpCode');
+    const verifyBtn = document.getElementById('btnConsumerVerifyLoginOtp');
+    const verifyBtnText = document.getElementById('btnConsumerVerifyLoginOtpText');
+    const otpStatus = document.getElementById('consumerLoginOtpStatus');
+
+    const cleanPhone = phoneInput ? phoneInput.value.replace(/\D/g, '').slice(-10) : '';
+    const code = otpCodeInput ? otpCodeInput.value.trim() : '';
+
+    if (!code || code.length !== 6) {
+      alert('Please enter the 6-digit code received via SMS.');
+      if (otpCodeInput) otpCodeInput.focus();
+      return;
+    }
+
+    if (verifyBtn) verifyBtn.disabled = true;
+    if (verifyBtnText) verifyBtnText.textContent = 'Verifying...';
+
+    try {
+      if (!window.KisanFirebaseAuth) {
+        throw new Error('Firebase Authentication is offline.');
+      }
+
+      const fbResult = await window.KisanFirebaseAuth.verifyOtp(code);
+      const idToken = fbResult.idToken;
+
+      if (otpStatus) {
+        otpStatus.innerHTML = '<span class="text-amber-700">Verifying identity and resolving buyer profile...</span>';
+      }
+
+      let serverRes = null;
+      try {
+        const res = await fetch('/api/auth/verify-firebase', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idToken, role: 'consumer' })
+        });
+        serverRes = await res.json();
+      } catch (e) {
+        console.warn('Server verification route notice:', e);
+      }
+
+      let consumerProfile = serverRes?.profile || null;
+      if (!consumerProfile && window.supabaseClient) {
+        const { data } = await window.supabaseClient
+          .from('profiles')
+          .select('*')
+          .or(`phone.eq.${cleanPhone},phone.eq.+91${cleanPhone},firebase_uid.eq.${fbResult.uid}`);
+        if (data && data.length > 0) {
+          consumerProfile = data.find(p => p.role === 'consumer') || data[0];
+        }
+      }
+
+      if (consumerProfile) {
+        if (consumerLoginOtpState.timerInterval) clearInterval(consumerLoginOtpState.timerInterval);
+        await setActiveConsumerSession(consumerProfile, 'firebase_phone');
+        showToast(`Welcome back, ${consumerProfile.full_name || consumerProfile.company_name}! (Verified via Phone OTP)`);
+        return;
+      }
+
+      // Unregistered phone number -> Transition to Consumer Registration
+      alert(`✔ Mobile +91 ${cleanPhone} successfully verified via Firebase SMS!\n\nNo buyer profile exists yet for this number. Please enter your company details to register.`);
+      switchConsumerLoginTab('register');
+      const regPhone = document.getElementById('consumerRegPhone');
+      if (regPhone) regPhone.value = cleanPhone;
+      consumerOtpState.verified = true;
+      consumerOtpState.phone = cleanPhone;
+      consumerOtpState.firebaseUid = fbResult.uid;
+      const badge = document.getElementById('consumerPhoneVerifiedBadge');
+      if (badge) {
+        badge.classList.remove('hidden');
+        badge.classList.add('inline-flex');
+      }
+
+    } catch (err) {
+      console.error('Consumer login verification error:', err);
+      if (otpStatus) {
+        otpStatus.innerHTML = `<span class="text-red-600 font-bold">✖ ${err.message}</span>`;
+      }
+      alert('Verification failed: ' + err.message);
+    } finally {
+      if (verifyBtn) verifyBtn.disabled = false;
+      if (verifyBtnText) verifyBtnText.textContent = 'Verify & Login';
+    }
+  }
+
+  function changeConsumerLoginPhone() {
+    const otpSection = document.getElementById('consumerLoginOtpSection');
+    const otpCodeInput = document.getElementById('consumerLoginOtpCode');
+    const phoneInput = document.getElementById('consumerLoginPhone');
+    if (consumerLoginOtpState.timerInterval) clearInterval(consumerLoginOtpState.timerInterval);
+    if (otpSection) otpSection.classList.add('hidden');
+    if (otpCodeInput) otpCodeInput.value = '';
+    if (window.KisanFirebaseAuth) window.KisanFirebaseAuth.resetRecaptcha();
+    if (phoneInput) {
+      phoneInput.focus();
+      phoneInput.select();
+    }
+  }
+
+  async function requestOtpApi(body) {
+    let res = await fetch('/api/otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (res.status === 404 || !res.ok) {
+      const altRes = await fetch('/api/textbee?action=' + encodeURIComponent(body.action), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
       });
-      if (res.status === 404 || !res.ok) {
-        // Fallback to textbee gateway route
-        const altRes = await fetch('/api/textbee?action=' + encodeURIComponent(body.action), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
-        });
-        if (altRes.ok) {
-          return await altRes.json();
-        }
+      if (altRes.ok) {
+        return await altRes.json();
       }
-      return await res.json();
-    } catch (err) {
-      console.warn('[OTP Gateway] Direct API unreachable, switching to local verification fallback:', err.message);
-      if (body.action === 'send-otp' || body.action === 'send') {
-        const demoCode = Math.floor(100000 + Math.random() * 900000).toString();
-        return {
-          success: true,
-          phone: body.phone,
-          expiresInSeconds: 300,
-          tokenData: { phone: body.phone, localOtp: demoCode, expiresAt: Date.now() + 300000 },
-          message: 'Verification code sent via SMS to +91 ' + body.phone
-        };
-      } else if (body.action === 'verify-otp' || body.action === 'verify') {
-        if (body.tokenData && body.tokenData.localOtp) {
-          if (body.tokenData.localOtp === body.otp) {
-            return { success: true, verified: true, phone: body.phone, message: 'Verified successfully' };
-          } else {
-            return { success: false, error: 'Incorrect verification code.' };
-          }
-        }
-        return { success: true, verified: true, phone: body.phone, message: 'Verified successfully' };
-      }
-      throw err;
     }
+    return await res.json();
   }
 
   function startOtpCountdown(type, durationSeconds = 300) {
@@ -3476,7 +3881,7 @@ window.getCropTranslation = getCropTranslation;
       if (timerElem) {
         timerElem.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
       }
-      if (durationSeconds - state.secondsRemaining >= 25 && resendBtn) {
+      if (durationSeconds - state.secondsRemaining >= 30 && resendBtn) {
         resendBtn.disabled = false;
       }
     }
@@ -3523,23 +3928,25 @@ window.getCropTranslation = getCropTranslation;
 
     if (sendBtn) sendBtn.disabled = true;
     if (sendBtnText) sendBtnText.textContent = 'Sending...';
-    if (otpStatusMsg) otpStatusMsg.innerHTML = '<span class="text-gray-500">Connecting to SMS gateway...</span>';
+    if (otpStatusMsg) otpStatusMsg.innerHTML = '<span class="text-gray-500">Connecting to Firebase Phone Authentication...</span>';
 
     try {
-      const data = await requestOtpApi({
-        action: 'send-otp',
-        phone: rawPhone,
-        aadhar: rawAadhar,
-        role: isFarmer ? 'farmer' : 'consumer'
-      });
-
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to dispatch verification OTP');
-      }
-
       state.phone = rawPhone;
       state.aadhar = rawAadhar;
-      state.tokenData = data.tokenData || null;
+
+      if (window.KisanFirebaseAuth) {
+        const containerId = isFarmer ? 'regFarmerRecaptcha' : 'regConsumerRecaptcha';
+        await window.KisanFirebaseAuth.sendOtp(rawPhone, containerId);
+      } else {
+        const data = await requestOtpApi({
+          action: 'send-otp',
+          phone: rawPhone,
+          aadhar: rawAadhar,
+          role: isFarmer ? 'farmer' : 'consumer'
+        });
+        if (!data.success) throw new Error(data.error || 'Failed to dispatch verification OTP');
+        state.tokenData = data.tokenData || null;
+      }
 
       if (otpSection) otpSection.classList.remove('hidden');
       if (otpCodeInput) {
@@ -3547,7 +3954,7 @@ window.getCropTranslation = getCropTranslation;
         otpCodeInput.focus();
       }
 
-      startOtpCountdown(type, data.expiresInSeconds || 300);
+      startOtpCountdown(type, 300);
 
       if (typeof playNotificationSound === 'function') {
         playNotificationSound('offer');
@@ -3611,15 +4018,20 @@ window.getCropTranslation = getCropTranslation;
     if (verifyBtn) verifyBtn.disabled = true;
 
     try {
-      const data = await requestOtpApi({
-        action: 'verify-otp',
-        phone: cleanPhone,
-        otp: code,
-        tokenData: state.tokenData
-      });
-
-      if (!data.success || !data.verified) {
-        throw new Error(data.error || 'Incorrect OTP code entered');
+      if (window.KisanFirebaseAuth && window.KisanFirebaseAuth._lastConfirmation) {
+        const fbResult = await window.KisanFirebaseAuth.verifyOtp(code);
+        state.firebaseUid = fbResult.uid;
+        state.idToken = fbResult.idToken;
+      } else {
+        const data = await requestOtpApi({
+          action: 'verify-otp',
+          phone: cleanPhone,
+          otp: code,
+          tokenData: state.tokenData
+        });
+        if (!data.success || !data.verified) {
+          throw new Error(data.error || 'Incorrect OTP code entered');
+        }
       }
 
       state.verified = true;
@@ -3723,6 +4135,55 @@ window.getCropTranslation = getCropTranslation;
       });
     }
 
+    // Farmer Login OTP handlers
+    const btnFarmerSendLoginOtp = document.getElementById('btnFarmerSendLoginOtp');
+    if (btnFarmerSendLoginOtp) {
+      btnFarmerSendLoginOtp.addEventListener('click', sendFarmerLoginOtp);
+    }
+    const btnFarmerVerifyLoginOtp = document.getElementById('btnFarmerVerifyLoginOtp');
+    if (btnFarmerVerifyLoginOtp) {
+      btnFarmerVerifyLoginOtp.addEventListener('click', verifyFarmerLoginOtp);
+    }
+    const btnFarmerResendLoginOtp = document.getElementById('btnFarmerResendLoginOtp');
+    if (btnFarmerResendLoginOtp) {
+      btnFarmerResendLoginOtp.addEventListener('click', sendFarmerLoginOtp);
+    }
+    const btnFarmerChangeLoginPhone = document.getElementById('btnFarmerChangeLoginPhone');
+    if (btnFarmerChangeLoginPhone) {
+      btnFarmerChangeLoginPhone.addEventListener('click', changeFarmerLoginPhone);
+    }
+    const farmerLoginOtpCode = document.getElementById('farmerLoginOtpCode');
+    if (farmerLoginOtpCode) {
+      farmerLoginOtpCode.addEventListener('keyup', (e) => {
+        if (e.key === 'Enter') verifyFarmerLoginOtp();
+      });
+    }
+
+    // Consumer Login OTP handlers
+    const btnConsumerSendLoginOtp = document.getElementById('btnConsumerSendLoginOtp');
+    if (btnConsumerSendLoginOtp) {
+      btnConsumerSendLoginOtp.addEventListener('click', sendConsumerLoginOtp);
+    }
+    const btnConsumerVerifyLoginOtp = document.getElementById('btnConsumerVerifyLoginOtp');
+    if (btnConsumerVerifyLoginOtp) {
+      btnConsumerVerifyLoginOtp.addEventListener('click', verifyConsumerLoginOtp);
+    }
+    const btnConsumerResendLoginOtp = document.getElementById('btnConsumerResendLoginOtp');
+    if (btnConsumerResendLoginOtp) {
+      btnConsumerResendLoginOtp.addEventListener('click', sendConsumerLoginOtp);
+    }
+    const btnConsumerChangeLoginPhone = document.getElementById('btnConsumerChangeLoginPhone');
+    if (btnConsumerChangeLoginPhone) {
+      btnConsumerChangeLoginPhone.addEventListener('click', changeConsumerLoginPhone);
+    }
+    const consumerLoginOtpCode = document.getElementById('consumerLoginOtpCode');
+    if (consumerLoginOtpCode) {
+      consumerLoginOtpCode.addEventListener('keyup', (e) => {
+        if (e.key === 'Enter') verifyConsumerLoginOtp();
+      });
+    }
+
+    // Registration OTP handlers
     const btnRegSendOtp = document.getElementById('btnRegSendOtp');
     if (btnRegSendOtp) {
       btnRegSendOtp.addEventListener('click', () => sendRegistrationOtp('farmer'));
@@ -3834,6 +4295,7 @@ window.getCropTranslation = getCropTranslation;
             aadhar_number: aadhar,
             aadhar_verified: true,
             phone_verified: true,
+            firebase_uid: farmerOtpState.firebaseUid || null,
             village: village || 'Geesugonda',
             district: district || 'Warangal Rural',
             state: 'Telangana',
@@ -4126,6 +4588,7 @@ window.getCropTranslation = getCropTranslation;
             aadhar_number: aadhar,
             aadhar_verified: true,
             phone_verified: true,
+            firebase_uid: consumerOtpState.firebaseUid || null,
             village: deliveryAddress,
             district: 'Hyderabad',
             state: 'Telangana',

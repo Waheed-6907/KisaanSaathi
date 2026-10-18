@@ -9,6 +9,10 @@
       "destination": "/api/textbee?sub=$1"
     },
     {
+      "source": "/api/auth/verify-firebase",
+      "destination": "/api/textbee?action=firebase-verify"
+    },
+    {
       "source": "/api/otp(.*)",
       "destination": "/api/textbee?action=otp"
     },

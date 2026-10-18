@@ -19,7 +19,8 @@ const requiredFiles = [
   'assets/data/labs.json',
   'assets/data/logistics.json',
   'assets/data/market_prices.json',
-  'assets/data/crop_catalogue_90.json'
+  'assets/data/crop_catalogue_90.json',
+  'assets/js/firebase-auth.bundle.js'
 ];
 
 let hasErrors = false;
@@ -69,7 +70,8 @@ const jsFiles = [
   'api/_textbee-poll.js',
   'api/_textbee-status.js',
   'api/textbee.js',
-  'api/_otp.js'
+  'api/_otp.js',
+  'api/_firebase-auth.js'
 ];
 for (const jsFile of jsFiles) {
   const fullPath = path.join(__dirname, jsFile);

@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node dev-server.js",
     "dev": "node dev-server.js",
-    "test": "node build.js && node test/test-otp.js && node test/test-whatsapp.js && node test/test-logistics.js && node test/test-market-prices.js && node test/test-daily-market-prices.js && node test/test-textbee.js && node test/test-90-crops.js && node test/test-tutorial-and-voice.js"
+    "bundle:firebase": "npx esbuild src/firebase-auth.js --bundle --minify --format=iife --outfile=assets/js/firebase-auth.bundle.js",
+    "test": "node build.js && node test/test-firebase-auth.js && node test/test-otp.js && node test/test-whatsapp.js && node test/test-logistics.js && node test/test-market-prices.js && node test/test-daily-market-prices.js && node test/test-textbee.js && node test/test-90-crops.js && node test/test-tutorial-and-voice.js"
   },
   "keywords": [
     "agriculture",
@@ -30,6 +31,7 @@
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
-    "@supabase/supabase-js": "^2.117.3"
+    "@supabase/supabase-js": "^2.117.3",
+    "firebase": "^13.0.0"
   }
 }

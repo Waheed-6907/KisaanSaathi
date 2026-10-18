@@ -60,6 +60,9 @@ ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS delivery_address TEXT;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS aadhar_number TEXT;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS aadhar_verified BOOLEAN DEFAULT false;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS phone_verified BOOLEAN DEFAULT false;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS firebase_uid TEXT;
+CREATE INDEX IF NOT EXISTS idx_profiles_firebase_uid ON public.profiles(firebase_uid);
+CREATE INDEX IF NOT EXISTS idx_profiles_phone ON public.profiles(phone);
 
 -- Seed Default Demo Farmer
 INSERT INTO public.profiles (farmer_id, full_name, phone, village, district, state, password_pin, agri_credit_score, pre_approved_loan, wallet_balance, role)
