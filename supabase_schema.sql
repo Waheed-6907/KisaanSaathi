@@ -57,6 +57,9 @@ ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS wallet_balance NUMERIC DEFA
 
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS company_name TEXT;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS delivery_address TEXT;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS aadhar_number TEXT;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS aadhar_verified BOOLEAN DEFAULT false;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS phone_verified BOOLEAN DEFAULT false;
 
 -- Seed Default Demo Farmer
 INSERT INTO public.profiles (farmer_id, full_name, phone, village, district, state, password_pin, agri_credit_score, pre_approved_loan, wallet_balance, role)

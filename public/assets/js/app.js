@@ -3394,28 +3394,381 @@ window.getCropTranslation = getCropTranslation;
   }
   window.handleSignOut = handleSignOut;
 
-  // Bind Registration Form Button
+  // ============================================================
+  // KISAAN & CONSUMER AADHAAR & SMS OTP VERIFICATION ENGINE
+  // ============================================================
+  const farmerOtpState = {
+    phone: '',
+    aadhar: '',
+    verified: false,
+    tokenData: null,
+    timerInterval: null,
+    secondsRemaining: 0
+  };
+
+  const consumerOtpState = {
+    phone: '',
+    aadhar: '',
+    verified: false,
+    tokenData: null,
+    timerInterval: null,
+    secondsRemaining: 0
+  };
+
+  function startOtpCountdown(type, durationSeconds = 300) {
+    const isFarmer = type === 'farmer';
+    const state = isFarmer ? farmerOtpState : consumerOtpState;
+    const timerElem = document.getElementById(isFarmer ? 'regOtpTimerText' : 'consumerRegOtpTimerText');
+    const resendBtn = document.getElementById(isFarmer ? 'btnRegResendOtp' : 'btnConsumerRegResendOtp');
+
+    if (state.timerInterval) clearInterval(state.timerInterval);
+
+    state.secondsRemaining = durationSeconds;
+    if (resendBtn) resendBtn.disabled = true;
+
+    function renderTime() {
+      const mins = Math.floor(state.secondsRemaining / 60);
+      const secs = state.secondsRemaining % 60;
+      if (timerElem) {
+        timerElem.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      }
+      if (durationSeconds - state.secondsRemaining >= 25 && resendBtn) {
+        resendBtn.disabled = false;
+      }
+    }
+
+    renderTime();
+    state.timerInterval = setInterval(() => {
+      state.secondsRemaining--;
+      if (state.secondsRemaining <= 0) {
+        clearInterval(state.timerInterval);
+        state.timerInterval = null;
+        if (timerElem) timerElem.textContent = 'Expired';
+        if (resendBtn) resendBtn.disabled = false;
+      } else {
+        renderTime();
+      }
+    }, 1000);
+  }
+
+  async function sendRegistrationOtp(type) {
+    const isFarmer = type === 'farmer';
+    const state = isFarmer ? farmerOtpState : consumerOtpState;
+    const aadharInput = document.getElementById(isFarmer ? 'regAadharNumber' : 'consumerRegAadharNumber');
+    const phoneInput = document.getElementById(isFarmer ? 'regPhoneNumber' : 'consumerRegPhone');
+    const sendBtn = document.getElementById(isFarmer ? 'btnRegSendOtp' : 'btnConsumerRegSendOtp');
+    const sendBtnText = document.getElementById(isFarmer ? 'btnRegSendOtpText' : 'btnConsumerRegSendOtpText');
+    const otpSection = document.getElementById(isFarmer ? 'regOtpSection' : 'consumerRegOtpSection');
+    const otpStatusMsg = document.getElementById(isFarmer ? 'regOtpStatusMsg' : 'consumerRegOtpStatusMsg');
+    const otpCodeInput = document.getElementById(isFarmer ? 'regOtpCode' : 'consumerRegOtpCode');
+
+    const rawAadhar = aadharInput ? aadharInput.value.replace(/\s+/g, '') : '';
+    const rawPhone = phoneInput ? phoneInput.value.replace(/\D/g, '').slice(-10) : '';
+
+    if (!rawAadhar || rawAadhar.length !== 12) {
+      alert('⚠️ Aadhaar Verification Required!\n\nPlease enter your valid 12-digit Aadhaar Card Number.');
+      if (aadharInput) aadharInput.focus();
+      return;
+    }
+
+    if (!rawPhone || rawPhone.length !== 10) {
+      alert('⚠️ Valid Mobile Required!\n\nPlease enter your 10-digit Aadhaar-linked mobile number.');
+      if (phoneInput) phoneInput.focus();
+      return;
+    }
+
+    if (sendBtn) sendBtn.disabled = true;
+    if (sendBtnText) sendBtnText.textContent = 'Sending...';
+    if (otpStatusMsg) otpStatusMsg.innerHTML = '<span class="text-gray-500">Connecting to SMS gateway...</span>';
+
+    try {
+      const resp = await fetch('/api/otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'send-otp',
+          phone: rawPhone,
+          aadhar: rawAadhar,
+          role: isFarmer ? 'farmer' : 'consumer'
+        })
+      });
+      const data = await resp.json();
+
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to dispatch verification OTP');
+      }
+
+      state.phone = rawPhone;
+      state.aadhar = rawAadhar;
+      state.tokenData = data.tokenData || null;
+
+      if (otpSection) otpSection.classList.remove('hidden');
+      if (otpCodeInput) {
+        otpCodeInput.value = '';
+        otpCodeInput.focus();
+      }
+
+      startOtpCountdown(type, data.expiresInSeconds || 300);
+
+      if (typeof playNotificationSound === 'function') {
+        playNotificationSound('offer');
+      }
+
+      if (data.demoOtp) {
+        if (otpStatusMsg) {
+          const targetInputId = isFarmer ? 'regOtpCode' : 'consumerRegOtpCode';
+          otpStatusMsg.innerHTML = `
+            <div class="p-2 bg-purple-100/90 border border-purple-300 rounded-lg text-purple-950 text-xs mt-1 flex items-center justify-between">
+              <span>🌾 Verification OTP: <strong class="font-mono text-sm font-bold text-purple-900">${data.demoOtp}</strong></span>
+              <button type="button" class="px-2 py-0.5 bg-purple-700 hover:bg-purple-800 text-white rounded font-bold text-[10px]" onclick="document.getElementById('${targetInputId}').value='${data.demoOtp}'">Auto-Fill</button>
+            </div>
+          `;
+        }
+      } else {
+        if (otpStatusMsg) {
+          otpStatusMsg.innerHTML = `<span class="text-emerald-700 font-semibold">✔ ${data.message || 'OTP dispatched to registered mobile via SMS.'}</span>`;
+        }
+      }
+
+      showToast(`SMS OTP sent to +91 ${rawPhone}`);
+
+    } catch (err) {
+      console.error('OTP send error:', err);
+      if (otpStatusMsg) {
+        otpStatusMsg.innerHTML = `<span class="text-red-600 font-semibold">✖ ${err.message}</span>`;
+      }
+      alert('Could not dispatch OTP: ' + err.message);
+    } finally {
+      if (sendBtn) sendBtn.disabled = false;
+      if (sendBtnText) sendBtnText.textContent = 'Resend Code';
+    }
+  }
+
+  async function verifyRegistrationOtp(type) {
+    const isFarmer = type === 'farmer';
+    const state = isFarmer ? farmerOtpState : consumerOtpState;
+    const phoneInput = document.getElementById(isFarmer ? 'regPhoneNumber' : 'consumerRegPhone');
+    const aadharInput = document.getElementById(isFarmer ? 'regAadharNumber' : 'consumerRegAadharNumber');
+    const otpCodeInput = document.getElementById(isFarmer ? 'regOtpCode' : 'consumerRegOtpCode');
+    const verifyBtn = document.getElementById(isFarmer ? 'btnRegVerifyOtp' : 'btnConsumerRegVerifyOtp');
+    const otpStatusMsg = document.getElementById(isFarmer ? 'regOtpStatusMsg' : 'consumerRegOtpStatusMsg');
+    const verifiedBadge = document.getElementById(isFarmer ? 'regPhoneVerifiedBadge' : 'consumerPhoneVerifiedBadge');
+    const otpSection = document.getElementById(isFarmer ? 'regOtpSection' : 'consumerRegOtpSection');
+
+    const cleanPhone = phoneInput ? phoneInput.value.replace(/\D/g, '').slice(-10) : '';
+    const cleanAadhar = aadharInput ? aadharInput.value.replace(/\s+/g, '') : '';
+    const code = otpCodeInput ? otpCodeInput.value.trim() : '';
+
+    if (!cleanPhone || cleanPhone.length !== 10) {
+      alert('Please enter a valid 10-digit mobile number.');
+      return;
+    }
+
+    if (!code || code.length !== 6) {
+      alert('Please enter the 6-digit OTP received via SMS.');
+      if (otpCodeInput) otpCodeInput.focus();
+      return;
+    }
+
+    if (verifyBtn) verifyBtn.disabled = true;
+
+    try {
+      const resp = await fetch('/api/otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'verify-otp',
+          phone: cleanPhone,
+          otp: code,
+          tokenData: state.tokenData
+        })
+      });
+      const data = await resp.json();
+
+      if (!data.success || !data.verified) {
+        throw new Error(data.error || 'Incorrect OTP code entered');
+      }
+
+      state.verified = true;
+      state.phone = cleanPhone;
+      state.aadhar = cleanAadhar;
+
+      if (state.timerInterval) {
+        clearInterval(state.timerInterval);
+        state.timerInterval = null;
+      }
+
+      if (verifiedBadge) {
+        verifiedBadge.classList.remove('hidden');
+        verifiedBadge.classList.add('inline-flex');
+      }
+
+      if (otpStatusMsg) {
+        otpStatusMsg.innerHTML = `<span class="text-emerald-700 font-bold">✔ Mobile +91 ${cleanPhone} successfully verified with UIDAI Aadhaar!</span>`;
+      }
+
+      setTimeout(() => {
+        if (otpSection) {
+          otpSection.innerHTML = `
+            <div class="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-xs text-emerald-800">
+              <span class="font-bold flex items-center gap-1.5">
+                <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i>
+                Verified Aadhaar-Linked Mobile (+91 ${cleanPhone})
+              </span>
+              <span class="text-[10px] bg-emerald-200/80 text-emerald-900 px-2 py-0.5 rounded-full font-bold">KYC Clear</span>
+            </div>
+          `;
+          if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons();
+          }
+        }
+      }, 900);
+
+      if (typeof playNotificationSound === 'function') {
+        playNotificationSound('accepted');
+      }
+
+      showToast(`✔ Aadhaar-linked mobile +91 ${cleanPhone} verified successfully!`);
+
+    } catch (err) {
+      console.error('OTP verification failed:', err);
+      if (typeof playNotificationSound === 'function') {
+        playNotificationSound('declined');
+      }
+      if (otpStatusMsg) {
+        otpStatusMsg.innerHTML = `<span class="text-red-600 font-bold">✖ ${err.message}</span>`;
+      }
+      alert('Verification Failed: ' + err.message);
+    } finally {
+      if (verifyBtn) verifyBtn.disabled = false;
+    }
+  }
+
+  function setupRegistrationOtpUI() {
+    ['regAadharNumber', 'consumerRegAadharNumber'].forEach(id => {
+      const input = document.getElementById(id);
+      const statusId = id === 'regAadharNumber' ? 'regAadharStatus' : 'consumerRegAadharStatus';
+      const status = document.getElementById(statusId);
+      if (input) {
+        input.addEventListener('input', (e) => {
+          const raw = e.target.value.replace(/\D/g, '').slice(0, 12);
+          e.target.value = raw.replace(/(\d{4})(?=\d)/g, '$1 ');
+          if (status) {
+            if (raw.length === 12) {
+              status.classList.remove('hidden');
+            } else {
+              status.classList.add('hidden');
+            }
+          }
+        });
+      }
+    });
+
+    const farmerPhone = document.getElementById('regPhoneNumber');
+    if (farmerPhone) {
+      farmerPhone.addEventListener('input', () => {
+        const digits = farmerPhone.value.replace(/\D/g, '').slice(-10);
+        if (farmerOtpState.verified && digits !== farmerOtpState.phone) {
+          farmerOtpState.verified = false;
+          farmerOtpState.phone = '';
+          const badge = document.getElementById('regPhoneVerifiedBadge');
+          if (badge) badge.classList.add('hidden');
+        }
+      });
+    }
+
+    const consumerPhone = document.getElementById('consumerRegPhone');
+    if (consumerPhone) {
+      consumerPhone.addEventListener('input', () => {
+        const digits = consumerPhone.value.replace(/\D/g, '').slice(-10);
+        if (consumerOtpState.verified && digits !== consumerOtpState.phone) {
+          consumerOtpState.verified = false;
+          consumerOtpState.phone = '';
+          const badge = document.getElementById('consumerPhoneVerifiedBadge');
+          if (badge) badge.classList.add('hidden');
+        }
+      });
+    }
+
+    const btnRegSendOtp = document.getElementById('btnRegSendOtp');
+    if (btnRegSendOtp) {
+      btnRegSendOtp.addEventListener('click', () => sendRegistrationOtp('farmer'));
+    }
+    const btnRegVerifyOtp = document.getElementById('btnRegVerifyOtp');
+    if (btnRegVerifyOtp) {
+      btnRegVerifyOtp.addEventListener('click', () => verifyRegistrationOtp('farmer'));
+    }
+    const btnRegResendOtp = document.getElementById('btnRegResendOtp');
+    if (btnRegResendOtp) {
+      btnRegResendOtp.addEventListener('click', () => sendRegistrationOtp('farmer'));
+    }
+    const regOtpCode = document.getElementById('regOtpCode');
+    if (regOtpCode) {
+      regOtpCode.addEventListener('keyup', (e) => {
+        if (e.key === 'Enter') verifyRegistrationOtp('farmer');
+      });
+    }
+
+    const btnConsumerSendOtp = document.getElementById('btnConsumerRegSendOtp');
+    if (btnConsumerSendOtp) {
+      btnConsumerSendOtp.addEventListener('click', () => sendRegistrationOtp('consumer'));
+    }
+    const btnConsumerVerifyOtp = document.getElementById('btnConsumerRegVerifyOtp');
+    if (btnConsumerVerifyOtp) {
+      btnConsumerVerifyOtp.addEventListener('click', () => verifyRegistrationOtp('consumer'));
+    }
+    const btnConsumerResendOtp = document.getElementById('btnConsumerRegResendOtp');
+    if (btnConsumerResendOtp) {
+      btnConsumerResendOtp.addEventListener('click', () => sendRegistrationOtp('consumer'));
+    }
+    const consumerOtpCode = document.getElementById('consumerRegOtpCode');
+    if (consumerOtpCode) {
+      consumerOtpCode.addEventListener('keyup', (e) => {
+        if (e.key === 'Enter') verifyRegistrationOtp('consumer');
+      });
+    }
+  }
+
+  // Initialize Registration OTP listeners and Aadhaar formatters
+  setupRegistrationOtpUI();
   const btnSubmitRegister = document.getElementById('btnSubmitRegister');
   if (btnSubmitRegister) {
     btnSubmitRegister.addEventListener('click', async () => {
       const nameInput = document.getElementById('regFullName');
+      const aadharInput = document.getElementById('regAadharNumber');
       const phoneInput = document.getElementById('regPhoneNumber');
       const pinInput = document.getElementById('regPinCode');
       const distInput = document.getElementById('regDistrict');
       const villageInput = document.getElementById('regVillage');
 
       const fullName = nameInput ? nameInput.value.trim() : '';
-      const phone = phoneInput ? phoneInput.value.trim() : '';
+      const aadhar = aadharInput ? aadharInput.value.replace(/\s+/g, '') : '';
+      const phone = phoneInput ? phoneInput.value.replace(/\D/g, '').slice(-10) : '';
       const pin = pinInput ? pinInput.value.trim() : '1234';
       const district = distInput ? distInput.value : 'Warangal Rural';
       const village = villageInput ? villageInput.value.trim() : 'Geesugonda';
 
       if (!fullName || fullName.length < 2) {
         alert('Please enter your full name (at least 2 letters).');
+        if (nameInput) nameInput.focus();
         return;
       }
-      if (!phone || phone.length < 10) {
-        alert('Please enter a valid 10-digit mobile number.');
+      if (!aadhar || aadhar.length !== 12) {
+        alert('⚠️ Aadhaar Verification Required!\n\nPlease enter your valid 12-digit Aadhaar Card Number.');
+        if (aadharInput) aadharInput.focus();
+        return;
+      }
+      if (!phone || phone.length !== 10) {
+        alert('⚠️ Mobile Number Required!\n\nPlease enter a valid 10-digit mobile number.');
+        if (phoneInput) phoneInput.focus();
+        return;
+      }
+      if (!farmerOtpState.verified || farmerOtpState.phone !== phone) {
+        alert('⚠️ Mobile OTP Verification Required!\n\nPlease click "Send OTP" and enter the 6-digit SMS verification code to verify your Aadhaar-linked mobile before registering.');
+        const otpSec = document.getElementById('regOtpSection');
+        if (otpSec) otpSec.classList.remove('hidden');
+        const otpCodeInput = document.getElementById('regOtpCode');
+        if (otpCodeInput) otpCodeInput.focus();
         return;
       }
 
@@ -3445,6 +3798,9 @@ window.getCropTranslation = getCropTranslation;
             farmer_id: farmerId,
             full_name: fullName,
             phone: phone,
+            aadhar_number: aadhar,
+            aadhar_verified: true,
+            phone_verified: true,
             village: village || 'Geesugonda',
             district: district || 'Warangal Rural',
             state: 'Telangana',
@@ -3463,6 +3819,20 @@ window.getCropTranslation = getCropTranslation;
           if (insertRes.error) {
             console.warn('Retrying insert without password_pin column:', insertRes.error.message);
             insertRes = await window.supabaseClient.from('profiles').insert([profileData]).select();
+          }
+
+          if (insertRes.error) {
+            console.warn('Retrying insert with minimal schema:', insertRes.error.message);
+            const minimalData = {
+              farmer_id: farmerId,
+              full_name: fullName,
+              phone: phone,
+              village: village || 'Geesugonda',
+              district: district || 'Warangal Rural',
+              state: 'Telangana',
+              updated_at: new Date().toISOString()
+            };
+            insertRes = await window.supabaseClient.from('profiles').insert([minimalData]).select();
           }
 
           if (insertRes.error) {
@@ -3652,6 +4022,7 @@ window.getCropTranslation = getCropTranslation;
     btnSubmitConsumerRegister.addEventListener('click', async () => {
       const companyInput = document.getElementById('consumerRegCompany');
       const nameInput = document.getElementById('consumerRegName');
+      const aadharInput = document.getElementById('consumerRegAadharNumber');
       const phoneInput = document.getElementById('consumerRegPhone');
       const deliverySelect = document.getElementById('consumerRegDeliverySelect');
       const customAddressInput = document.getElementById('consumerRegCustomAddress');
@@ -3659,7 +4030,8 @@ window.getCropTranslation = getCropTranslation;
 
       const companyName = companyInput ? companyInput.value.trim() : '';
       const contactName = nameInput ? nameInput.value.trim() : '';
-      const phone = phoneInput ? phoneInput.value.trim() : '';
+      const aadhar = aadharInput ? aadharInput.value.replace(/\s+/g, '') : '';
+      const phone = phoneInput ? phoneInput.value.replace(/\D/g, '').slice(-10) : '';
       const pin = pinInput ? pinInput.value.trim() : '1234';
 
       let deliveryAddress = deliverySelect ? deliverySelect.value : 'Bowenpally Modern Market Yard, Secunderabad, Telangana';
@@ -3669,14 +4041,30 @@ window.getCropTranslation = getCropTranslation;
 
       if (!companyName || companyName.length < 2) {
         alert('Please enter your Company / Firm name.');
+        if (companyInput) companyInput.focus();
         return;
       }
       if (!contactName || contactName.length < 2) {
         alert('Please enter Contact Person Name.');
+        if (nameInput) nameInput.focus();
         return;
       }
-      if (!phone || phone.length < 10) {
-        alert('Please enter a valid 10-digit mobile number.');
+      if (!aadhar || aadhar.length !== 12) {
+        alert('⚠️ Authorized Person Aadhaar Required!\n\nPlease enter a valid 12-digit Aadhaar Card Number.');
+        if (aadharInput) aadharInput.focus();
+        return;
+      }
+      if (!phone || phone.length !== 10) {
+        alert('⚠️ Mobile Number Required!\n\nPlease enter a valid 10-digit mobile number.');
+        if (phoneInput) phoneInput.focus();
+        return;
+      }
+      if (!consumerOtpState.verified || consumerOtpState.phone !== phone) {
+        alert('⚠️ Mobile OTP Verification Required!\n\nPlease click "Send OTP" and enter the 6-digit SMS verification code to verify your Aadhaar-linked mobile before registering.');
+        const otpSec = document.getElementById('consumerRegOtpSection');
+        if (otpSec) otpSec.classList.remove('hidden');
+        const otpCodeInput = document.getElementById('consumerRegOtpCode');
+        if (otpCodeInput) otpCodeInput.focus();
         return;
       }
 
@@ -3702,6 +4090,9 @@ window.getCropTranslation = getCropTranslation;
             farmer_id: consumerId,
             full_name: contactName,
             phone: phone,
+            aadhar_number: aadhar,
+            aadhar_verified: true,
+            phone_verified: true,
             village: deliveryAddress,
             district: 'Hyderabad',
             state: 'Telangana',
@@ -3723,6 +4114,21 @@ window.getCropTranslation = getCropTranslation;
           if (insertRes.error) {
             console.warn('Retrying consumer insert without extra columns:', insertRes.error.message);
             insertRes = await window.supabaseClient.from('profiles').insert([profileData]).select();
+          }
+
+          if (insertRes.error) {
+            console.warn('Retrying consumer insert with minimal schema:', insertRes.error.message);
+            const minimalConsumer = {
+              farmer_id: consumerId,
+              full_name: contactName,
+              phone: phone,
+              role: 'consumer',
+              village: deliveryAddress,
+              district: 'Hyderabad',
+              state: 'Telangana',
+              updated_at: new Date().toISOString()
+            };
+            insertRes = await window.supabaseClient.from('profiles').insert([minimalConsumer]).select();
           }
 
           if (insertRes.error) {

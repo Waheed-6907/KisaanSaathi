@@ -203,6 +203,17 @@ function handleRequest(req, res) {
     }
   }
 
+  // API Route: /api/otp (SMS OTP & Aadhaar Verification Gateway)
+  if (reqPath === '/api/otp') {
+    try {
+      const otpHandler = require('./api/otp.js');
+      return otpHandler(req, res);
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error: 'OTP service error', details: err.message }));
+    }
+  }
+
   // API Route: /api/daily-market-prices (Live Daily Market Prices & DoD Comparison API)
   if (reqPath === '/api/daily-market-prices') {
     try {
