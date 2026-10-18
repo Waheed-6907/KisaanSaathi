@@ -95,7 +95,7 @@ function verifyOtpToken(phone, submittedOtp, tokenData) {
   return { valid: true, aadhar: tokenData.aadhar };
 }
 
-module.exports = async (req, res) => {
+async function otpHandler(req, res) {
   // CORS & Preflight handling
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -236,12 +236,10 @@ module.exports = async (req, res) => {
       expiresInSeconds: Math.floor(OTP_EXPIRY_MS / 1000),
       tokenData,
       message: smsDispatched
-        ? `Verification code dispatched via SMS to +91 ${cleanPhone}`
-        : `Verification code generated for +91 ${cleanPhone}`,
-      ...(!smsDispatched ? {
-        demoOtp: otp,
-        note: 'SMS gateway is running in standby/demo mode. Use the displayed verification code to proceed.'
-      } : {})
+        ? `Verification code dispatched via SMS to +91 ${cleanPhone}. Please check your phone messages.`
+        : (smsError
+          ? `SMS dispatch failed: ${smsError}`
+          : `SMS gateway is not configured with TEXTBEE credentials. Add TEXTBEE_API_KEY and TEXTBEE_DEVICE_ID to send live SMS to +91 ${cleanPhone}.`)
     }, null, 2));
   }
 
@@ -354,4 +352,11 @@ module.exports = async (req, res) => {
     success: false,
     error: 'Invalid action parameter. Supported actions: "send-otp", "verify-otp"'
   }));
+}
+
+module.exports = otpHandler;
+module.exports._getActiveOtp = (phone) => {
+  const clean = normalizePhone(phone);
+  const entry = activeOtpStore.get(clean);
+  return entry ? entry.otp : null;
 };

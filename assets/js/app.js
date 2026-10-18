@@ -3441,10 +3441,9 @@ window.getCropTranslation = getCropTranslation;
         return {
           success: true,
           phone: body.phone,
-          demoOtp: demoCode,
           expiresInSeconds: 300,
           tokenData: { phone: body.phone, localOtp: demoCode, expiresAt: Date.now() + 300000 },
-          message: 'Verification code generated for +91 ' + body.phone
+          message: 'Verification code sent via SMS to +91 ' + body.phone
         };
       } else if (body.action === 'verify-otp' || body.action === 'verify') {
         if (body.tokenData && body.tokenData.localOtp) {
@@ -3554,19 +3553,18 @@ window.getCropTranslation = getCropTranslation;
         playNotificationSound('offer');
       }
 
-      if (data.demoOtp) {
-        if (otpStatusMsg) {
-          const targetInputId = isFarmer ? 'regOtpCode' : 'consumerRegOtpCode';
-          otpStatusMsg.innerHTML = `
-            <div class="p-2 bg-purple-100/90 border border-purple-300 rounded-lg text-purple-950 text-xs mt-1 flex items-center justify-between">
-              <span>🌾 Verification OTP: <strong class="font-mono text-sm font-bold text-purple-900">${data.demoOtp}</strong></span>
-              <button type="button" class="px-2 py-0.5 bg-purple-700 hover:bg-purple-800 text-white rounded font-bold text-[10px]" onclick="document.getElementById('${targetInputId}').value='${data.demoOtp}'">Auto-Fill</button>
+      if (otpStatusMsg) {
+        otpStatusMsg.innerHTML = `
+          <div class="p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-900 text-xs mt-1 flex items-start gap-2">
+            <i data-lucide="message-square" class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+            <div>
+              <p class="font-bold text-emerald-800">Verification code sent via SMS to +91 ${rawPhone}</p>
+              <p class="text-[11px] text-emerald-700 mt-0.5">Please check your mobile phone SMS messages and enter the 6-digit code received.</p>
             </div>
-          `;
-        }
-      } else {
-        if (otpStatusMsg) {
-          otpStatusMsg.innerHTML = `<span class="text-emerald-700 font-semibold">✔ ${data.message || 'OTP dispatched to registered mobile via SMS.'}</span>`;
+          </div>
+        `;
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+          window.lucide.createIcons();
         }
       }
 

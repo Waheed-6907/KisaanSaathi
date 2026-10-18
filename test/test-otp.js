@@ -122,10 +122,11 @@ async function runTests() {
     });
     assert.strictEqual(res.statusCode, 200);
     assert.strictEqual(res.data.success, true);
+    assert.strictEqual(res.data.demoOtp, undefined, 'demoOtp must NOT be exposed in API response');
     assert.ok(res.data.tokenData);
     assert.strictEqual(res.data.phone, testPhone);
     tokenData = res.data.tokenData;
-    testOtp = res.data.demoOtp; // Available in demo/testing mode
+    testOtp = otpHandler._getActiveOtp(testPhone);
     console.log('  ✔ PASS: Successfully generates OTP and verification token');
     passed++;
   } catch (err) {
@@ -194,7 +195,8 @@ async function runTests() {
     });
     assert.strictEqual(res.statusCode, 200);
     assert.strictEqual(res.data.success, true);
-    assert.ok(res.data.demoOtp || res.data.tokenData);
+    assert.strictEqual(res.data.demoOtp, undefined, 'demoOtp must NOT be exposed in API response');
+    assert.ok(res.data.tokenData);
     console.log('  ✔ PASS: Consumer registration OTP dispatch succeeds');
     passed++;
   } catch (err) {
