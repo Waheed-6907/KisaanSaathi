@@ -3555,14 +3555,16 @@ window.getCropTranslation = getCropTranslation;
 
     if (sendBtn) sendBtn.disabled = true;
     if (sendBtnText) sendBtnText.textContent = 'Sending SMS OTP...';
-    if (otpStatus) otpStatus.innerHTML = '<span class="text-gray-500">Connecting to Firebase Phone Authentication...</span>';
+    if (otpStatus) otpStatus.innerHTML = '<span class="text-purple-700 font-medium animate-pulse flex items-center gap-1.5"><i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i> Contacting Firebase SMS service...</span>';
+    if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
 
     try {
       if (!window.KisanFirebaseAuth) {
         throw new Error('Firebase Authentication is initializing. Please wait a moment.');
       }
 
-      await window.KisanFirebaseAuth.sendOtp(rawPhone, 'loginFarmerRecaptcha');
+      // Exact call to sendOtp -> signInWithPhoneNumber: ONLY after this Promise resolves does the UI show "OTP sent"
+      const result = await window.KisanFirebaseAuth.sendOtp(rawPhone, 'loginFarmerRecaptcha');
       farmerLoginOtpState.phone = rawPhone;
 
       if (otpSection) otpSection.classList.remove('hidden');
@@ -3574,16 +3576,42 @@ window.getCropTranslation = getCropTranslation;
       startFarmerLoginOtpCountdown(300);
 
       if (otpStatus) {
-        otpStatus.innerHTML = `<span class="text-emerald-700 font-semibold">✔ Verification code sent via SMS to +91 ${rawPhone}. Please check your phone messages.</span>`;
+        otpStatus.innerHTML = `
+          <div class="p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-900 text-xs flex items-start gap-2">
+            <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+            <div>
+              <p class="font-bold text-emerald-800">Verification code dispatched via SMS to +91 ${rawPhone}</p>
+              <p class="text-[11px] text-emerald-700 mt-0.5">Please check your phone SMS messages and enter the 6-digit code.</p>
+            </div>
+          </div>
+        `;
+        if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
       }
       showToast(`SMS OTP sent to +91 ${rawPhone}`);
 
     } catch (err) {
-      console.error('Farmer Login OTP dispatch error:', err);
+      console.error('Farmer Login OTP dispatch error:', { code: err.code || 'unknown', message: err.message || String(err) });
+      const isBilling = err.code === 'auth/billing-not-enabled' || (err.message && (err.message.includes('billing') || err.message.includes('BILLING_NOT_ENABLED')));
+      
       if (otpStatus) {
-        otpStatus.innerHTML = `<span class="text-red-600 font-semibold">✖ ${err.message}</span>`;
+        otpStatus.innerHTML = `
+          <div class="p-2.5 bg-red-50 border border-red-200 rounded-lg text-red-900 text-xs">
+            <div class="font-bold flex items-center gap-1.5 text-red-800">
+              <i data-lucide="alert-triangle" class="w-4 h-4 text-red-600 flex-shrink-0"></i>
+              <span>Could not send SMS code (${err.code || 'auth/error'})</span>
+            </div>
+            <p class="text-[11px] text-red-700 mt-1">${err.message}</p>
+            ${isBilling ? '<p class="text-[10px] text-amber-800 mt-1 font-semibold">ℹ Note: Real SMS delivery requires Cloud Billing (Blaze plan) enabled in Firebase Console for project "kisaansaathi-cba16". Test phone numbers can also be added for development.</p>' : ''}
+          </div>
+        `;
+        if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
       }
-      alert('Could not send OTP: ' + err.message);
+
+      let alertMsg = 'Could not send SMS OTP: ' + err.message;
+      if (isBilling) {
+        alertMsg += '\n\nAction Required: Enable Cloud Billing on Firebase project "kisaansaathi-cba16" (Blaze plan) to allow real outbound SMS carrier delivery, or add test phone numbers in Firebase Console > Authentication > Phone.';
+      }
+      alert(alertMsg);
     } finally {
       if (sendBtn) sendBtn.disabled = false;
       if (sendBtnText) sendBtnText.textContent = 'Resend Code via SMS';
@@ -3709,14 +3737,16 @@ window.getCropTranslation = getCropTranslation;
 
     if (sendBtn) sendBtn.disabled = true;
     if (sendBtnText) sendBtnText.textContent = 'Sending SMS OTP...';
-    if (otpStatus) otpStatus.innerHTML = '<span class="text-gray-500">Connecting to Firebase Phone Authentication...</span>';
+    if (otpStatus) otpStatus.innerHTML = '<span class="text-amber-700 font-medium animate-pulse flex items-center gap-1.5"><i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i> Contacting Firebase SMS service...</span>';
+    if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
 
     try {
       if (!window.KisanFirebaseAuth) {
         throw new Error('Firebase Authentication is initializing. Please wait a moment.');
       }
 
-      await window.KisanFirebaseAuth.sendOtp(rawPhone, 'loginConsumerRecaptcha');
+      // Exact call to sendOtp -> signInWithPhoneNumber: ONLY after this Promise resolves does the UI show "OTP sent"
+      const result = await window.KisanFirebaseAuth.sendOtp(rawPhone, 'loginConsumerRecaptcha');
       consumerLoginOtpState.phone = rawPhone;
 
       if (otpSection) otpSection.classList.remove('hidden');
@@ -3728,16 +3758,42 @@ window.getCropTranslation = getCropTranslation;
       startConsumerLoginOtpCountdown(300);
 
       if (otpStatus) {
-        otpStatus.innerHTML = `<span class="text-emerald-700 font-semibold">✔ Verification code sent via SMS to +91 ${rawPhone}. Please check your phone messages.</span>`;
+        otpStatus.innerHTML = `
+          <div class="p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-900 text-xs flex items-start gap-2">
+            <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+            <div>
+              <p class="font-bold text-emerald-800">Verification code dispatched via SMS to +91 ${rawPhone}</p>
+              <p class="text-[11px] text-emerald-700 mt-0.5">Please check your phone SMS messages and enter the 6-digit code.</p>
+            </div>
+          </div>
+        `;
+        if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
       }
       showToast(`SMS OTP sent to +91 ${rawPhone}`);
 
     } catch (err) {
-      console.error('Consumer Login OTP dispatch error:', err);
+      console.error('Consumer Login OTP dispatch error:', { code: err.code || 'unknown', message: err.message || String(err) });
+      const isBilling = err.code === 'auth/billing-not-enabled' || (err.message && (err.message.includes('billing') || err.message.includes('BILLING_NOT_ENABLED')));
+
       if (otpStatus) {
-        otpStatus.innerHTML = `<span class="text-red-600 font-semibold">✖ ${err.message}</span>`;
+        otpStatus.innerHTML = `
+          <div class="p-2.5 bg-red-50 border border-red-200 rounded-lg text-red-900 text-xs">
+            <div class="font-bold flex items-center gap-1.5 text-red-800">
+              <i data-lucide="alert-triangle" class="w-4 h-4 text-red-600 flex-shrink-0"></i>
+              <span>Could not send SMS code (${err.code || 'auth/error'})</span>
+            </div>
+            <p class="text-[11px] text-red-700 mt-1">${err.message}</p>
+            ${isBilling ? '<p class="text-[10px] text-amber-800 mt-1 font-semibold">ℹ Note: Real SMS delivery requires Cloud Billing (Blaze plan) enabled in Firebase Console for project "kisaansaathi-cba16". Test phone numbers can also be added for development.</p>' : ''}
+          </div>
+        `;
+        if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
       }
-      alert('Could not send OTP: ' + err.message);
+
+      let alertMsg = 'Could not send SMS OTP: ' + err.message;
+      if (isBilling) {
+        alertMsg += '\n\nAction Required: Enable Cloud Billing on Firebase project "kisaansaathi-cba16" (Blaze plan) to allow real outbound SMS carrier delivery, or add test phone numbers in Firebase Console > Authentication > Phone.';
+      }
+      alert(alertMsg);
     } finally {
       if (sendBtn) sendBtn.disabled = false;
       if (sendBtnText) sendBtnText.textContent = 'Resend Code via SMS';
@@ -3928,7 +3984,10 @@ window.getCropTranslation = getCropTranslation;
 
     if (sendBtn) sendBtn.disabled = true;
     if (sendBtnText) sendBtnText.textContent = 'Sending...';
-    if (otpStatusMsg) otpStatusMsg.innerHTML = '<span class="text-gray-500">Connecting to Firebase Phone Authentication...</span>';
+    if (otpStatusMsg) {
+      otpStatusMsg.innerHTML = '<span class="text-purple-700 font-medium animate-pulse flex items-center gap-1.5"><i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i> Contacting Firebase SMS service...</span>';
+      if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
+    }
 
     try {
       state.phone = rawPhone;
@@ -3936,7 +3995,8 @@ window.getCropTranslation = getCropTranslation;
 
       if (window.KisanFirebaseAuth) {
         const containerId = isFarmer ? 'regFarmerRecaptcha' : 'regConsumerRecaptcha';
-        await window.KisanFirebaseAuth.sendOtp(rawPhone, containerId);
+        // Exact call to sendOtp -> signInWithPhoneNumber: ONLY after this Promise resolves does the UI show "OTP sent"
+        const result = await window.KisanFirebaseAuth.sendOtp(rawPhone, containerId);
       } else {
         const data = await requestOtpApi({
           action: 'send-otp',
@@ -3978,11 +4038,28 @@ window.getCropTranslation = getCropTranslation;
       showToast(`SMS OTP sent to +91 ${rawPhone}`);
 
     } catch (err) {
-      console.error('OTP send error:', err);
+      console.error('Registration OTP send error:', { code: err.code || 'unknown', message: err.message || String(err) });
+      const isBilling = err.code === 'auth/billing-not-enabled' || (err.message && (err.message.includes('billing') || err.message.includes('BILLING_NOT_ENABLED')));
+
       if (otpStatusMsg) {
-        otpStatusMsg.innerHTML = `<span class="text-red-600 font-semibold">✖ ${err.message}</span>`;
+        otpStatusMsg.innerHTML = `
+          <div class="p-2.5 bg-red-50 border border-red-200 rounded-lg text-red-900 text-xs mt-1">
+            <div class="font-bold flex items-center gap-1.5 text-red-800">
+              <i data-lucide="alert-triangle" class="w-4 h-4 text-red-600 flex-shrink-0"></i>
+              <span>Could not send SMS code (${err.code || 'auth/error'})</span>
+            </div>
+            <p class="text-[11px] text-red-700 mt-1">${err.message}</p>
+            ${isBilling ? '<p class="text-[10px] text-amber-800 mt-1 font-semibold">ℹ Note: Real SMS delivery requires Cloud Billing (Blaze plan) enabled in Firebase Console for project "kisaansaathi-cba16". Test phone numbers can also be added for development.</p>' : ''}
+          </div>
+        `;
+        if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
       }
-      alert('Could not dispatch OTP: ' + err.message);
+
+      let alertMsg = 'Could not dispatch OTP: ' + err.message;
+      if (isBilling) {
+        alertMsg += '\n\nAction Required: Enable Cloud Billing on Firebase project "kisaansaathi-cba16" (Blaze plan) to allow real outbound SMS carrier delivery, or add test phone numbers in Firebase Console > Authentication > Phone.';
+      }
+      alert(alertMsg);
     } finally {
       if (sendBtn) sendBtn.disabled = false;
       if (sendBtnText) sendBtnText.textContent = 'Resend Code';

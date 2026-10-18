@@ -181,6 +181,9 @@
                 <span id="btnFarmerSendLoginOtpText">Send Verification Code via SMS</span>
               </button>
 
+              <div id="farmerLoginOtpStatus" class="text-[11px] font-medium empty:hidden"></div>
+              <div id="loginFarmerRecaptcha" class="flex justify-center my-1 empty:hidden"></div>
+
               <!-- OTP Entry Block (Revealed after code sent) -->
               <div id="farmerLoginOtpSection" class="hidden p-3 bg-purple-50/90 border border-purple-200 rounded-xl space-y-2.5 transition-all">
                 <div class="flex items-center justify-between text-xs">
@@ -196,13 +199,11 @@
                     <span id="btnFarmerVerifyLoginOtpText">Verify & Login</span>
                   </button>
                 </div>
-                <div id="farmerLoginOtpStatus" class="text-[11px] text-purple-800 font-medium"></div>
                 <div class="flex justify-between items-center text-[10px] text-gray-500 pt-0.5 border-t border-purple-200/60">
                   <button type="button" id="btnFarmerChangeLoginPhone" class="text-gray-600 hover:underline">Change Mobile</button>
                   <button type="button" id="btnFarmerResendLoginOtp" class="text-purple-700 font-bold hover:underline disabled:opacity-40" disabled>Resend Code</button>
                 </div>
               </div>
-              <div id="loginFarmerRecaptcha" class="flex justify-center my-1"></div>
             </div>
 
             <!-- METHOD B: PIN / Password Section -->
@@ -270,6 +271,8 @@
                 </button>
               </div>
               <span class="text-[10px] text-gray-500 mt-0.5 block">We will verify this number via SMS OTP before registration</span>
+              <div id="regOtpStatusMsg" class="text-[11px] font-medium empty:hidden mt-1"></div>
+              <div id="regFarmerRecaptcha" class="flex justify-center my-1 empty:hidden"></div>
             </div>
 
             <!-- Farmer OTP Verification Block -->
@@ -287,8 +290,6 @@
                   <span>Verify OTP</span>
                 </button>
               </div>
-              <div id="regOtpStatusMsg" class="text-[11px] text-purple-800 font-medium"></div>
-              <div id="regFarmerRecaptcha" class="flex justify-center my-1"></div>
               <div class="flex justify-between items-center text-[10px] text-gray-500 pt-0.5 border-t border-purple-200/60">
                 <span>Didn't receive the SMS code?</span>
                 <button type="button" id="btnRegResendOtp" class="text-purple-700 font-bold hover:underline disabled:opacity-40" disabled>Resend OTP</button>
@@ -381,6 +382,9 @@
                 <span id="btnConsumerSendLoginOtpText">Send Verification Code via SMS</span>
               </button>
 
+              <div id="consumerLoginOtpStatus" class="text-[11px] font-medium empty:hidden"></div>
+              <div id="loginConsumerRecaptcha" class="flex justify-center my-1 empty:hidden"></div>
+
               <!-- OTP Entry Block (Revealed after code sent) -->
               <div id="consumerLoginOtpSection" class="hidden p-3 bg-amber-50/90 border border-amber-200 rounded-xl space-y-2.5 transition-all">
                 <div class="flex items-center justify-between text-xs">
@@ -396,13 +400,11 @@
                     <span id="btnConsumerVerifyLoginOtpText">Verify & Login</span>
                   </button>
                 </div>
-                <div id="consumerLoginOtpStatus" class="text-[11px] text-amber-800 font-medium"></div>
                 <div class="flex justify-between items-center text-[10px] text-gray-500 pt-0.5 border-t border-amber-200/60">
                   <button type="button" id="btnConsumerChangeLoginPhone" class="text-gray-600 hover:underline">Change Mobile</button>
                   <button type="button" id="btnConsumerResendLoginOtp" class="text-amber-700 font-bold hover:underline disabled:opacity-40" disabled>Resend Code</button>
                 </div>
               </div>
-              <div id="loginConsumerRecaptcha" class="flex justify-center my-1"></div>
             </div>
 
             <!-- METHOD B: PIN / Password Section -->
@@ -475,6 +477,8 @@
                 </button>
               </div>
               <span class="text-[10px] text-gray-500 mt-0.5 block">We will verify this number via SMS OTP before registration</span>
+              <div id="consumerRegOtpStatusMsg" class="text-[11px] font-medium empty:hidden mt-1"></div>
+              <div id="regConsumerRecaptcha" class="flex justify-center my-1 empty:hidden"></div>
             </div>
 
             <!-- Consumer OTP Verification Block -->
@@ -492,8 +496,6 @@
                   <span>Verify OTP</span>
                 </button>
               </div>
-              <div id="consumerRegOtpStatusMsg" class="text-[11px] text-amber-800 font-medium"></div>
-              <div id="regConsumerRecaptcha" class="flex justify-center my-1"></div>
               <div class="flex justify-between items-center text-[10px] text-gray-500 pt-0.5 border-t border-amber-200/60">
                 <span>Didn't receive the SMS code?</span>
                 <button type="button" id="btnConsumerRegResendOtp" class="text-amber-700 font-bold hover:underline disabled:opacity-40" disabled>Resend OTP</button>

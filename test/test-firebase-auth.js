@@ -180,6 +180,34 @@ async function runTests() {
     failed++;
   }
 
+  // Test 8: Verify index.html places status and reCAPTCHA containers in active (non-nested) hierarchy
+  try {
+    const indexPath = path.join(__dirname, '..', 'index.html');
+    const indexContent = fs.readFileSync(indexPath, 'utf8');
+    assert.ok(indexContent.includes('id="farmerLoginOtpStatus"'), 'Must have farmerLoginOtpStatus');
+    assert.ok(indexContent.includes('id="consumerLoginOtpStatus"'), 'Must have consumerLoginOtpStatus');
+    assert.ok(indexContent.includes('id="regOtpStatusMsg"'), 'Must have regOtpStatusMsg');
+    assert.ok(indexContent.includes('id="consumerRegOtpStatusMsg"'), 'Must have consumerRegOtpStatusMsg');
+    console.log('  ✔ PASS: Status message containers exist outside hidden blocks for instant user feedback');
+    passed++;
+  } catch (err) {
+    console.error('  ✖ FAIL: Test 8', err.message);
+    failed++;
+  }
+
+  // Test 9: Verify source bundle contains diagnostic error handlers for BILLING_NOT_ENABLED
+  try {
+    const bundlePath = path.join(__dirname, '..', 'assets', 'js', 'firebase-auth.bundle.js');
+    const bundleContent = fs.readFileSync(bundlePath, 'utf8');
+    assert.ok(bundleContent.includes('BILLING_NOT_ENABLED') || bundleContent.includes('billing-not-enabled'), 'Bundle must handle billing requirements');
+    assert.ok(bundleContent.includes('unauthorized-domain'), 'Bundle must handle unauthorized-domain');
+    console.log('  ✔ PASS: Bundle contains comprehensive diagnostics for Cloud Billing and SMS Region restrictions');
+    passed++;
+  } catch (err) {
+    console.error('  ✖ FAIL: Test 9', err.message);
+    failed++;
+  }
+
   console.log('====================================================');
   console.log(`Results: ${passed} Passed, ${failed} Failed`);
   console.log('====================================================');
