@@ -69,7 +69,7 @@ const jsFiles = [
   'api/_textbee-poll.js',
   'api/_textbee-status.js',
   'api/textbee.js',
-  'api/otp.js'
+  'api/_otp.js'
 ];
 for (const jsFile of jsFiles) {
   const fullPath = path.join(__dirname, jsFile);

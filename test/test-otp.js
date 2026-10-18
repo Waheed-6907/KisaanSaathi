@@ -11,7 +11,7 @@
  */
 
 const assert = require('assert');
-const otpHandler = require('../api/otp');
+const otpHandler = require('../api/_otp');
 
 function mockReqRes(options) {
   const req = {

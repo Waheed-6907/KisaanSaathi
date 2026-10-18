@@ -7,7 +7,7 @@
 const webhookHandler = require('./_textbee-webhook');
 const statusHandler = require('./_textbee-status');
 const pollHandler = require('./_textbee-poll');
-const otpHandler = require('./otp');
+const otpHandler = require('./_otp');
 
 module.exports = async (req, res) => {
   const urlObj = new URL(req.url, `http://${req.headers.host || 'localhost'}`);

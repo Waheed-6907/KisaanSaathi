@@ -206,7 +206,7 @@ function handleRequest(req, res) {
   // API Route: /api/otp (SMS OTP & Aadhaar Verification Gateway)
   if (reqPath === '/api/otp') {
     try {
-      const otpHandler = require('./api/otp.js');
+      const otpHandler = require('./api/_otp.js');
       return otpHandler(req, res);
     } catch (err) {
       res.writeHead(500, { 'Content-Type': 'application/json' });

@@ -9,6 +9,10 @@
       "destination": "/api/textbee?sub=$1"
     },
     {
+      "source": "/api/otp(.*)",
+      "destination": "/api/textbee?action=otp"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api/$1"
     },
